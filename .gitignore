@@ -1,0 +1,11 @@
+node_modules/
+npm-debug.log
+yarn-error.log
+.env
+public/originales/
+public/uploads/
+writable/uploads/
+writable/session/
+writable/logs/
+writable/debugar/
+public/files/
