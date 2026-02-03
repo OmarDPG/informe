@@ -61,9 +61,12 @@
                                                 required
                                                 class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
                                                 <option value="" disabled selected>Seleccione una opción</option>
-                                                <option value="1">Alta</option>
-                                                <option value="2">Media</option>
-                                                <option value="3">Baja</option>
+                                                <?php foreach ($lineas as $l): ?>
+                                                    <option value="<?= $l['id'] ?>">
+                                                        <?= esc($l['codigo']) ?> —
+                                                        <?= esc($l['descripcion']) ?>
+                                                    </option>
+                                                <?php endforeach; ?>
                                             </select>
                                             <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
                                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -85,9 +88,11 @@
                                                 required
                                                 class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
                                                 <option value="" disabled selected>Seleccione una opción</option>
-                                                <option value="1">Alta</option>
-                                                <option value="2">Media</option>
-                                                <option value="3">Baja</option>
+                                                <?php for ($i = 1; $i <= 10; $i++): ?>
+                                                    <option value="<?= $i ?>">
+                                                        <?= $i ?>
+                                                    </option>
+                                                <?php endfor; ?>
                                             </select>
                                             <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
                                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

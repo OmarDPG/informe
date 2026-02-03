@@ -17,12 +17,18 @@ use App\Models\InformeModel;
 use App\Models\GlosaModel;
 use App\Models\PeriodosAnualesModel;
 use App\Models\EtapasModel;
+use App\Models\EjesModel;
+use App\Models\EstrategiasModel;
+use App\Models\LineasAccionModel;
+use App\Models\ObjetivosModel;
+use App\Models\TematicasModel;
+
 
 class Scii extends BaseController
 {
     protected $usuarios, $logs, $session, $reglasUsuarioEdi, $cargas, 
                 $informe, $unidades, $evaluaciones, $partes, $preguntas, 
-                $respuestas, $categorias, $periodo, $glosa, $periodosAnuales, $etapas;
+                $respuestas, $categorias, $periodo, $glosa, $periodosAnuales, $etapas, $ejes, $estrategias, $lineasAccion, $objetivos, $tematicas;
     public function __construct()
     {
         $this->usuarios = new UsuariosModel();
@@ -38,6 +44,11 @@ class Scii extends BaseController
         $this->glosa = new GlosaModel();
         $this->periodosAnuales = new PeriodosAnualesModel();
         $this->etapas = new EtapasModel();
+        $this->ejes = new EjesModel();
+        $this->estrategias = new EstrategiasModel();
+        $this->lineasAccion = new LineasAccionModel();
+        $this->objetivos = new ObjetivosModel();
+        $this->tematicas = new TematicasModel();
 
         helper(['form']);
         helper('filesystem');
@@ -749,7 +760,8 @@ class Scii extends BaseController
             return redirect()->to(base_url('scii/inicio/'))
                 ->with('mensaje', 'No tienes acceso a esta sección.');
         }
-
+        $lineasModel = new LineasAccionModel();
+        $lineas = $lineasModel->getLineasAccionConContexto();
         $periodoAnualActivo = $this->periodosAnuales
             ->where ('estado', 'activo')
             ->first();
@@ -768,9 +780,23 @@ class Scii extends BaseController
             'area' => $usuario['nombre_unidad'],
             'idPeriodoActivo' => $idPeriodoActivo,
             'idEtapaActivo' => $idEtapaActiva,
+            'lineas' => $lineas
         ];
         echo view('scii/headerscii', $datos);
         echo view('scii/informe');
         echo view('scii/footerscii');
     }
+    public function saveInforme(){
+        if (!isset($this->session->id_usuario)) {
+            return redirect()->to(base_url());
+        }
+        $id_usuario = $this->session->id_usuario;
+        $data = [
+            'informe' => $this->request->getPost('informe'),
+        ];
+        $this->usuarios->update($id_usuario, $data);
+        return redirect()->to(base_url('scii/scii/informe/'))
+            ->with('mensaje', 'Informe actualizado correctamente.');
+    }
+
 }
