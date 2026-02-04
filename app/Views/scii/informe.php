@@ -254,29 +254,66 @@
                                         placeholder="Ingrese la descripción del informe"></textarea>
                                     <p id="desarrollo_resultado-count" class="text-xs text-gray-500 mt-1 text-right">0 / 3500 caracteres</p>
                                 </div>
-                                <!-- Orden de Prioridad -->
-                                <div>
-                                    <label for="alineacionODS" class="block mb-2 text-sm font-medium text-gray-700">
-                                        Alineación a los programas derivados y ODS
-                                    </label>
-                                    <div class="relative">
-                                        <select
-                                            name="alineacionODS"
-                                            id="alineacionODS"
-                                            class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
-                                            <option value="" disabled selected>Seleccione una opción</option>
-                                            <option value="1">Alta</option>
-                                            <option value="2">Media</option>
-                                            <option value="3">Baja</option>
-                                        </select>
-                                        <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
-                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                                            </svg>
+                                <!-- Programas derivados, ODS -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="alineacionProgramasDerivados" class="block mb-2 text-sm font-medium text-gray-700">
+                                            Alineación con los programas derivados
+                                        </label>
+                                        <div class="relative">
+                                            <select
+                                                name="alineacionProgramasDerivados"
+                                                id="alineacionProgramasDerivados"
+                                                required
+                                                class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
+                                                <option value="" disabled selected>Seleccione una opción</option>
+                                                <?php foreach ($lineasAgua as $la): ?>
+                                                    <option value="<?= $la['id'] ?>">
+                                                        <?= esc($la['codigo']) ?> —
+                                                        <?= esc($la['descripcion']) ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Alineación con los ODS -->
+                                    <div>
+                                        <label for="alineacionODS" class="block mb-2 text-sm font-medium text-gray-700">
+                                            Alineación con los ODS
+                                        </label>
+                                        <div class="relative">
+                                            <select
+                                                name="alineacionODS"
+                                                id="alineacionODS"
+                                                required
+                                                class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
+                                                <option value="" disabled selected>Seleccione una opción</option>
+                                                <?php for ($i = 1; $i <= 10; $i++): ?>
+                                                    <option value="<?= $i ?>">
+                                                        <?= $i ?>
+                                                    </option>
+                                                <?php endfor; ?>
+                                            </select>
+                                            <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-
+                                
+                                <div style="border: solid 1px #d1d5db; border-radius: 10px; padding: 10px;">
+                                    <label for="alineacionODS" class="block mb-2 text-sm font-medium text-gray-700">
+                                        Archivos complementarios:
+                                    </label>
+                                
                                 <!-- Archivos Adjuntos -->
                                 <div class="grid grid-cols-6" style="gap:10px;" id="inputsFiles">
                                     <div>
@@ -471,6 +508,7 @@
                                         <!-- Lista de archivos seleccionados -->
                                         <div id="fileListResultados" class="mt-3 space-y-2 hidden"></div>
                                     </div>
+                                </div>
                                 </div>
                                 <!-- Conclusión de la temática -->
                                 <div>
