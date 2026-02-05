@@ -267,12 +267,20 @@
                                                 required
                                                 class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
                                                 <option value="" disabled selected>Seleccione una opción</option>
-                                                <?php foreach ($lineasAgua as $la): ?>
-                                                    <option value="<?= $la['id'] ?>">
-                                                        <?= esc($la['codigo']) ?> —
-                                                        <?= esc($la['descripcion']) ?>
-                                                    </option>
-                                                <?php endforeach; ?>
+                                                <?php if ($datos['id_unidad'] === 1): ?>
+                                                    <?php foreach ($lineasAgua as $la): ?>
+                                                        <option value="<?= $la['id'] ?>">
+                                                            <?= esc($la['codigo']) ?> — <?= esc($la['descripcion']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+
+                                                <?php elseif ($datos['id_unidad'] !== 1): ?>
+                                                    <?php foreach ($lineasSocioambiental as $ls): ?>
+                                                        <option value="<?= $ls['id'] ?>">
+                                                            <?= esc($ls['codigo']) ?> — <?= esc($ls['descripcion']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
                                             </select>
                                             <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
                                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -294,11 +302,13 @@
                                                 required
                                                 class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
                                                 <option value="" disabled selected>Seleccione una opción</option>
-                                                <?php for ($i = 1; $i <= 10; $i++): ?>
-                                                    <option value="<?= $i ?>">
-                                                        <?= $i ?>
+                                                <?php foreach ($odsTemas as $ods): ?>
+                                                    <option value="<?= $ods['id_tema'] ?>">
+                                                        <?= $ods['codigo_meta'] ?> -
+                                                        <?= $ods['tema'] ?>
+                                                        (ODS <?= $ods['id_objetivo'] ?>: <?= $ods['objetivo'] ?>)
                                                     </option>
-                                                <?php endfor; ?>
+                                                <?php endforeach; ?>
                                             </select>
                                             <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
                                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -308,207 +318,207 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div style="border: solid 1px #d1d5db; border-radius: 10px; padding: 10px;">
                                     <label for="alineacionODS" class="block mb-2 text-sm font-medium text-gray-700">
                                         Archivos complementarios:
                                     </label>
-                                
-                                <!-- Archivos Adjuntos -->
-                                <div class="grid grid-cols-6" style="gap:10px;" id="inputsFiles">
-                                    <div>
-                                        <label for="mapas" class="block mb-2 text-sm font-medium text-gray-700" style="text-align: center;">
-                                            Mapas <span class="text-gray-500 text-xs">(Excel)</span>
-                                        </label>
-                                        <div class="relative">
-                                            <input
-                                                type="file"
-                                                id="mapas"
-                                                name="mapas[]"
-                                                multiple
-                                                accept=".xls,.xlsx"
-                                                class="hidden"
-                                                onchange="updateFileNames(this)">
-                                            <label
-                                                for="mapas"
-                                                class="flex items-center justify-center w-full px-4 py-3 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition duration-200 focus-within:ring-2 focus-within:ring-green-500 focus-within:border-green-500">
-                                                <div class="text-center">
-                                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                    </svg>
-                                                    <div class="mt-2 flex text-sm text-gray-600">
-                                                        <span class="relative font-medium text-green-600 hover:text-green-500">
-                                                            Seleccionar archivos
-                                                        </span>
-                                                    </div>
-                                                    <p class="text-xs text-gray-500 mt-1">Excel hasta 10MB</p>
-                                                </div>
+
+                                    <!-- Archivos Adjuntos -->
+                                    <div class="grid grid-cols-6" style="gap:10px;" id="inputsFiles">
+                                        <div>
+                                            <label for="mapas" class="block mb-2 text-sm font-medium text-gray-700" style="text-align: center;">
+                                                Mapas <span class="text-gray-500 text-xs">(Excel)</span>
                                             </label>
-                                        </div>
-                                        <!-- Lista de archivos seleccionados -->
-                                        <div id="fileListMapas" class="mt-3 space-y-2 hidden"></div>
-                                    </div>
-                                    <div>
-                                        <label for="graficas" class="block mb-2 text-sm font-medium text-gray-700" style="text-align: center;">
-                                            Graficas <span class="text-gray-500 text-xs">(Excel)</span>
-                                        </label>
-                                        <div class="relative">
-                                            <input
-                                                type="file"
-                                                id="graficas"
-                                                name="graficas[]"
-                                                multiple
-                                                accept=".xls,.xlsx"
-                                                class="hidden"
-                                                onchange="updateFileNames(this)">
-                                            <label
-                                                for="graficas"
-                                                class="flex items-center justify-center w-full px-4 py-3 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition duration-200 focus-within:ring-2 focus-within:ring-green-500 focus-within:border-green-500">
-                                                <div class="text-center">
-                                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                    </svg>
-                                                    <div class="mt-2 flex text-sm text-gray-600">
-                                                        <span class="relative font-medium text-green-600 hover:text-green-500">
-                                                            Seleccionar archivos
-                                                        </span>
+                                            <div class="relative">
+                                                <input
+                                                    type="file"
+                                                    id="mapas"
+                                                    name="mapas[]"
+                                                    multiple
+                                                    accept=".xls,.xlsx"
+                                                    class="hidden"
+                                                    onchange="updateFileNames(this)">
+                                                <label
+                                                    for="mapas"
+                                                    class="flex items-center justify-center w-full px-4 py-3 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition duration-200 focus-within:ring-2 focus-within:ring-green-500 focus-within:border-green-500">
+                                                    <div class="text-center">
+                                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </svg>
+                                                        <div class="mt-2 flex text-sm text-gray-600">
+                                                            <span class="relative font-medium text-green-600 hover:text-green-500">
+                                                                Seleccionar archivos
+                                                            </span>
+                                                        </div>
+                                                        <p class="text-xs text-gray-500 mt-1">Excel hasta 10MB</p>
                                                     </div>
-                                                    <p class="text-xs text-gray-500 mt-1">Excel hasta 10MB</p>
-                                                </div>
-                                            </label>
+                                                </label>
+                                            </div>
+                                            <!-- Lista de archivos seleccionados -->
+                                            <div id="fileListMapas" class="mt-3 space-y-2 hidden"></div>
                                         </div>
-                                        <!-- Lista de archivos seleccionados -->
-                                        <div id="fileListGraficas" class="mt-3 space-y-2 hidden"></div>
-                                    </div>
-                                    <div>
-                                        <label for="cuadros" class="block mb-2 text-sm font-medium text-gray-700" style="text-align: center;">
-                                            Cuadros <span class="text-gray-500 text-xs">(Excel)</span>
-                                        </label>
-                                        <div class="relative">
-                                            <input
-                                                type="file"
-                                                id="cuadros"
-                                                name="cuadros[]"
-                                                multiple
-                                                accept=".xls,.xlsx"
-                                                class="hidden"
-                                                onchange="updateFileNames(this)">
-                                            <label
-                                                for="cuadros"
-                                                class="flex items-center justify-center w-full px-4 py-3 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition duration-200 focus-within:ring-2 focus-within:ring-green-500 focus-within:border-green-500">
-                                                <div class="text-center">
-                                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                    </svg>
-                                                    <div class="mt-2 flex text-sm text-gray-600">
-                                                        <span class="relative font-medium text-green-600 hover:text-green-500">
-                                                            Seleccionar archivos
-                                                        </span>
+                                        <div>
+                                            <label for="graficas" class="block mb-2 text-sm font-medium text-gray-700" style="text-align: center;">
+                                                Graficas <span class="text-gray-500 text-xs">(Excel)</span>
+                                            </label>
+                                            <div class="relative">
+                                                <input
+                                                    type="file"
+                                                    id="graficas"
+                                                    name="graficas[]"
+                                                    multiple
+                                                    accept=".xls,.xlsx"
+                                                    class="hidden"
+                                                    onchange="updateFileNames(this)">
+                                                <label
+                                                    for="graficas"
+                                                    class="flex items-center justify-center w-full px-4 py-3 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition duration-200 focus-within:ring-2 focus-within:ring-green-500 focus-within:border-green-500">
+                                                    <div class="text-center">
+                                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </svg>
+                                                        <div class="mt-2 flex text-sm text-gray-600">
+                                                            <span class="relative font-medium text-green-600 hover:text-green-500">
+                                                                Seleccionar archivos
+                                                            </span>
+                                                        </div>
+                                                        <p class="text-xs text-gray-500 mt-1">Excel hasta 10MB</p>
                                                     </div>
-                                                    <p class="text-xs text-gray-500 mt-1">Excel hasta 10MB</p>
-                                                </div>
-                                            </label>
+                                                </label>
+                                            </div>
+                                            <!-- Lista de archivos seleccionados -->
+                                            <div id="fileListGraficas" class="mt-3 space-y-2 hidden"></div>
                                         </div>
-                                        <!-- Lista de archivos seleccionados -->
-                                        <div id="fileListCuadros" class="mt-3 space-y-2 hidden"></div>
-                                    </div>
-                                    <div>
-                                        <label for="esquemas" class="block mb-2 text-sm font-medium text-gray-700" style="text-align: center;">
-                                            Esquemas <span class="text-gray-500 text-xs">(PowerPoint)</span>
-                                        </label>
-                                        <div class="relative">
-                                            <input
-                                                type="file"
-                                                id="esquemas"
-                                                name="esquemas[]"
-                                                multiple
-                                                accept=".ppt,.pptx"
-                                                class="hidden"
-                                                onchange="updateFileNames(this)">
-                                            <label
-                                                for="esquemas"
-                                                class="flex items-center justify-center w-full px-4 py-3 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition duration-200 focus-within:ring-2 focus-within:ring-green-500 focus-within:border-green-500">
-                                                <div class="text-center">
-                                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                    </svg>
-                                                    <div class="mt-2 flex text-sm text-gray-600">
-                                                        <span class="relative font-medium text-green-600 hover:text-green-500">
-                                                            Seleccionar archivos
-                                                        </span>
+                                        <div>
+                                            <label for="cuadros" class="block mb-2 text-sm font-medium text-gray-700" style="text-align: center;">
+                                                Cuadros <span class="text-gray-500 text-xs">(Excel)</span>
+                                            </label>
+                                            <div class="relative">
+                                                <input
+                                                    type="file"
+                                                    id="cuadros"
+                                                    name="cuadros[]"
+                                                    multiple
+                                                    accept=".xls,.xlsx"
+                                                    class="hidden"
+                                                    onchange="updateFileNames(this)">
+                                                <label
+                                                    for="cuadros"
+                                                    class="flex items-center justify-center w-full px-4 py-3 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition duration-200 focus-within:ring-2 focus-within:ring-green-500 focus-within:border-green-500">
+                                                    <div class="text-center">
+                                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </svg>
+                                                        <div class="mt-2 flex text-sm text-gray-600">
+                                                            <span class="relative font-medium text-green-600 hover:text-green-500">
+                                                                Seleccionar archivos
+                                                            </span>
+                                                        </div>
+                                                        <p class="text-xs text-gray-500 mt-1">Excel hasta 10MB</p>
                                                     </div>
-                                                    <p class="text-xs text-gray-500 mt-1">PowerPoint hasta 10MB</p>
-                                                </div>
-                                            </label>
+                                                </label>
+                                            </div>
+                                            <!-- Lista de archivos seleccionados -->
+                                            <div id="fileListCuadros" class="mt-3 space-y-2 hidden"></div>
                                         </div>
-                                        <!-- Lista de archivos seleccionados -->
-                                        <div id="fileListEsquemas" class="mt-3 space-y-2 hidden"></div>
-                                    </div>
-                                    <div>
-                                        <label for="fotografias" class="block mb-2 text-sm font-medium text-gray-700" style="text-align: center;">
-                                            Fotografias <span class="text-gray-500 text-xs">(ZIP, RAR)</span>
-                                        </label>
-                                        <div class="relative">
-                                            <input
-                                                type="file"
-                                                id="fotografias"
-                                                name="fotografias[]"
-                                                multiple
-                                                accept=".zip,.rar"
-                                                class="hidden"
-                                                onchange="updateFileNames(this)">
-                                            <label
-                                                for="fotografias"
-                                                class="flex items-center justify-center w-full px-4 py-3 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition duration-200 focus-within:ring-2 focus-within:ring-green-500 focus-within:border-green-500">
-                                                <div class="text-center">
-                                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                    </svg>
-                                                    <div class="mt-2 flex text-sm text-gray-600">
-                                                        <span class="relative font-medium text-green-600 hover:text-green-500">
-                                                            Seleccionar archivos
-                                                        </span>
+                                        <div>
+                                            <label for="esquemas" class="block mb-2 text-sm font-medium text-gray-700" style="text-align: center;">
+                                                Esquemas <span class="text-gray-500 text-xs">(PowerPoint)</span>
+                                            </label>
+                                            <div class="relative">
+                                                <input
+                                                    type="file"
+                                                    id="esquemas"
+                                                    name="esquemas[]"
+                                                    multiple
+                                                    accept=".ppt,.pptx"
+                                                    class="hidden"
+                                                    onchange="updateFileNames(this)">
+                                                <label
+                                                    for="esquemas"
+                                                    class="flex items-center justify-center w-full px-4 py-3 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition duration-200 focus-within:ring-2 focus-within:ring-green-500 focus-within:border-green-500">
+                                                    <div class="text-center">
+                                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </svg>
+                                                        <div class="mt-2 flex text-sm text-gray-600">
+                                                            <span class="relative font-medium text-green-600 hover:text-green-500">
+                                                                Seleccionar archivos
+                                                            </span>
+                                                        </div>
+                                                        <p class="text-xs text-gray-500 mt-1">PowerPoint hasta 10MB</p>
                                                     </div>
-                                                    <p class="text-xs text-gray-500 mt-1">ZIP o RAR hasta 10MB</p>
-                                                </div>
-                                            </label>
+                                                </label>
+                                            </div>
+                                            <!-- Lista de archivos seleccionados -->
+                                            <div id="fileListEsquemas" class="mt-3 space-y-2 hidden"></div>
                                         </div>
-                                        <!-- Lista de archivos seleccionados -->
-                                        <div id="fileListFotografias" class="mt-3 space-y-2 hidden"></div>
-                                    </div>
-                                    <div>
-                                        <label for="resultados" class="block mb-2 text-sm font-medium text-gray-700" style="text-align: center;">
-                                            Resultados <span class="text-gray-500 text-xs">(Word)</span>
-                                        </label>
-                                        <div class="relative">
-                                            <input
-                                                type="file"
-                                                id="resultados"
-                                                name="resultados[]"
-                                                multiple
-                                                accept=".doc,.docx"
-                                                class="hidden"
-                                                onchange="updateFileNames(this)">
-                                            <label
-                                                for="resultados"
-                                                class="flex items-center justify-center w-full px-4 py-3 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition duration-200 focus-within:ring-2 focus-within:ring-green-500 focus-within:border-green-500">
-                                                <div class="text-center">
-                                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                    </svg>
-                                                    <div class="mt-2 flex text-sm text-gray-600">
-                                                        <span class="relative font-medium text-green-600 hover:text-green-500">
-                                                            Seleccionar archivos
-                                                        </span>
+                                        <div>
+                                            <label for="fotografias" class="block mb-2 text-sm font-medium text-gray-700" style="text-align: center;">
+                                                Fotografias <span class="text-gray-500 text-xs">(ZIP, RAR)</span>
+                                            </label>
+                                            <div class="relative">
+                                                <input
+                                                    type="file"
+                                                    id="fotografias"
+                                                    name="fotografias[]"
+                                                    multiple
+                                                    accept=".zip,.rar"
+                                                    class="hidden"
+                                                    onchange="updateFileNames(this)">
+                                                <label
+                                                    for="fotografias"
+                                                    class="flex items-center justify-center w-full px-4 py-3 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition duration-200 focus-within:ring-2 focus-within:ring-green-500 focus-within:border-green-500">
+                                                    <div class="text-center">
+                                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </svg>
+                                                        <div class="mt-2 flex text-sm text-gray-600">
+                                                            <span class="relative font-medium text-green-600 hover:text-green-500">
+                                                                Seleccionar archivos
+                                                            </span>
+                                                        </div>
+                                                        <p class="text-xs text-gray-500 mt-1">ZIP o RAR hasta 10MB</p>
                                                     </div>
-                                                    <p class="text-xs text-gray-500 mt-1">Word hasta 10MB</p>
-                                                </div>
-                                            </label>
+                                                </label>
+                                            </div>
+                                            <!-- Lista de archivos seleccionados -->
+                                            <div id="fileListFotografias" class="mt-3 space-y-2 hidden"></div>
                                         </div>
-                                        <!-- Lista de archivos seleccionados -->
-                                        <div id="fileListResultados" class="mt-3 space-y-2 hidden"></div>
+                                        <div>
+                                            <label for="resultados" class="block mb-2 text-sm font-medium text-gray-700" style="text-align: center;">
+                                                Resultados <span class="text-gray-500 text-xs">(Word)</span>
+                                            </label>
+                                            <div class="relative">
+                                                <input
+                                                    type="file"
+                                                    id="resultados"
+                                                    name="resultados[]"
+                                                    multiple
+                                                    accept=".doc,.docx"
+                                                    class="hidden"
+                                                    onchange="updateFileNames(this)">
+                                                <label
+                                                    for="resultados"
+                                                    class="flex items-center justify-center w-full px-4 py-3 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition duration-200 focus-within:ring-2 focus-within:ring-green-500 focus-within:border-green-500">
+                                                    <div class="text-center">
+                                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </svg>
+                                                        <div class="mt-2 flex text-sm text-gray-600">
+                                                            <span class="relative font-medium text-green-600 hover:text-green-500">
+                                                                Seleccionar archivos
+                                                            </span>
+                                                        </div>
+                                                        <p class="text-xs text-gray-500 mt-1">Word hasta 10MB</p>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                            <!-- Lista de archivos seleccionados -->
+                                            <div id="fileListResultados" class="mt-3 space-y-2 hidden"></div>
+                                        </div>
                                     </div>
-                                </div>
                                 </div>
                                 <!-- Conclusión de la temática -->
                                 <div>

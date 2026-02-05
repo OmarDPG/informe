@@ -38,6 +38,13 @@ use App\Models\LineasAccionSocioambientalModel;
 use App\Models\ObjetivosSocioambientalModel;
 use App\Models\TematicasSocioambientalModel;
 
+use App\Models\OdsMetasModel;
+use App\Models\OdsObjetivosModel;
+use App\Models\OdsTemasModel;
+
+
+
+
 
 class Scii extends BaseController
 {
@@ -46,7 +53,8 @@ class Scii extends BaseController
                 $respuestas, $categorias, $periodo, $glosa, $periodosAnuales, $etapas, 
                 $ejes, $estrategias, $lineasAccion, $objetivos, $tematicas,
                 $programaSectorialSocioambiental, $ejesSocioambiental, $estrategiasSocioambiental, $lineasAccionSocioambiental, $objetivosSocioambiental, $tematicasSocioambiental,
-                $programaSectorialAgua, $ejesAgua, $estrategiasAgua, $lineasAccionAgua, $objetivosAgua, $tematicasAgua;
+                $programaSectorialAgua, $ejesAgua, $estrategiasAgua, $lineasAccionAgua, $objetivosAgua, $tematicasAgua,
+                $odsMetas, $odsObjetivos, $odsTemas;
     public function __construct()
     {
         $this->usuarios = new UsuariosModel();
@@ -79,6 +87,11 @@ class Scii extends BaseController
         $this->objetivosSocioambiental = new ObjetivosSocioambientalModel();
         $this->tematicasSocioambiental = new TematicasSocioambientalModel();
         $this->programaSectorialSocioambiental = new ProgramaSectorialSocioambientalModel();
+        $this->odsMetas = new OdsMetasModel();
+        $this->odsObjetivos = new OdsObjetivosModel();
+        $this->odsTemas = new OdsTemasModel();
+
+
         helper(['form']);
         helper('filesystem');
         $this->session = session();
@@ -795,6 +808,8 @@ class Scii extends BaseController
         $lineasSocioambiental = $lineasSocioambientalModel->getLineasAccionConContexto();
         $lineasAguaModel = new LineasAccionAguaModel();
         $lineasAgua = $lineasAguaModel->getLineasAccionConContexto();
+        $odsTemasModel = new OdsTemasModel();
+        $odsTemas = $odsTemasModel->getODS();
         $periodoAnualActivo = $this->periodosAnuales
             ->where ('estado', 'activo')
             ->first();
@@ -815,7 +830,8 @@ class Scii extends BaseController
             'idEtapaActivo' => $idEtapaActiva,
             'lineas' => $lineas,
             'lineasSocioambiental' => $lineasSocioambiental,
-            'lineasAgua' => $lineasAgua
+            'lineasAgua' => $lineasAgua,
+            'odsTemas' => $odsTemas
         ];
         echo view('scii/headerscii', $datos);
         echo view('scii/informe');
