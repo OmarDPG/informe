@@ -236,175 +236,112 @@
 </div>
 
 <style>
-.unidad-card {
-    transition: all 0.3s ease;
-    cursor: pointer;
-    border: 2px solid transparent;
-}
+    .unidad-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: 2px solid transparent;
+    }
 
-.unidad-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    border-color: #10b981;
-}
+    .unidad-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        border-color: #10b981;
+    }
 
-.unidad-card .informes-list {
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
+    .unidad-card .informes-list {
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
 
-.unidad-card:hover .informes-list {
-    max-height: 400px;
-    opacity: 1;
-}
+    .unidad-card:hover .informes-list {
+        max-height: 400px;
+        opacity: 1;
+    }
 
-.badge-status {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
+    .badge-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
 
-.badge-completado {
-    background-color: #d1fae5;
-    color: #065f46;
-}
+    .badge-completado {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
 
-.badge-pendiente {
-    background-color: #fef3c7;
-    color: #92400e;
-}
+    .badge-pendiente {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
 
-.badge-revision {
-    background-color: #dbeafe;
-    color: #1e40af;
-}
+    .badge-revision {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
 </style>
 
 <script>
-// Datos de unidades (en producción, estos vendrían del backend)
-let unidadesData = [];
-let informesData = [];
+    // Datos de unidades (en producción, estos vendrían del backend)
+    let unidadesData = [];
+    let informesData = [];
 
-// Cargar datos al iniciar la página
-document.addEventListener('DOMContentLoaded', function() {
-    loadUnidadesData();
-    
-    // Event listeners para filtros
-    document.getElementById('filterYear').addEventListener('change', filterUnidades);
-    document.getElementById('filterEtapa').addEventListener('change', filterUnidades);
-    document.getElementById('searchUnidad').addEventListener('input', filterUnidades);
-});
+    // Cargar datos al iniciar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        loadUnidadesData();
 
-// Función para cargar las unidades desde el backend
-async function loadUnidadesData() {
-    try {
-        // Simular carga de datos (reemplazar con AJAX real)
-        const response = await fetch('<?php echo base_url(); ?>/administrador/getUnidadesConInformes');
-        const data = await response.json();
-        
-        unidadesData = data.unidades || [];
-        informesData = data.informes || [];
-        
-        renderUnidades(unidadesData);
-    } catch (error) {
-        console.error('Error al cargar unidades:', error);
-        // Datos de ejemplo para desarrollo
-        loadMockData();
-    }
-}
+        // Event listeners para filtros
+        document.getElementById('filterYear').addEventListener('change', filterUnidades);
+        document.getElementById('filterEtapa').addEventListener('change', filterUnidades);
+        document.getElementById('searchUnidad').addEventListener('input', filterUnidades);
+    });
 
-// Datos de ejemplo (eliminar en producción)
-// function loadMockData() {
-//     unidadesData = [
-//         {
-//             id_unidad: 1,
-//             descripcion: "Dirección General de Administración",
-//             determinante: "DGA",
-//             activo: 1,
-//             total_informes: 8
-//         },
-//         {
-//             id_unidad: 2,
-//             descripcion: "Dirección de Recursos Humanos",
-//             determinante: "DRH",
-//             activo: 1,
-//             total_informes: 5
-//         },
-//         {
-//             id_unidad: 3,
-//             descripcion: "Dirección de Finanzas",
-//             determinante: "DFI",
-//             activo: 1,
-//             total_informes: 0
-//         },
-//         {
-//             id_unidad: 4,
-//             descripcion: "Dirección de Tecnologías de la Información",
-//             determinante: "DTI",
-//             activo: 1,
-//             total_informes: 12
-//         },
-//         {
-//             id_unidad: 5,
-//             descripcion: "Dirección de Servicios Generales",
-//             determinante: "DSG",
-//             activo: 1,
-//             total_informes: 3
-//         },
-//         {
-//             id_unidad: 6,
-//             descripcion: "Dirección Jurídica",
-//             determinante: "DJU",
-//             activo: 1,
-//             total_informes: 7
-//         }
-//     ];
+    // Función para cargar las unidades desde el backend
+    async function loadUnidadesData() {
+        try {
+            // Simular carga de datos (reemplazar con AJAX real)
+            const response = await fetch('<?php echo base_url(); ?>/administrador/getUnidadesConInformes');
+            const data = await response.json();
 
-//     informesData = [
-//         { id_unidad: 1, anio: 2026, etapa: 1, estado: "completado", fecha: "2026-01-15" },
-//         { id_unidad: 1, anio: 2026, etapa: 2, estado: "pendiente", fecha: null },
-//         { id_unidad: 1, anio: 2025, etapa: 1, estado: "completado", fecha: "2025-03-20" },
-//         { id_unidad: 2, anio: 2026, etapa: 1, estado: "revision", fecha: "2026-01-20" },
-//         { id_unidad: 2, anio: 2025, etapa: 4, estado: "completado", fecha: "2025-12-15" },
-//         { id_unidad: 4, anio: 2026, etapa: 1, estado: "completado", fecha: "2026-01-10" },
-//         { id_unidad: 4, anio: 2025, etapa: 3, estado: "completado", fecha: "2025-09-15" },
-//         { id_unidad: 5, anio: 2026, etapa: 1, estado: "pendiente", fecha: null },
-//         { id_unidad: 6, anio: 2026, etapa: 1, estado: "completado", fecha: "2026-01-18" },
-//         { id_unidad: 6, anio: 2025, etapa: 2, estado: "completado", fecha: "2025-06-22" }
-//     ];
+            unidadesData = data.unidades || [];
+            informesData = data.informes || [];
 
-//     renderUnidades(unidadesData);
-// }
-
-// Renderizar las tarjetas de unidades
-function renderUnidades(unidades) {
-    const grid = document.getElementById('unidadesGrid');
-    const loading = document.getElementById('loadingState');
-    const empty = document.getElementById('emptyState');
-
-    loading.classList.add('hidden');
-
-    if (unidades.length === 0) {
-        grid.classList.add('hidden');
-        empty.classList.remove('hidden');
-        return;
+            renderUnidades(unidadesData);
+        } catch (error) {
+            console.error('Error al cargar unidades:', error);
+            // Datos de ejemplo para desarrollo
+            loadMockData();
+        }
     }
 
-    grid.classList.remove('hidden');
-    empty.classList.add('hidden');
+    // Renderizar las tarjetas de unidades
+    function renderUnidades(unidades) {
+        const grid = document.getElementById('unidadesGrid');
+        const loading = document.getElementById('loadingState');
+        const empty = document.getElementById('emptyState');
 
-    grid.innerHTML = unidades.map(unidad => {
-        const informes = informesData.filter(inf => inf.id_unidad === unidad.id_unidad);
-        const hasInformes = informes.length > 0;
-        const statusColor = hasInformes ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200';
-        const statusIcon = hasInformes ? 'fa-check-circle text-green-500' : 'fa-circle text-gray-400';
+        loading.classList.add('hidden');
 
-        return `
+        if (unidades.length === 0) {
+            grid.classList.add('hidden');
+            empty.classList.remove('hidden');
+            return;
+        }
+
+        grid.classList.remove('hidden');
+        empty.classList.add('hidden');
+
+        grid.innerHTML = unidades.map(unidad => {
+            const informes = informesData.filter(inf => inf.id_unidad === unidad.id_unidad);
+            const hasInformes = informes.length > 0;
+            const statusColor = hasInformes ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200';
+            const statusIcon = hasInformes ? 'fa-check-circle text-green-500' : 'fa-circle text-gray-400';
+
+            return `
             <div class="unidad-card ${statusColor} rounded-lg border-2 p-5 hover:shadow-xl">
                 <div class="flex items-start justify-between mb-3">
                     <div class="flex-1">
@@ -426,7 +363,7 @@ function renderUnidades(unidades) {
                         </span>
                     </div>
                     ${hasInformes ? `
-                        <button onclick="verDetalleUnidad(${unidad.id_unidad})" 
+                        <button onclick="verDetalleUnidad(${unidad.id_unidad})"
                                 class="text-emerald-600 hover:text-emerald-800 text-sm font-medium">
                             Ver detalles →
                         </button>
@@ -440,15 +377,15 @@ function renderUnidades(unidades) {
                         </h4>
                         <div class="space-y-2 max-h-64 overflow-y-auto">
                             ${informes.map(informe => `
-                                <div class="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition cursor-pointer"
-                                     onclick="verInforme(${unidad.id_unidad}, ${informe.anio}, ${informe.etapa})">
+                                <a href="<?php echo base_url() . '/administrador/detalle/${informe.id_informe}'; ?>"
+                                   class="block bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition hover:bg-gray-50">
                                     <div class="flex items-center justify-between">
                                         <div class="flex-1">
                                             <div class="flex items-center gap-2 mb-1">
                                                 <span class="text-sm font-semibold text-gray-700">
-                                                    ${informe.anio} - Etapa ${informe.etapa}
+                                                    ${informe.anio} - Etapa ${informe.tema}
                                                 </span>
-                                                <span class="badge-status badge-${informe.estado}">
+                                                <span class="badge-status badge-${informe.estado}" style="text-transform: capitalize;">
                                                     ${getEstadoLabel(informe.estado)}
                                                 </span>
                                             </div>
@@ -461,7 +398,7 @@ function renderUnidades(unidades) {
                                         </div>
                                         <i class="fa-solid fa-chevron-right text-gray-400"></i>
                                     </div>
-                                </div>
+                                </a>
                             `).join('')}
                         </div>
                     </div>
@@ -475,47 +412,47 @@ function renderUnidades(unidades) {
                 `}
             </div>
         `;
-    }).join('');
-}
-
-// Filtrar unidades
-function filterUnidades() {
-    const year = document.getElementById('filterYear').value;
-    const etapa = document.getElementById('filterEtapa').value;
-    const search = document.getElementById('searchUnidad').value.toLowerCase();
-
-    let filtered = unidadesData;
-
-    // Filtrar por búsqueda de texto
-    if (search) {
-        filtered = filtered.filter(u => 
-            u.descripcion.toLowerCase().includes(search) || 
-            u.determinante.toLowerCase().includes(search)
-        );
+        }).join('');
     }
 
-    // Filtrar por año y etapa
-    if (year || etapa) {
-        filtered = filtered.filter(unidad => {
-            const informes = informesData.filter(inf => {
-                let match = inf.id_unidad === unidad.id_unidad;
-                if (year) match = match && inf.anio == year;
-                if (etapa) match = match && inf.etapa == etapa;
-                return match;
+    // Filtrar unidades
+    function filterUnidades() {
+        const year = document.getElementById('filterYear').value;
+        const etapa = document.getElementById('filterEtapa').value;
+        const search = document.getElementById('searchUnidad').value.toLowerCase();
+
+        let filtered = unidadesData;
+
+        // Filtrar por búsqueda de texto
+        if (search) {
+            filtered = filtered.filter(u =>
+                u.descripcion.toLowerCase().includes(search) ||
+                u.determinante.toLowerCase().includes(search)
+            );
+        }
+
+        // Filtrar por año y etapa
+        if (year || etapa) {
+            filtered = filtered.filter(unidad => {
+                const informes = informesData.filter(inf => {
+                    let match = inf.id_unidad === unidad.id_unidad;
+                    if (year) match = match && inf.anio == year;
+                    if (etapa) match = match && inf.etapa == etapa;
+                    return match;
+                });
+                return informes.length > 0;
             });
-            return informes.length > 0;
-        });
+        }
+
+        renderUnidades(filtered);
     }
 
-    renderUnidades(filtered);
-}
+    // Ver detalle de una unidad
+    function verDetalleUnidad(idUnidad) {
+        const unidad = unidadesData.find(u => u.id_unidad === idUnidad);
+        const informes = informesData.filter(inf => inf.id_unidad === idUnidad);
 
-// Ver detalle de una unidad
-function verDetalleUnidad(idUnidad) {
-    const unidad = unidadesData.find(u => u.id_unidad === idUnidad);
-    const informes = informesData.filter(inf => inf.id_unidad === idUnidad);
-
-    const content = `
+        const content = `
         <div class="mb-6">
             <h4 class="text-2xl font-bold text-gray-800 mb-2">${unidad.descripcion}</h4>
             <p class="text-gray-600">Determinante: <span class="font-semibold">${unidad.determinante}</span></p>
@@ -561,7 +498,7 @@ function verDetalleUnidad(idUnidad) {
                                     </p>
                                 ` : '<p class="text-sm text-gray-500 italic">Sin fecha de entrega</p>'}
                             </div>
-                            <button onclick="descargarInforme(${idUnidad}, ${informe.anio}, ${informe.etapa})" 
+                            <button onclick="descargarInforme(${idUnidad}, ${informe.anio}, ${informe.etapa})"
                                     class="ml-4 text-emerald-600 hover:text-emerald-800">
                                 <i class="fa-solid fa-download text-xl"></i>
                             </button>
@@ -572,50 +509,47 @@ function verDetalleUnidad(idUnidad) {
         </div>
     `;
 
-    document.getElementById('modalContent').innerHTML = content;
-    document.getElementById('informeModal').classList.remove('hidden');
-}
-
-// Ver informe específico
-function verInforme(idUnidad, anio, etapa) {
-    const unidad = unidadesData.find(u => u.id_unidad === idUnidad);
-    alert(`Ver informe de:\n${unidad.descripcion}\nAño: ${anio}\nEtapa: ${etapa}`);
-    // Aquí se puede redirigir a una página de detalle o abrir el modal con más información
-}
-
-// Descargar informe
-function descargarInforme(idUnidad, anio, etapa) {
-    alert(`Descargando informe...\nUnidad: ${idUnidad}\nAño: ${anio}\nEtapa: ${etapa}`);
-    // Implementar la lógica de descarga real
-}
-
-// Cerrar modal
-function closeModal() {
-    document.getElementById('informeModal').classList.add('hidden');
-}
-
-// Funciones auxiliares
-function getEstadoLabel(estado) {
-    const labels = {
-        'completado': 'Completado',
-        'pendiente': 'Pendiente',
-        'revision': 'En Revisión'
-    };
-    return labels[estado] || estado;
-}
-
-function formatDate(dateString) {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
-}
-
-// Cerrar modal al hacer clic fuera
-document.getElementById('informeModal')?.addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeModal();
+        document.getElementById('modalContent').innerHTML = content;
+        document.getElementById('informeModal').classList.remove('hidden');
     }
-});
+
+    // Descargar informe
+    function descargarInforme(idUnidad, anio, etapa) {
+        // Implementar la lógica de descarga real
+        window.location.href = `<?php echo base_url(); ?>/administrador/informe/descargar/${idUnidad}/${anio}/${etapa}`;
+    }
+
+    // Cerrar modal
+    function closeModal() {
+        document.getElementById('informeModal').classList.add('hidden');
+    }
+
+    // Funciones auxiliares
+    function getEstadoLabel(estado) {
+        const labels = {
+            'completado': 'Completado',
+            'pendiente': 'Pendiente',
+            'revision': 'En Revisión'
+        };
+        return labels[estado] || estado;
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-MX', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+
+    // Cerrar modal al hacer clic fuera
+    document.getElementById('informeModal')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
 </script>
 
 <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>

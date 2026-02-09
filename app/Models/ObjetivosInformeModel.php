@@ -4,9 +4,9 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class EjesGlosaModel extends Model
+class ObjetivosInformeModel extends Model
 {
-    protected $table      = 'ejes_glosa';
+    protected $table      = 'objetivos_informe';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
 
@@ -14,9 +14,10 @@ class EjesGlosaModel extends Model
     protected $useSoftDeletes = false;
     protected $allowedFields = [
         'id',
-        'programa_id',
+        'tematica_id',
         'codigo',
-        'descripcion'
+        'descripcion',
+        'indicador',
     ];
 
     protected $useTimestamps = true;

@@ -8,12 +8,41 @@ use App\Models\UnidadesModel;
 use App\Models\CategoriasModel;
 use App\Models\UsuariosModel;
 use App\Models\PeriodosModel;
-use App\Models\PeriodosAnualesModel;
-use App\Models\EtapasModel;
 use App\Models\RespuestasModel;
 use App\Models\CargasModel;
-use App\Models\InformeModel;
+
+use App\Models\InformesGobiernoModel;
+use App\Models\InformeArchivosModel;
+use App\Models\InformeComentariosModel;
+
 use App\Models\GlosaModel;
+use App\Models\PeriodosAnualesModel;
+use App\Models\EtapasModel;
+
+use App\Models\EjesModel;
+use App\Models\EstrategiasModel;
+use App\Models\LineasAccionModel;
+use App\Models\ObjetivosModel;
+use App\Models\TematicasModel;
+
+use App\Models\ProgramaSectorialAguaModel;
+use App\Models\EjesAguaModel;
+use App\Models\EstrategiasAguaModel;
+use App\Models\LineasAccionAguaModel;
+use App\Models\ObjetivosAguaModel;
+use App\Models\TematicasAguaModel;
+
+use App\Models\ProgramaSectorialSocioambientalModel;
+use App\Models\EjesSocioambientalModel;
+use App\Models\EstrategiasSocioambientalModel;
+use App\Models\LineasAccionSocioambientalModel;
+use App\Models\ObjetivosSocioambientalModel;
+use App\Models\TematicasSocioambientalModel;
+
+use App\Models\OdsMetasModel;
+use App\Models\OdsObjetivosModel;
+use App\Models\OdsTemasModel;
+
 use CodeIgniter\API\ResponseTrait;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -22,8 +51,12 @@ class Administrador extends BaseController
 {
     protected $usuarios, $logs, $session, $reglasUnidad, $periodos, $cargas,
         $unidades, $reglasUsuario, $reglasPeriodo, $reglasUsuarioEdi, $categorias, $respuestas,
-        $reglasCargaBas, $reglasCargaPTCI, $reglasCargaPTAR, $reglasCargaCE, $informe, $glosa,
-        $periodosAnuales, $etapas;
+        $reglasCargaBas, $reglasCargaPTCI, $reglasCargaPTAR, $reglasCargaCE, $glosa,
+        $periodosAnuales, $etapas, $informesGobierno, $informeArchivos, $informeComentarios,
+        $ejes, $estrategias, $lineasAccion, $objetivos, $tematicas,
+        $programaSectorialSocioambiental, $ejesSocioambiental, $estrategiasSocioambiental, $lineasAccionSocioambiental, $objetivosSocioambiental, $tematicasSocioambiental,
+        $programaSectorialAgua, $ejesAgua, $estrategiasAgua, $lineasAccionAgua, $objetivosAgua, $tematicasAgua,
+        $odsMetas, $odsObjetivos, $odsTemas;
     public function __construct()
     {
         $this->unidades = new UnidadesModel();
@@ -32,10 +65,33 @@ class Administrador extends BaseController
         $this->categorias = new CategoriasModel();
         $this->respuestas = new RespuestasModel();
         $this->cargas = new CargasModel();
-        $this->informe = new InformeModel();
+        $this->informesGobierno = new InformesGobiernoModel();
+        $this->informeArchivos = new InformeArchivosModel();
+        $this->informeComentarios = new InformeComentariosModel();
+
         $this->glosa = new GlosaModel();
         $this->periodosAnuales = new PeriodosAnualesModel();
         $this->etapas = new EtapasModel();
+        $this->ejes = new EjesModel();
+        $this->estrategias = new EstrategiasModel();
+        $this->lineasAccion = new LineasAccionModel();
+        $this->objetivos = new ObjetivosModel();
+        $this->tematicas = new TematicasModel();
+        $this->ejesAgua = new EjesAguaModel();
+        $this->estrategiasAgua = new EstrategiasAguaModel();
+        $this->lineasAccionAgua = new LineasAccionAguaModel();
+        $this->objetivosAgua = new ObjetivosAguaModel();
+        $this->tematicasAgua = new TematicasAguaModel();
+        $this->programaSectorialAgua = new ProgramaSectorialAguaModel();
+        $this->ejesSocioambiental = new EjesSocioambientalModel();
+        $this->estrategiasSocioambiental = new EstrategiasSocioambientalModel();
+        $this->lineasAccionSocioambiental = new LineasAccionSocioambientalModel();
+        $this->objetivosSocioambiental = new ObjetivosSocioambientalModel();
+        $this->tematicasSocioambiental = new TematicasSocioambientalModel();
+        $this->programaSectorialSocioambiental = new ProgramaSectorialSocioambientalModel();
+        $this->odsMetas = new OdsMetasModel();
+        $this->odsObjetivos = new OdsObjetivosModel();
+        $this->odsTemas = new OdsTemasModel();
         helper(['form']);
         helper('filesystem');
 
@@ -2565,6 +2621,19 @@ class Administrador extends BaseController
             return redirect()->back()
                 ->with('mensaje', 'Selecciona un año y una etapa válidos.');
         }
+        $periodoActivo = $this->periodosAnuales
+            ->where('estado', 'activo')
+            ->first();
+
+        if ($periodoActivo && $periodoActivo['anio'] != $anio) {
+            $this->periodosAnuales
+                ->where('id_periodo_anual', $periodoActivo['id_periodo_anual'])
+                ->set([
+                    'estado' => 'inactivo',
+                    'fecha_cierre' => date('Y-m-d')
+                ])
+                ->update();
+        }
         // Buscar o crear periodo anual
         $periodo = $this->periodosAnuales
             ->where('anio', $anio)
@@ -2585,6 +2654,10 @@ class Administrador extends BaseController
             }
         } else {
             $idPeriodo = $periodo['id_periodo_anual'];
+            $this->periodosAnuales
+                ->where('id_periodo_anual', $idPeriodo)
+                ->set(['estado' => 'activo'])
+                ->update();
         }
         // Cerrar cualquier etapa abierta
         $this->etapas
@@ -2624,194 +2697,287 @@ class Administrador extends BaseController
         echo view('scii/admin/navbar');
     }
 
+    // public function getUnidadesConInformes()
+    // {
+    //     if (!isset($this->session->id_usuario)) {
+    //         return $this->response->setJSON(['error' => 'No autorizado']);
+    //     }
+    //     if ((($this->session->adm) == '0')) {
+    //         return $this->response->setJSON(['error' => 'No autorizado']);
+    //     }
+    //     $db = \Config\Database::connect();
+    //     // Obtener todas las unidades activas
+    //     $unidades = $this->unidades->where('activo', 1)->findAll();
+    //     // Obtener usuarios con permisos de informe por unidad
+    //     $builder = $db->table('usuarios');
+    //     $builder->select('usuarios.id_unidad, COUNT(usuarios.id_usuario) as total_usuarios, 
+    //                      SUM(CASE WHEN usuarios.informe = 1 THEN 1 ELSE 0 END) as usuarios_con_informe,
+    //                      SUM(CASE WHEN usuarios.loadinforme = 1 THEN 1 ELSE 0 END) as usuarios_activos');
+    //     $builder->where('usuarios.activo', 1);
+    //     $builder->groupBy('usuarios.id_unidad');
+
+    //     $queryResult = $builder->get();
+    //     $estadisticasUsuarios = $queryResult->getResultArray();
+
+    //     // Crear un mapa de estadísticas por unidad
+    //     $statsMap = [];
+    //     foreach ($estadisticasUsuarios as $stat) {
+    //         $statsMap[$stat['id_unidad']] = $stat;
+    //     }
+    //     // Generar informes de ejemplo basados en las etapas y periodos actuales
+    //     $currentYear = date('Y');
+    //     $informesFormateados = [];
+
+    //     // Obtener etapas activas o recientes
+    //     $etapasBuilder = $db->table('etapas');
+    //     $etapasBuilder->select('etapas.*, periodos_anuales.anio');
+    //     $etapasBuilder->join('periodos_anuales', 'periodos_anuales.id_periodo_anual = etapas.id_periodo_anual', 'left');
+    //     $etapasBuilder->orderBy('periodos_anuales.anio', 'DESC');
+    //     $etapasBuilder->orderBy('etapas.numero_etapa', 'DESC');
+    //     $etapasBuilder->limit(20);
+
+    //     $etapasResult = $etapasBuilder->get();
+    //     $etapas = $etapasResult->getResultArray();
+    //     // Crear informes basados en etapas y unidades con usuarios activos
+    //     foreach ($unidades as $unidad) {
+    //         $idUnidad = $unidad['id_unidad'];
+    //         $tieneUsuarios = isset($statsMap[$idUnidad]) && $statsMap[$idUnidad]['usuarios_activos'] > 0;
+    //         if ($tieneUsuarios && !empty($etapas)) {
+    //             // Agregar algunos informes de ejemplo para unidades con usuarios activos
+    //             $numInformes = rand(2, min(6, count($etapas)));
+    //             for ($i = 0; $i < $numInformes; $i++) {
+    //                 if (isset($etapas[$i])) {
+    //                     $etapa = $etapas[$i];
+    //                     $anio = $etapa['anio'] ?? $currentYear;
+    //                     $numeroEtapa = $etapa['numero_etapa'] ?? ($i + 1);
+    //                     // Determinar estado basado en el estado de la etapa
+    //                     $estado = 'pendiente';
+    //                     if (isset($etapa['estado'])) {
+    //                         if ($etapa['estado'] == 'cerrada') {
+    //                             $estado = 'completado';
+    //                         } else if ($etapa['estado'] == 'abierta') {
+    //                             $estado = rand(0, 1) ? 'revision' : 'pendiente';
+    //                         }
+    //                     }
+    //                     $informesFormateados[] = [
+    //                         'id_unidad' => $idUnidad,
+    //                         'anio' => $anio,
+    //                         'etapa' => $numeroEtapa,
+    //                         'estado' => $estado,
+    //                         'fecha' => isset($etapa['fecha_fin']) ? $etapa['fecha_fin'] : (isset($etapa['fecha_inicio']) ? $etapa['fecha_inicio'] : null)
+    //                     ];
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     // Enriquecer unidades con información de estadísticas
+    //     foreach ($unidades as &$unidad) {
+    //         $idUnidad = $unidad['id_unidad'];
+    //         $unidad['total_usuarios'] = $statsMap[$idUnidad]['total_usuarios'] ?? 0;
+    //         $unidad['usuarios_con_informe'] = $statsMap[$idUnidad]['usuarios_con_informe'] ?? 0;
+    //         $unidad['usuarios_activos'] = $statsMap[$idUnidad]['usuarios_activos'] ?? 0;
+    //         // Contar informes para esta unidad
+    //         $count = 0;
+    //         foreach ($informesFormateados as $informe) {
+    //             if ($informe['id_unidad'] == $idUnidad) {
+    //                 $count++;
+    //             }
+    //         }
+    //         $unidad['total_informes'] = $count;
+    //     }
+    //     return $this->response->setJSON([
+    //         'unidades' => $unidades,
+    //         'informes' => $informesFormateados
+    //     ]);
+    // }
+
+
     public function getUnidadesConInformes()
     {
         if (!isset($this->session->id_usuario)) {
             return $this->response->setJSON(['error' => 'No autorizado']);
         }
-        if ((($this->session->adm) == '0')) {
+
+        if ($this->session->adm == '0') {
             return $this->response->setJSON(['error' => 'No autorizado']);
         }
+
         $db = \Config\Database::connect();
-        // Obtener todas las unidades activas
-        $unidades = $this->unidades->where('activo', 1)->findAll();
-        // Obtener usuarios con permisos de informe por unidad
-        $builder = $db->table('usuarios');
-        $builder->select('usuarios.id_unidad, COUNT(usuarios.id_usuario) as total_usuarios, 
-                         SUM(CASE WHEN usuarios.informe = 1 THEN 1 ELSE 0 END) as usuarios_con_informe,
-                         SUM(CASE WHEN usuarios.loadinforme = 1 THEN 1 ELSE 0 END) as usuarios_activos');
-        $builder->where('usuarios.activo', 1);
-        $builder->groupBy('usuarios.id_unidad');
 
-        $queryResult = $builder->get();
-        $estadisticasUsuarios = $queryResult->getResultArray();
+        $unidades = $this->unidades
+            ->where('activo', 1)
+            ->findAll();
+        $periodosAnuales = $this->periodosAnuales
+            ->where('estado', 'activo')
+            ->first();
+        $idPeriodoAnual = $periodosAnuales ? $periodosAnuales['id_periodo_anual'] : null;
 
-        // Crear un mapa de estadísticas por unidad
+
+        $builderUsuarios = $db->table('usuarios');
+        $builderUsuarios->select('
+        usuarios.id_unidad,
+        COUNT(usuarios.id_usuario) AS total_usuarios,
+        SUM(CASE WHEN usuarios.informe = 1 THEN 1 ELSE 0 END) AS usuarios_con_informe,
+        SUM(CASE WHEN usuarios.loadinforme = 1 THEN 1 ELSE 0 END) AS usuarios_activos');
+
+        $builderUsuarios->where('usuarios.activo', 1);
+        $builderUsuarios->groupBy('usuarios.id_unidad');
+
+        $estadisticasUsuarios = $builderUsuarios->get()->getResultArray();
+
         $statsMap = [];
         foreach ($estadisticasUsuarios as $stat) {
             $statsMap[$stat['id_unidad']] = $stat;
         }
-        // Generar informes de ejemplo basados en las etapas y periodos actuales
-        $currentYear = date('Y');
+
+        $builderInformes = $db->table('informes_gobierno');
+        $builderInformes->select('
+        informes_gobierno.id_informe,
+        informes_gobierno.id_unidad,
+        informes_gobierno.id_usuario,
+        informes_gobierno.id_etapa,
+        informes_gobierno.tema,
+        informes_gobierno.estado,
+        informes_gobierno.id_periodo_anual,
+        etapas.numero_etapa,
+        periodos_anuales.anio');
+        $builderInformes->where('informes_gobierno.id_periodo_anual', $idPeriodoAnual);
+        $builderInformes->join('etapas', 'etapas.id_etapa = informes_gobierno.id_etapa', 'left');
+        $builderInformes->join(
+            'periodos_anuales',
+            'periodos_anuales.id_periodo_anual = informes_gobierno.id_periodo_anual',
+            'left'
+        );
+
+        $informesDB = $builderInformes->get()->getResultArray();
+
         $informesFormateados = [];
 
-        // Obtener etapas activas o recientes
-        $etapasBuilder = $db->table('etapas');
-        $etapasBuilder->select('etapas.*, periodos_anuales.anio');
-        $etapasBuilder->join('periodos_anuales', 'periodos_anuales.id_periodo_anual = etapas.id_periodo_anual', 'left');
-        $etapasBuilder->orderBy('periodos_anuales.anio', 'DESC');
-        $etapasBuilder->orderBy('etapas.numero_etapa', 'DESC');
-        $etapasBuilder->limit(20);
-
-        $etapasResult = $etapasBuilder->get();
-        $etapas = $etapasResult->getResultArray();
-        // Crear informes basados en etapas y unidades con usuarios activos
-        foreach ($unidades as $unidad) {
-            $idUnidad = $unidad['id_unidad'];
-            $tieneUsuarios = isset($statsMap[$idUnidad]) && $statsMap[$idUnidad]['usuarios_activos'] > 0;
-            if ($tieneUsuarios && !empty($etapas)) {
-                // Agregar algunos informes de ejemplo para unidades con usuarios activos
-                $numInformes = rand(2, min(6, count($etapas)));
-                for ($i = 0; $i < $numInformes; $i++) {
-                    if (isset($etapas[$i])) {
-                        $etapa = $etapas[$i];
-                        $anio = $etapa['anio'] ?? $currentYear;
-                        $numeroEtapa = $etapa['numero_etapa'] ?? ($i + 1);
-                        // Determinar estado basado en el estado de la etapa
-                        $estado = 'pendiente';
-                        if (isset($etapa['estado'])) {
-                            if ($etapa['estado'] == 'cerrada') {
-                                $estado = 'completado';
-                            } else if ($etapa['estado'] == 'abierta') {
-                                $estado = rand(0, 1) ? 'revision' : 'pendiente';
-                            }
-                        }
-                        $informesFormateados[] = [
-                            'id_unidad' => $idUnidad,
-                            'anio' => $anio,
-                            'etapa' => $numeroEtapa,
-                            'estado' => $estado,
-                            'fecha' => isset($etapa['fecha_fin']) ? $etapa['fecha_fin'] : 
-                                      (isset($etapa['fecha_inicio']) ? $etapa['fecha_inicio'] : null)
-                        ];
-                    }
-                }
-            }
+        foreach ($informesDB as $informe) {
+            $informesFormateados[] = [
+                'id_informe' => $informe['id_informe'],
+                'id_unidad'  => $informe['id_unidad'],
+                'id_usuario' => $informe['id_usuario'],
+                'anio'       => $informe['anio'],
+                'etapa'      => $informe['numero_etapa'],
+                'tema'      => $informe['tema'],
+                'estado'      => $informe['estado']
+            ];
         }
-        // Enriquecer unidades con información de estadísticas
+
         foreach ($unidades as &$unidad) {
             $idUnidad = $unidad['id_unidad'];
+
             $unidad['total_usuarios'] = $statsMap[$idUnidad]['total_usuarios'] ?? 0;
             $unidad['usuarios_con_informe'] = $statsMap[$idUnidad]['usuarios_con_informe'] ?? 0;
             $unidad['usuarios_activos'] = $statsMap[$idUnidad]['usuarios_activos'] ?? 0;
-            // Contar informes para esta unidad
-            $count = 0;
+
+            $unidad['total_informes'] = 0;
             foreach ($informesFormateados as $informe) {
                 if ($informe['id_unidad'] == $idUnidad) {
-                    $count++;
+                    $unidad['total_informes']++;
                 }
             }
-            $unidad['total_informes'] = $count;
         }
+
         return $this->response->setJSON([
             'unidades' => $unidades,
             'informes' => $informesFormateados
         ]);
     }
 
+    public function detalle($id_informe)
+    {
+        // Validar sesión
+        if (!isset($this->session->id_usuario)) {
+            return redirect()->to(base_url());
+        }
+        
+        // Validar permisos de administrador
+        if ($this->session->adm == '0') {
+            return redirect()->to(base_url() . '/inicio/land');
+        }
+        $idUnidad = $this->informesGobierno
+            ->where('id_informe', $id_informe)
+            ->first();
+        $unidad = $idUnidad['id_unidad'] ?? null;
 
-    // public function getUnidadesConInformes()
-    // {
-    //     Seguridad
-    //     if (!isset($this->session->id_usuario)) {
-    //         return $this->response->setJSON(['error' => 'No autorizado']);
-    //     }
+        $id_unidad = $this->unidades
+            ->where('id_unidad', $unidad)
+            ->first();
 
-    //     if ($this->session->adm == '0') {
-    //         return $this->response->setJSON(['error' => 'No autorizado']);
-    //     }
+        $lineasModel = new LineasAccionModel();
+        $lineas = $lineasModel->getLineasAccionConContexto();
+        $lineasSocioambientalModel = new LineasAccionSocioambientalModel();
+        $lineasSocioambiental = $lineasSocioambientalModel->getLineasAccionConContexto();
+        $lineasAguaModel = new LineasAccionAguaModel();
+        $lineasAgua = $lineasAguaModel->getLineasAccionConContexto();
+        $odsTemasModel = new OdsTemasModel();
+        $odsTemas = $odsTemasModel->getODS();
+        $db = \Config\Database::connect();
 
-    //     $db = \Config\Database::connect();
 
-    //      * 1. Obtener unidades activas
-    //     $unidades = $this->unidades
-    //         ->where('activo', 1)
-    //         ->findAll();
+        // Obtener información del periodo anual
+        $periodoAnual = $this->periodosAnuales
+            ->where('estado', 'activo')
+            ->first();
 
-    //      * 2. Estadísticas de usuarios por unidad
-    //     $builderUsuarios = $db->table('usuarios');
-    //     $builderUsuarios->select('
-    //     usuarios.id_unidad,
-    //     COUNT(usuarios.id_usuario) AS total_usuarios,
-    //     SUM(CASE WHEN usuarios.informe = 1 THEN 1 ELSE 0 END) AS usuarios_con_informe,
-    //     SUM(CASE WHEN usuarios.loadinforme = 1 THEN 1 ELSE 0 END) AS usuarios_activos');
+        // Obtener el informe específico
+        $builder = $db->table('informes_gobierno');
+        $builder->select('informes_gobierno.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m, 
+                         usuarios.usuario, etapas.numero_etapa, periodos_anuales.anio');
+        $builder->join('usuarios', 'usuarios.id_usuario = informes_gobierno.id_usuario', 'left');
+        $builder->join('etapas', 'etapas.id_etapa = informes_gobierno.id_etapa', 'left');
+        $builder->join('periodos_anuales', 'periodos_anuales.id_periodo_anual = informes_gobierno.id_periodo_anual', 'left');
+        $builder->where('informes_gobierno.id_informe', $id_informe);
+        $builder->orderBy('informes_gobierno.created_at', 'DESC');
+        
+        $queryResult = $builder->get();
+        $informe = $queryResult->getRowArray();
 
-    //     $builderUsuarios->where('usuarios.activo', 1);
-    //     $builderUsuarios->groupBy('usuarios.id_unidad');
+        // Obtener archivos relacionados (si existen en la base de datos)
+        $archivos = [];
+        if ($informe) {
+            $archivosBuilder = $db->table('informe_archivos');
+            $archivosBuilder->where('id_informe', $informe['id_informe']);
+            $archivosBuilder->orderBy('created_at', 'DESC');
+            $archivosResult = $archivosBuilder->get();
+            $archivos = $archivosResult->getResultArray();
+        }
 
-    //     $estadisticasUsuarios = $builderUsuarios->get()->getResultArray();
+        // Obtener comentarios relacionados (si existen en la base de datos)
+        $comentarios = [];
+        if ($informe) {
+            $comentariosBuilder = $db->table('informe_comentarios');
+            $comentariosBuilder->select('informe_comentarios.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m');
+            $comentariosBuilder->join('usuarios', 'usuarios.id_usuario = informe_comentarios.id_usuario', 'left');
+            $comentariosBuilder->where('id_informe', $informe['id_informe']);
+            $comentariosBuilder->orderBy('created_at', 'DESC');
+            $comentariosResult = $comentariosBuilder->get();
+            $comentarios = $comentariosResult->getResultArray();
+        }
 
-    //     $statsMap = [];
-    //     foreach ($estadisticasUsuarios as $stat) {
-    //         $statsMap[$stat['id_unidad']] = $stat;
-    //     }
+        // Preparar datos para la vista
+        $datos = [
+            'usuario' => $this->session->usuario,
+            'current' => 'Detalle del Informe',
+            'informe' => $informe,
+            'periodoAnual' => $periodoAnual,
+            'archivos' => $archivos,
+            'comentarios' => $comentarios,
+            'archivos_count' => count($archivos),
+            'comentarios_count' => count($comentarios),
+            'lineas' => $lineas,
+            'lineasSocioambiental' => $lineasSocioambiental,
+            'lineasAgua' => $lineasAgua,
+            'odsTemas' => $odsTemas,
+            'id_unidad' => $id_unidad
+        ];
+        echo view('scii/admin/header');
+        echo view('scii/admin/informe/detalle', $datos);
+        echo view('scii/admin/navbar');
+    }
 
-    //      * 3. Obtener INFORMES desde la base de datos
-    //     $builderInformes = $db->table('informe');
-    //     $builderInformes->select('
-    //     informe.id_informe,
-    //     informe.id_unidad,
-    //     informe.id_usuario,
-    //     informe.id_etapa,
-    //     informe.id_periodo_anual,
-    //     etapas.numero_etapa,
-    //     periodos_anuales.anio');
-
-    //     $builderInformes->join('etapas', 'etapas.id_etapa = informe.id_etapa', 'left');
-    //     $builderInformes->join(
-    //         'periodos_anuales',
-    //         'periodos_anuales.id_periodo_anual = informe.id_periodo_anual',
-    //         'left'
-    //     );
-
-    //     $informesDB = $builderInformes->get()->getResultArray();
-
-    //      * 4. Formatear informes para frontend
-    //     $informesFormateados = [];
-
-    //     foreach ($informesDB as $informe) {
-    //         $informesFormateados[] = [
-    //             'id_informe' => $informe['id_informe'],
-    //             'id_unidad'  => $informe['id_unidad'],
-    //             'id_usuario' => $informe['id_usuario'],
-    //             'anio'       => $informe['anio'],
-    //             'etapa'      => $informe['numero_etapa']
-    //         ];
-    //     }
-
-    //      * 5. Enriquecer unidades con conteo real de informes
-    //     foreach ($unidades as &$unidad) {
-    //         $idUnidad = $unidad['id_unidad'];
-
-    //         $unidad['total_usuarios'] = $statsMap[$idUnidad]['total_usuarios'] ?? 0;
-    //         $unidad['usuarios_con_informe'] = $statsMap[$idUnidad]['usuarios_con_informe'] ?? 0;
-    //         $unidad['usuarios_activos'] = $statsMap[$idUnidad]['usuarios_activos'] ?? 0;
-
-    //         Conteo REAL de informes por unidad
-    //         $unidad['total_informes'] = 0;
-    //         foreach ($informesFormateados as $informe) {
-    //             if ($informe['id_unidad'] == $idUnidad) {
-    //                 $unidad['total_informes']++;
-    //             }
-    //         }
-    //     }
-
-    //      * 6. Respuesta final
-    //     return $this->response->setJSON([
-    //         'unidades' => $unidades,
-    //         'informes' => $informesFormateados
-    //     ]);
-    // }
 
     public function finalizarEtapa()
     {

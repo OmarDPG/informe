@@ -4,9 +4,9 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class ProgramaSectorialGlosaModel extends Model
+class EstrategiasInformeModel extends Model
 {
-    protected $table      = 'programas_sectoriales_glosa';
+    protected $table      = 'estrategias_informe';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
 
@@ -14,6 +14,7 @@ class ProgramaSectorialGlosaModel extends Model
     protected $useSoftDeletes = false;
     protected $allowedFields = [
         'id',
+        'objetivo_id',
         'codigo',
         'descripcion'
     ];

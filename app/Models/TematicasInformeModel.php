@@ -4,9 +4,9 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class TematicasGlosaModel extends Model
+class TematicasInformeModel extends Model
 {
-    protected $table      = 'tematicas_glosa';
+    protected $table      = 'tematicas_informe';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
 

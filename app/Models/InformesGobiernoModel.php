@@ -4,9 +4,9 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class InformeModel extends Model
+class InformesGobiernoModel extends Model
 {
-   protected $table      = 'informe';
+   protected $table      = 'informes_gobierno';
    protected $primaryKey = 'id_informe';
 
    protected $useAutoIncrement = true;
@@ -18,17 +18,14 @@ class InformeModel extends Model
       'id_informe',
       'id_usuario',
       'id_unidad',
-      'id_etapa',
       'id_periodo_anual',
-      'informe_id',
-      'unidad_administrativa',
+      'id_etapa',
       'fecha_corte',
-      'alineacion_ped',
+      'id_alineacion_ped',
       'orden_prioridad',
-      'alineacion_ods',
       'tema',
       'subtema',
-      'descripcion',
+      'descripcion_resultado',
       'contexto',
       'accion',
       'impacto',
@@ -38,8 +35,12 @@ class InformeModel extends Model
       'desarrollo_resultado',
       'conclusion_tematica',
       'logros_destacados',
+      'id_alineacion_programa_derivado',
+      'id_alineacion_ods',
       'estado',
-      'ruta_evidencia'
+      'created_at',
+      'updated_at',
+      'deleted_at'
    ];
 
    protected $useTimestamps = true;
