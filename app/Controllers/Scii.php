@@ -13,7 +13,11 @@ use App\Models\PeriodosModel;
 use App\Models\CategoriasModel;
 use App\Models\UnidadesModel;
 use App\Models\CargasModel;
-use App\Models\InformeModel;
+
+use App\Models\InformesGobiernoModel;
+use App\Models\InformeArchivosModel;
+use App\Models\InformeComentariosModel;
+
 use App\Models\GlosaModel;
 use App\Models\PeriodosAnualesModel;
 use App\Models\EtapasModel;
@@ -48,13 +52,14 @@ use App\Models\OdsTemasModel;
 
 class Scii extends BaseController
 {
-    protected $usuarios, $logs, $session, $reglasUsuarioEdi, $cargas, 
-                $informe, $unidades, $evaluaciones, $partes, $preguntas, 
-                $respuestas, $categorias, $periodo, $glosa, $periodosAnuales, $etapas, 
-                $ejes, $estrategias, $lineasAccion, $objetivos, $tematicas,
-                $programaSectorialSocioambiental, $ejesSocioambiental, $estrategiasSocioambiental, $lineasAccionSocioambiental, $objetivosSocioambiental, $tematicasSocioambiental,
-                $programaSectorialAgua, $ejesAgua, $estrategiasAgua, $lineasAccionAgua, $objetivosAgua, $tematicasAgua,
-                $odsMetas, $odsObjetivos, $odsTemas;
+    protected $usuarios, $logs, $session, $reglasUsuarioEdi, $cargas,
+        $informesGobierno, $informeArchivos, $informeComentarios, $unidades, $evaluaciones, 
+        $partes, $preguntas,
+        $respuestas, $categorias, $periodo, $glosa, $periodosAnuales, $etapas,
+        $ejes, $estrategias, $lineasAccion, $objetivos, $tematicas,
+        $programaSectorialSocioambiental, $ejesSocioambiental, $estrategiasSocioambiental, $lineasAccionSocioambiental, $objetivosSocioambiental, $tematicasSocioambiental,
+        $programaSectorialAgua, $ejesAgua, $estrategiasAgua, $lineasAccionAgua, $objetivosAgua, $tematicasAgua,
+        $odsMetas, $odsObjetivos, $odsTemas;
     public function __construct()
     {
         $this->usuarios = new UsuariosModel();
@@ -66,7 +71,11 @@ class Scii extends BaseController
         $this->respuestas = new RespuestasModel();
         $this->categorias = new CategoriasModel();
         $this->periodo = new PeriodosModel();
-        $this->informe = new InformeModel();
+
+        $this->informesGobierno = new InformesGobiernoModel();
+        $this->informeArchivos = new InformeArchivosModel();
+        $this->informeComentarios = new InformeComentariosModel();
+
         $this->glosa = new GlosaModel();
         $this->periodosAnuales = new PeriodosAnualesModel();
         $this->etapas = new EtapasModel();
@@ -811,7 +820,7 @@ class Scii extends BaseController
         $odsTemasModel = new OdsTemasModel();
         $odsTemas = $odsTemasModel->getODS();
         $periodoAnualActivo = $this->periodosAnuales
-            ->where ('estado', 'activo')
+            ->where('estado', 'activo')
             ->first();
         $idPeriodoActivo = $periodoAnualActivo['id_periodo_anual'];
         $etapaActiva = $this->etapas
@@ -837,17 +846,371 @@ class Scii extends BaseController
         echo view('scii/informe');
         echo view('scii/footerscii');
     }
-    public function saveInforme(){
+    // public function saveInforme(){
+    //     if (!isset($this->session->id_usuario)) {
+    //         return redirect()->to(base_url());
+    //     }
+    //     $id_usuario = $this->session->id_usuario;
+    //     $data = [
+    //         'informe' => $this->request->getPost('informe'),
+    //     ];
+    //     $this->usuarios->update($id_usuario, $data);
+    //     return redirect()->to(base_url('scii/scii/informe/'))
+    //         ->with('mensaje', 'Informe actualizado correctamente.');
+    // }
+
+
+    // public function registrarInformeGobierno()
+    // {
+    //     if (!isset($this->session->id_usuario)) {
+    //         return redirect()->to(base_url());
+    //     }
+    //     $db = \Config\Database::connect();
+
+    //     try {
+    //         // Iniciar transacción
+    //         $db->transStart();
+
+    //         $id_usuario = $this->session->id_usuario;
+    //         $id_unidad = $this->session->id_unidad;
+    //         $id_etapa = $this->etapas->where('estado', 'abierta')->first()['id_etapa'];
+    //         $id_periodo_actual = $this->periodosAnuales->where('estado', 'activo')->first()['id_periodo_anual'];
+
+    //         $informesGobierno = new InformesGobiernoModel();
+    //         $informeArchivos = new InformeArchivosModel();
+
+    //         $dataInforme = [
+    //             'unidad_administrativa' => $this->request->getPost('unidad_administrativa'),
+    //             'fecha_corte' => $this->request->getPost('fecha_corte'),
+    //             'alineacion_ped' => $this->request->getPost('alineacionPED'),
+    //             'orden_prioridad' => $this->request->getPost('ordenPrioridad'),
+    //             'tema' => $this->request->getPost('tema'),
+    //             'subtema' => $this->request->getPost('subtema'),
+    //             'descripcion' => $this->request->getPost('descripcion'),
+    //             'contexto' => $this->request->getPost('contexto'),
+    //             'accion' => $this->request->getPost('accion'),
+    //             'impacto' => $this->request->getPost('impacto'),
+    //             'territorio' => $this->request->getPost('territorio'),
+    //             'beneficiarios' => $this->request->getPost('beneficiarios'),
+    //             'inversion' => $this->request->getPost('inversion'),
+    //             'desarrollo_resultado' => $this->request->getPost('desarrollo_resultado'),
+    //             'alineacion_programas' => $this->request->getPost('alineacionProgramasDerivados'),
+    //             'alineacion_ods' => $this->request->getPost('alineacionODS'),
+    //             'conclusion_tematica' => $this->request->getPost('conclusionTematica'),
+    //             'logros_destacados' => $this->request->getPost('logrosDestacados'),
+    //             'id_usuario' => $id_usuario,
+    //             'id_unidad' => $id_unidad,
+    //             'id_etapa' => $id_etapa,
+    //             'id_periodo_anual' => $id_periodo_actual
+    //         ];
+
+    //         if (!$informesGobierno->validate($dataInforme)) {
+    //             throw new \Exception('Errores de validación: ' . json_encode($informesGobierno->errors()));
+    //         }
+
+    //         $insertResult = $informesGobierno->insert($dataInforme);
+
+    //         if ($insertResult === false) {
+    //             throw new \Exception('Error al insertar el informe: ' . json_encode($informesGobierno->errors()));
+    //         }
+
+    //         $informeId = $informesGobierno->getInsertID();
+
+    //         if (!$informeId || $informeId <= 0) {
+    //             throw new \Exception('No se pudo obtener el ID del informe insertado');
+    //         }
+
+    //         $tipos = [
+    //             'mapas',
+    //             'graficas',
+    //             'cuadros',
+    //             'esquemas',
+    //             'fotografias',
+    //             'resultados'
+    //         ];
+
+    //         $archivosGuardados = [];
+    //         $files = $this->request->getFiles();
+
+    //         foreach ($tipos as $tipo) {
+    //             if (!empty($files[$tipo])) {
+    //                 foreach ($files[$tipo] as $file) {
+    //                     if ($file->isValid() && !$file->hasMoved()) {
+    //                         // Validar tipo y tamaño de archivo
+    //                         $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+    //                         $maxSize = 10 * 1024 * 1024; // 10MB
+    //                         if (!in_array($file->getMimeType(), $allowedTypes)) {
+    //                             throw new \Exception("Tipo de archivo no permitido: {$file->getClientName()}");
+    //                         }
+    //                         if ($file->getSize() > $maxSize) {
+    //                             throw new \Exception("Archivo demasiado grande: {$file->getClientName()}");
+    //                         }
+    //                         $newName = $file->getRandomName();
+    //                         $ruta = WRITEPATH . "uploads/informes/$informeId/$tipo/";
+    //                         // Crear directorio si no existe
+    //                         if (!is_dir($ruta)) {
+    //                             if (!mkdir($ruta, 0755, true)) {
+    //                                 throw new \Exception("No se pudo crear el directorio: $ruta");
+    //                             }
+    //                         }
+    //                         // Mover archivo y verificar
+    //                         if (!$file->move($ruta, $newName)) {
+    //                             throw new \Exception("Error al mover el archivo: {$file->getClientName()}");
+    //                         }
+    //                         // Verificar que el archivo se movió correctamente
+    //                         $rutaCompleta = $ruta . $newName;
+    //                         if (!file_exists($rutaCompleta)) {
+    //                             throw new \Exception("El archivo no existe después de moverlo: $rutaCompleta");
+    //                         }
+    //                         // Guardar registro en BD
+    //                         $archivoData = [
+    //                             'informe_id' => $informeId,
+    //                             'tipo' => $tipo,
+    //                             'nombre_original' => $file->getClientName(),
+    //                             'nombre_guardado' => $newName,
+    //                             'ruta' => $rutaCompleta
+    //                         ];
+    //                         $archivoInsertResult = $informeArchivos->insert($archivoData);
+    //                         if ($archivoInsertResult === false) {
+    //                             throw new \Exception("Error al registrar archivo en BD: {$file->getClientName()} - " . json_encode($informeArchivos->errors()));
+    //                         }
+    //                         // Guardar referencia para limpieza en caso de error
+    //                         $archivosGuardados[] = $rutaCompleta;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         // Completar transacción
+    //         $db->transComplete();
+    //         // Verificar si la transacción fue exitosa
+    //         if ($db->transStatus() === false) {
+    //             // Limpiar archivos subidos si la transacción falló
+    //             foreach ($archivosGuardados as $archivo) {
+    //                 if (file_exists($archivo)) {
+    //                     @unlink($archivo);
+    //                 }
+    //             }
+    //             throw new \Exception('La transacción de base de datos falló');
+    //         }
+    //         // Log de éxito
+    //         log_message('info', "Informe #{$informeId} registrado exitosamente con " . count($archivosGuardados) . " archivos");
+    //         return redirect()->to('/Scii/informesGobierno')
+    //             ->with('success', 'Informe registrado correctamente');
+    //     } catch (\Exception $e) {
+    //         // Rollback automático si usamos transStart/transComplete
+    //         $db->transRollback();
+    //         // Limpiar archivos si ya se subieron
+    //         if (!empty($archivosGuardados)) {
+    //             foreach ($archivosGuardados as $archivo) {
+    //                 if (file_exists($archivo)) {
+    //                     @unlink($archivo);
+    //                 }
+    //             }
+    //         }
+    //         // Log del error
+    //         log_message('error', 'Error al registrar informe: ' . $e->getMessage());
+    //         log_message('error', 'Stack trace: ' . $e->getTraceAsString());
+    //         // Mensaje de error al usuario
+    //         return redirect()->back()
+    //             ->withInput()
+    //             ->with('error', 'Error al registrar el informe: ' . $e->getMessage());
+    //     }
+    // }
+
+    public function registrarInformeGobierno()
+    {
         if (!isset($this->session->id_usuario)) {
             return redirect()->to(base_url());
         }
-        $id_usuario = $this->session->id_usuario;
-        $data = [
-            'informe' => $this->request->getPost('informe'),
-        ];
-        $this->usuarios->update($id_usuario, $data);
-        return redirect()->to(base_url('scii/scii/informe/'))
-            ->with('mensaje', 'Informe actualizado correctamente.');
-    }
 
+        $db = \Config\Database::connect();
+        try {
+            // Iniciar transacción
+            $db->transStart();
+            $id_usuario = $this->session->id_usuario;
+            $id_unidad = $this->session->id_unidad;
+            $id_etapa = $this->etapas->where('estado', 'abierta')->first()['id_etapa'];
+            $id_periodo_actual = $this->periodosAnuales->where('estado', 'activo')->first()['id_periodo_anual'];
+
+            $informesGobierno = new InformesGobiernoModel();
+            $informeArchivos = new InformeArchivosModel();
+
+            $dataInforme = [
+                'unidad_administrativa' => $this->request->getPost('unidad_administrativa'),
+                'fecha_corte' => $this->request->getPost('fecha_corte'),
+                'alineacion_ped' => $this->request->getPost('alineacionPED'),
+                'orden_prioridad' => $this->request->getPost('ordenPrioridad'),
+                'tema' => $this->request->getPost('tema'),
+                'subtema' => $this->request->getPost('subtema'),
+                'descripcion' => $this->request->getPost('descripcion'),
+                'contexto' => $this->request->getPost('contexto'),
+                'accion' => $this->request->getPost('accion'),
+                'impacto' => $this->request->getPost('impacto'),
+                'territorio' => $this->request->getPost('territorio'),
+                'beneficiarios' => $this->request->getPost('beneficiarios'),
+                'inversion' => $this->request->getPost('inversion'),
+                'desarrollo_resultado' => $this->request->getPost('desarrollo_resultado'),
+                'alineacion_programas' => $this->request->getPost('alineacionProgramasDerivados'),
+                'id_alineacion_ods' => $this->request->getPost('alineacionODS'),
+                'conclusion_tematica' => $this->request->getPost('conclusionTematica'),
+                'logros_destacados' => $this->request->getPost('logrosDestacados'),
+                'id_usuario' => $id_usuario,
+                'id_unidad' => $id_unidad,
+                'id_etapa' => $id_etapa,
+                'id_periodo_anual' => $id_periodo_actual
+            ];
+            if (!$informesGobierno->validate($dataInforme)) {
+                throw new \Exception('Errores de validación: ' . json_encode($informesGobierno->errors()));
+            }
+            $insertResult = $informesGobierno->insert($dataInforme);
+            if ($insertResult === false) {
+                throw new \Exception('Error al insertar el informe: ' . json_encode($informesGobierno->errors()));
+            }
+            $informeId = $informesGobierno->getInsertID();
+            if (!$informeId || $informeId <= 0) {
+                throw new \Exception('No se pudo obtener el ID del informe insertado');
+            }
+            // Tipos de archivos permitidos
+            $tipos = [
+                'mapas',
+                'graficas',
+                'cuadros',
+                'esquemas',
+                'fotografias',
+                'resultados'
+            ];
+            $archivosGuardados = [];
+            $files = $this->request->getFiles();
+            $orden = 1; // Contador para el orden de archivos
+            foreach ($tipos as $tipo) {
+                if (!empty($files[$tipo])) {
+                    foreach ($files[$tipo] as $file) {
+                        if ($file->isValid() && !$file->hasMoved()) {
+                            // Validar tipo y tamaño de archivo
+                            $allowedTypes = [
+                                // Imágenes
+                                'image/jpeg',
+                                'image/jpg',
+                                'image/png',
+                                'image/gif',
+                                'image/webp',
+
+                                // PDF
+                                'application/pdf',
+
+                                // ZIP / RAR
+                                'application/zip',
+                                'application/x-zip-compressed',
+                                'application/vnd.rar',
+                                'application/x-rar-compressed',
+
+                                // Excel
+                                'application/vnd.ms-excel', // .xls
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+
+                                // Word
+                                'application/msword', // .doc
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+
+                                // PowerPoint
+                                'application/vnd.ms-powerpoint', // .ppt
+                                'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
+                            ];
+
+                            $maxSize = 10 * 1024 * 1024; // 10MB
+                            $mimeType = $file->getMimeType();
+                            if (!in_array($mimeType, $allowedTypes)) {
+                                throw new \Exception("Tipo de archivo no permitido: {$file->getClientName()} (tipo: {$mimeType})");
+                            }
+                            if ($file->getSize() > $maxSize) {
+                                throw new \Exception("Archivo demasiado grande: {$file->getClientName()} (" . round($file->getSize() / 1024 / 1024, 2) . "MB)");
+                            }
+                            // Obtener información del archivo
+                            $extension = $file->getExtension();
+                            $nombreOriginal = $file->getClientName();
+                            $tamanioKB = round($file->getSize() / 1024, 2);
+                            $newName = $file->getRandomName();
+                            // Definir ruta
+                            $ruta = WRITEPATH . "uploads/informes/$informeId/$tipo/";
+                            // Crear directorio si no existe
+                            if (!is_dir($ruta)) {
+                                if (!mkdir($ruta, 0755, true)) {
+                                    throw new \Exception("No se pudo crear el directorio: $ruta");
+                                }
+                            }
+                            // Mover archivo y verificar
+                            if (!$file->move($ruta, $newName)) {
+                                throw new \Exception("Error al mover el archivo: {$nombreOriginal}");
+                            }
+                            // Verificar que el archivo se movió correctamente
+                            $rutaCompleta = $ruta . $newName;
+                            if (!file_exists($rutaCompleta)) {
+                                throw new \Exception("El archivo no existe después de moverlo: $rutaCompleta");
+                            }
+                            // Guardar registro en BD con la estructura correcta
+                            $archivoData = [
+                                'id_informe' => $informeId,
+                                'tipo_archivo' => $tipo,
+                                'nombre_archivo' => $newName,
+                                'nombre_original' => $nombreOriginal,
+                                'ruta_archivo' => $rutaCompleta,
+                                'extension' => $extension,
+                                'tamanio_kb' => $tamanioKB,
+                                'mime_type' => $mimeType,
+                                'orden' => $orden++,
+                                'estado' => 'activo' // Estado por defecto
+                            ];
+                            $archivoInsertResult = $informeArchivos->insert($archivoData);
+
+                            if ($archivoInsertResult === false) {
+                                throw new \Exception("Error al registrar archivo en BD: {$nombreOriginal} - " . json_encode($informeArchivos->errors()));
+                            }
+                            // Guardar referencia para limpieza en caso de error
+                            $archivosGuardados[] = $rutaCompleta;
+                        }
+                    }
+                }
+            }
+            // Completar transacción
+            $db->transComplete();
+            // Verificar si la transacción fue exitosa
+            if ($db->transStatus() === false) {
+                // Limpiar archivos subidos si la transacción falló
+                $this->limpiarArchivos($archivosGuardados);
+                throw new \Exception('La transacción de base de datos falló');
+            }
+            // Log de éxito
+            log_message('info', "Informe #{$informeId} registrado exitosamente por usuario #{$id_usuario} con " . count($archivosGuardados) . " archivos");
+
+            return redirect()->to('/Scii/informe')
+                ->with('success', 'Informe registrado correctamente con ' . count($archivosGuardados) . ' archivo(s)');
+        } catch (\Exception $e) {
+            // Rollback automático si usamos transStart/transComplete
+            if ($db->transStatus() !== false) {
+                $db->transRollback();
+            }
+            // Limpiar archivos si ya se subieron
+            if (!empty($archivosGuardados)) {
+                $this->limpiarArchivos($archivosGuardados);
+            }
+            // Log del error
+            log_message('error', 'Error al registrar informe: ' . $e->getMessage());
+            log_message('error', 'Stack trace: ' . $e->getTraceAsString());
+            // Mensaje de error al usuario
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Error al registrar el informe: ' . $e->getMessage());
+        }
+    }
+    //  * Método auxiliar para limpiar archivos
+    private function limpiarArchivos(array $archivos)
+    {
+        foreach ($archivos as $archivo) {
+            if (file_exists($archivo)) {
+                if (!@unlink($archivo)) {
+                    log_message('warning', "No se pudo eliminar el archivo: $archivo");
+                }
+            }
+        }
+    }
 }
