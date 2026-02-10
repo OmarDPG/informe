@@ -62,9 +62,10 @@
                                                 class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
                                                 <option value="" disabled selected>Seleccione una opción</option>
                                                 <?php foreach ($lineas as $l): ?>
-                                                    <option value="<?= $l['id'] ?>">
-                                                        <?= esc($l['codigo']) ?> —
-                                                        <?= esc($l['descripcion']) ?>
+                                                    <option value="<?= $l['id'] ?>"
+                                                        <?= (isset($lineas['descripcion']) && (int)$lineas['descripcion'] === (int)$l['id']) 
+                                                            ? 'selected' : '' ?>>
+                                                        <?= esc($l['codigo']) ?> — <?= esc($l['descripcion']) ?>
                                                     </option>
                                                 <?php endforeach; ?>
                                             </select>

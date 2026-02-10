@@ -139,15 +139,8 @@
                                     <i class="fa-solid fa-paper-plane text-2xl text-rose-900"></i>
                                 </td>
                                 <td class="pt-4" tabindex="43"><a href="<?php echo base_url() . '/administrador/informes'; ?>" class="pl-4 mb-1 flex place-items-center">
-                                        Registro de Informe</a></td>
+                                        Dashboard de Unidades</a></td>
                             </tr>
-                            <!-- <tr>
-                                <td tabindex="42" class="pt-4 align-middle text-center pr-2">
-                                    <i class="fa-solid fa-paper-plane text-2xl text-rose-900"></i>
-                                </td>
-                                <td class="pt-4" tabindex="43"><a href="<?php echo base_url() . '/administrador/registroRespuestas'; ?>" class="pl-4 mb-1 flex place-items-center">
-                                        Registro de Respuestas</a></td>
-                            </tr> -->
                         </tbody>
                     </table>
                 </div>

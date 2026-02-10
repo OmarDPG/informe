@@ -2892,7 +2892,7 @@ class Administrador extends BaseController
         if (!isset($this->session->id_usuario)) {
             return redirect()->to(base_url());
         }
-        
+
         // Validar permisos de administrador
         if ($this->session->adm == '0') {
             return redirect()->to(base_url() . '/inicio/land');
@@ -2902,9 +2902,14 @@ class Administrador extends BaseController
             ->first();
         $unidad = $idUnidad['id_unidad'] ?? null;
 
-        $id_unidad = $this->unidades
+        $unidad = $this->unidades
             ->where('id_unidad', $unidad)
             ->first();
+
+        $dataInforme = $this->informesGobierno
+            ->where('id_informe', $id_informe)
+            ->first();
+        $lineaAccionPED = $dataInforme['linea_accion_ped'] ?? null;
 
         $lineasModel = new LineasAccionModel();
         $lineas = $lineasModel->getLineasAccionConContexto();
@@ -2931,7 +2936,7 @@ class Administrador extends BaseController
         $builder->join('periodos_anuales', 'periodos_anuales.id_periodo_anual = informes_gobierno.id_periodo_anual', 'left');
         $builder->where('informes_gobierno.id_informe', $id_informe);
         $builder->orderBy('informes_gobierno.created_at', 'DESC');
-        
+
         $queryResult = $builder->get();
         $informe = $queryResult->getRowArray();
 
@@ -2956,12 +2961,24 @@ class Administrador extends BaseController
             $comentariosResult = $comentariosBuilder->get();
             $comentarios = $comentariosResult->getResultArray();
         }
+        $informesUnidad = [];
+        if ($unidad && $periodoAnual) {
+            $builder = $db->table('informes_gobierno');
+            $builder->select('id_informe, tema, estado, created_at');
+            $builder->where('id_unidad', $unidad['id_unidad']);
+            $builder->where('id_periodo_anual', $periodoAnual['id_periodo_anual']);
+            $builder->orderBy('created_at', 'DESC');
+            $builder->limit(10); // recientes
+
+            $informesUnidad = $builder->get()->getResultArray();
+        }
 
         // Preparar datos para la vista
         $datos = [
             'usuario' => $this->session->usuario,
             'current' => 'Detalle del Informe',
             'informe' => $informe,
+            'informe_id' => $id_informe,
             'periodoAnual' => $periodoAnual,
             'archivos' => $archivos,
             'comentarios' => $comentarios,
@@ -2971,7 +2988,9 @@ class Administrador extends BaseController
             'lineasSocioambiental' => $lineasSocioambiental,
             'lineasAgua' => $lineasAgua,
             'odsTemas' => $odsTemas,
-            'id_unidad' => $id_unidad
+            'unidad' => $unidad,
+            'lineaAccionPED' => $lineaAccionPED,
+            'informesUnidad' => $informesUnidad,
         ];
         echo view('scii/admin/header');
         echo view('scii/admin/informe/detalle', $datos);
@@ -3021,7 +3040,6 @@ class Administrador extends BaseController
                 "Se finalizó la Etapa {$etapaAbierta['numero_etapa']} del año {$anio['anio']}."
             );
     }
-
 
 
 

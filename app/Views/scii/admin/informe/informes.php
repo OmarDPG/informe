@@ -371,7 +371,7 @@
                 </div>
 
                 ${hasInformes ? `
-                    <div class="informes-list mt-4 pt-4 border-t border-gray-200">
+                    <div class="informes-list mt-4 pt-4 border-t border-gray-200" style="overflow-y: auto;">
                         <h4 class="text-sm font-semibold text-gray-700 mb-3">
                             <i class="fa-solid fa-list-ul mr-2"></i>Informes Registrados:
                         </h4>

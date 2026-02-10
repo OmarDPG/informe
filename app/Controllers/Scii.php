@@ -846,177 +846,6 @@ class Scii extends BaseController
         echo view('scii/informe');
         echo view('scii/footerscii');
     }
-    // public function saveInforme(){
-    //     if (!isset($this->session->id_usuario)) {
-    //         return redirect()->to(base_url());
-    //     }
-    //     $id_usuario = $this->session->id_usuario;
-    //     $data = [
-    //         'informe' => $this->request->getPost('informe'),
-    //     ];
-    //     $this->usuarios->update($id_usuario, $data);
-    //     return redirect()->to(base_url('scii/scii/informe/'))
-    //         ->with('mensaje', 'Informe actualizado correctamente.');
-    // }
-
-
-    // public function registrarInformeGobierno()
-    // {
-    //     if (!isset($this->session->id_usuario)) {
-    //         return redirect()->to(base_url());
-    //     }
-    //     $db = \Config\Database::connect();
-
-    //     try {
-    //         // Iniciar transacción
-    //         $db->transStart();
-
-    //         $id_usuario = $this->session->id_usuario;
-    //         $id_unidad = $this->session->id_unidad;
-    //         $id_etapa = $this->etapas->where('estado', 'abierta')->first()['id_etapa'];
-    //         $id_periodo_actual = $this->periodosAnuales->where('estado', 'activo')->first()['id_periodo_anual'];
-
-    //         $informesGobierno = new InformesGobiernoModel();
-    //         $informeArchivos = new InformeArchivosModel();
-
-    //         $dataInforme = [
-    //             'unidad_administrativa' => $this->request->getPost('unidad_administrativa'),
-    //             'fecha_corte' => $this->request->getPost('fecha_corte'),
-    //             'alineacion_ped' => $this->request->getPost('alineacionPED'),
-    //             'orden_prioridad' => $this->request->getPost('ordenPrioridad'),
-    //             'tema' => $this->request->getPost('tema'),
-    //             'subtema' => $this->request->getPost('subtema'),
-    //             'descripcion' => $this->request->getPost('descripcion'),
-    //             'contexto' => $this->request->getPost('contexto'),
-    //             'accion' => $this->request->getPost('accion'),
-    //             'impacto' => $this->request->getPost('impacto'),
-    //             'territorio' => $this->request->getPost('territorio'),
-    //             'beneficiarios' => $this->request->getPost('beneficiarios'),
-    //             'inversion' => $this->request->getPost('inversion'),
-    //             'desarrollo_resultado' => $this->request->getPost('desarrollo_resultado'),
-    //             'alineacion_programas' => $this->request->getPost('alineacionProgramasDerivados'),
-    //             'alineacion_ods' => $this->request->getPost('alineacionODS'),
-    //             'conclusion_tematica' => $this->request->getPost('conclusionTematica'),
-    //             'logros_destacados' => $this->request->getPost('logrosDestacados'),
-    //             'id_usuario' => $id_usuario,
-    //             'id_unidad' => $id_unidad,
-    //             'id_etapa' => $id_etapa,
-    //             'id_periodo_anual' => $id_periodo_actual
-    //         ];
-
-    //         if (!$informesGobierno->validate($dataInforme)) {
-    //             throw new \Exception('Errores de validación: ' . json_encode($informesGobierno->errors()));
-    //         }
-
-    //         $insertResult = $informesGobierno->insert($dataInforme);
-
-    //         if ($insertResult === false) {
-    //             throw new \Exception('Error al insertar el informe: ' . json_encode($informesGobierno->errors()));
-    //         }
-
-    //         $informeId = $informesGobierno->getInsertID();
-
-    //         if (!$informeId || $informeId <= 0) {
-    //             throw new \Exception('No se pudo obtener el ID del informe insertado');
-    //         }
-
-    //         $tipos = [
-    //             'mapas',
-    //             'graficas',
-    //             'cuadros',
-    //             'esquemas',
-    //             'fotografias',
-    //             'resultados'
-    //         ];
-
-    //         $archivosGuardados = [];
-    //         $files = $this->request->getFiles();
-
-    //         foreach ($tipos as $tipo) {
-    //             if (!empty($files[$tipo])) {
-    //                 foreach ($files[$tipo] as $file) {
-    //                     if ($file->isValid() && !$file->hasMoved()) {
-    //                         // Validar tipo y tamaño de archivo
-    //                         $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
-    //                         $maxSize = 10 * 1024 * 1024; // 10MB
-    //                         if (!in_array($file->getMimeType(), $allowedTypes)) {
-    //                             throw new \Exception("Tipo de archivo no permitido: {$file->getClientName()}");
-    //                         }
-    //                         if ($file->getSize() > $maxSize) {
-    //                             throw new \Exception("Archivo demasiado grande: {$file->getClientName()}");
-    //                         }
-    //                         $newName = $file->getRandomName();
-    //                         $ruta = WRITEPATH . "uploads/informes/$informeId/$tipo/";
-    //                         // Crear directorio si no existe
-    //                         if (!is_dir($ruta)) {
-    //                             if (!mkdir($ruta, 0755, true)) {
-    //                                 throw new \Exception("No se pudo crear el directorio: $ruta");
-    //                             }
-    //                         }
-    //                         // Mover archivo y verificar
-    //                         if (!$file->move($ruta, $newName)) {
-    //                             throw new \Exception("Error al mover el archivo: {$file->getClientName()}");
-    //                         }
-    //                         // Verificar que el archivo se movió correctamente
-    //                         $rutaCompleta = $ruta . $newName;
-    //                         if (!file_exists($rutaCompleta)) {
-    //                             throw new \Exception("El archivo no existe después de moverlo: $rutaCompleta");
-    //                         }
-    //                         // Guardar registro en BD
-    //                         $archivoData = [
-    //                             'informe_id' => $informeId,
-    //                             'tipo' => $tipo,
-    //                             'nombre_original' => $file->getClientName(),
-    //                             'nombre_guardado' => $newName,
-    //                             'ruta' => $rutaCompleta
-    //                         ];
-    //                         $archivoInsertResult = $informeArchivos->insert($archivoData);
-    //                         if ($archivoInsertResult === false) {
-    //                             throw new \Exception("Error al registrar archivo en BD: {$file->getClientName()} - " . json_encode($informeArchivos->errors()));
-    //                         }
-    //                         // Guardar referencia para limpieza en caso de error
-    //                         $archivosGuardados[] = $rutaCompleta;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //         // Completar transacción
-    //         $db->transComplete();
-    //         // Verificar si la transacción fue exitosa
-    //         if ($db->transStatus() === false) {
-    //             // Limpiar archivos subidos si la transacción falló
-    //             foreach ($archivosGuardados as $archivo) {
-    //                 if (file_exists($archivo)) {
-    //                     @unlink($archivo);
-    //                 }
-    //             }
-    //             throw new \Exception('La transacción de base de datos falló');
-    //         }
-    //         // Log de éxito
-    //         log_message('info', "Informe #{$informeId} registrado exitosamente con " . count($archivosGuardados) . " archivos");
-    //         return redirect()->to('/Scii/informesGobierno')
-    //             ->with('success', 'Informe registrado correctamente');
-    //     } catch (\Exception $e) {
-    //         // Rollback automático si usamos transStart/transComplete
-    //         $db->transRollback();
-    //         // Limpiar archivos si ya se subieron
-    //         if (!empty($archivosGuardados)) {
-    //             foreach ($archivosGuardados as $archivo) {
-    //                 if (file_exists($archivo)) {
-    //                     @unlink($archivo);
-    //                 }
-    //             }
-    //         }
-    //         // Log del error
-    //         log_message('error', 'Error al registrar informe: ' . $e->getMessage());
-    //         log_message('error', 'Stack trace: ' . $e->getTraceAsString());
-    //         // Mensaje de error al usuario
-    //         return redirect()->back()
-    //             ->withInput()
-    //             ->with('error', 'Error al registrar el informe: ' . $e->getMessage());
-    //     }
-    // }
-
     public function registrarInformeGobierno()
     {
         if (!isset($this->session->id_usuario)) {
@@ -1038,11 +867,11 @@ class Scii extends BaseController
             $dataInforme = [
                 'unidad_administrativa' => $this->request->getPost('unidad_administrativa'),
                 'fecha_corte' => $this->request->getPost('fecha_corte'),
-                'alineacion_ped' => $this->request->getPost('alineacionPED'),
+                'id_alineacion_ped' => $this->request->getPost('alineacionPED'),
                 'orden_prioridad' => $this->request->getPost('ordenPrioridad'),
                 'tema' => $this->request->getPost('tema'),
                 'subtema' => $this->request->getPost('subtema'),
-                'descripcion' => $this->request->getPost('descripcion'),
+                'descripcion_resultado' => $this->request->getPost('descripcion'),
                 'contexto' => $this->request->getPost('contexto'),
                 'accion' => $this->request->getPost('accion'),
                 'impacto' => $this->request->getPost('impacto'),
@@ -1050,7 +879,7 @@ class Scii extends BaseController
                 'beneficiarios' => $this->request->getPost('beneficiarios'),
                 'inversion' => $this->request->getPost('inversion'),
                 'desarrollo_resultado' => $this->request->getPost('desarrollo_resultado'),
-                'alineacion_programas' => $this->request->getPost('alineacionProgramasDerivados'),
+                'id_alineacion_programa_derivado' => $this->request->getPost('alineacionProgramasDerivados'),
                 'id_alineacion_ods' => $this->request->getPost('alineacionODS'),
                 'conclusion_tematica' => $this->request->getPost('conclusionTematica'),
                 'logros_destacados' => $this->request->getPost('logrosDestacados'),
@@ -1070,101 +899,116 @@ class Scii extends BaseController
             if (!$informeId || $informeId <= 0) {
                 throw new \Exception('No se pudo obtener el ID del informe insertado');
             }
-            // Tipos de archivos permitidos
-            $tipos = [
-                'mapas',
-                'graficas',
-                'cuadros',
-                'esquemas',
-                'fotografias',
-                'resultados'
+            
+            // Mapeo entre nombres de inputs (plural) y valores ENUM de BD (singular)
+            $tiposMap = [
+                'mapas' => 'mapa',
+                'graficas' => 'grafico',
+                'cuadros' => 'cuadro',
+                'esquemas' => 'esquema',
+                'fotografias' => 'fotografia',
+                'resultados' => 'resultados'
             ];
+            
             $archivosGuardados = [];
-            $files = $this->request->getFiles();
-            $orden = 1; // Contador para el orden de archivos
-            foreach ($tipos as $tipo) {
-                if (!empty($files[$tipo])) {
-                    foreach ($files[$tipo] as $file) {
-                        if ($file->isValid() && !$file->hasMoved()) {
+            $orden = 1;
+            
+            foreach ($tiposMap as $tipoInput => $tipoEnum) {
+                // Verificar si hay archivos para este tipo
+                if (isset($_FILES[$tipoInput]) && is_array($_FILES[$tipoInput]['name'])) {
+                    $fileCount = count($_FILES[$tipoInput]['name']);
+                    for ($i = 0; $i < $fileCount; $i++) {
+                        // Verificar que el archivo existe y no tiene errores
+                        if ($_FILES[$tipoInput]['error'][$i] === UPLOAD_ERR_OK) {
                             // Validar tipo y tamaño de archivo
                             $allowedTypes = [
-                                // Imágenes
                                 'image/jpeg',
                                 'image/jpg',
                                 'image/png',
                                 'image/gif',
                                 'image/webp',
 
-                                // PDF
                                 'application/pdf',
 
-                                // ZIP / RAR
                                 'application/zip',
                                 'application/x-zip-compressed',
                                 'application/vnd.rar',
                                 'application/x-rar-compressed',
 
-                                // Excel
-                                'application/vnd.ms-excel', // .xls
-                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+                                'application/vnd.ms-excel',
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 
-                                // Word
-                                'application/msword', // .doc
-                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+                                'application/msword',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 
-                                // PowerPoint
-                                'application/vnd.ms-powerpoint', // .ppt
-                                'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
+                                'application/vnd.ms-powerpoint',
+                                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
                             ];
 
                             $maxSize = 10 * 1024 * 1024; // 10MB
-                            $mimeType = $file->getMimeType();
-                            if (!in_array($mimeType, $allowedTypes)) {
-                                throw new \Exception("Tipo de archivo no permitido: {$file->getClientName()} (tipo: {$mimeType})");
+                            
+                            // Obtener información del archivo directamente de $_FILES
+                            $clientName = $_FILES[$tipoInput]['name'][$i];
+                            $tmpName = $_FILES[$tipoInput]['tmp_name'][$i];
+                            $fileMimeType = $_FILES[$tipoInput]['type'][$i];
+                            $fileSize = $_FILES[$tipoInput]['size'][$i];
+                            
+                            if (!in_array($fileMimeType, $allowedTypes)) {
+                                throw new \Exception("Tipo de archivo no permitido: {$clientName} (tipo: {$fileMimeType})");
                             }
-                            if ($file->getSize() > $maxSize) {
-                                throw new \Exception("Archivo demasiado grande: {$file->getClientName()} (" . round($file->getSize() / 1024 / 1024, 2) . "MB)");
+                            if ($fileSize > $maxSize) {
+                                throw new \Exception("Archivo demasiado grande: {$clientName} (" . round($fileSize / 1024 / 1024, 2) . "MB)");
                             }
+                            
                             // Obtener información del archivo
-                            $extension = $file->getExtension();
-                            $nombreOriginal = $file->getClientName();
-                            $tamanioKB = round($file->getSize() / 1024, 2);
-                            $newName = $file->getRandomName();
+                            $extension = pathinfo($clientName, PATHINFO_EXTENSION);
+                            $nombreOriginal = $clientName;
+                            $tamanioKB = round($fileSize / 1024, 2);
+                            $newName = uniqid() . '_' . bin2hex(random_bytes(10)) . '.' . $extension;
+                            
                             // Definir ruta
-                            $ruta = WRITEPATH . "uploads/informes/$informeId/$tipo/";
+                            $ruta = WRITEPATH . "uploads/informes/$informeId/$tipoInput/";
+                            $rutaServidor = base_url() . "uploads/informes/$informeId/$tipoInput/";
+                            
                             // Crear directorio si no existe
                             if (!is_dir($ruta)) {
                                 if (!mkdir($ruta, 0755, true)) {
                                     throw new \Exception("No se pudo crear el directorio: $ruta");
                                 }
                             }
-                            // Mover archivo y verificar
-                            if (!$file->move($ruta, $newName)) {
+                            
+                            // Mover archivo manualmente usando move_uploaded_file
+                            $rutaCompleta = $ruta . $newName;
+                            $rutaCompletaServidor = $rutaServidor . $newName;
+                            if (!move_uploaded_file($tmpName, $rutaCompleta)) {
                                 throw new \Exception("Error al mover el archivo: {$nombreOriginal}");
                             }
+                            
                             // Verificar que el archivo se movió correctamente
-                            $rutaCompleta = $ruta . $newName;
                             if (!file_exists($rutaCompleta)) {
                                 throw new \Exception("El archivo no existe después de moverlo: $rutaCompleta");
                             }
-                            // Guardar registro en BD con la estructura correcta
+                            
+                            // Guardar registro en BD
                             $archivoData = [
                                 'id_informe' => $informeId,
-                                'tipo_archivo' => $tipo,
+                                'tipo_archivo' => $tipoEnum,
                                 'nombre_archivo' => $newName,
                                 'nombre_original' => $nombreOriginal,
-                                'ruta_archivo' => $rutaCompleta,
+                                'ruta_archivo' => $rutaCompletaServidor,
                                 'extension' => $extension,
                                 'tamanio_kb' => $tamanioKB,
-                                'mime_type' => $mimeType,
+                                'mime_type' => $fileMimeType,
                                 'orden' => $orden++,
-                                'estado' => 'activo' // Estado por defecto
+                                'estado' => 'activo'
                             ];
+                            
                             $archivoInsertResult = $informeArchivos->insert($archivoData);
 
                             if ($archivoInsertResult === false) {
                                 throw new \Exception("Error al registrar archivo en BD: {$nombreOriginal} - " . json_encode($informeArchivos->errors()));
                             }
+                            
                             // Guardar referencia para limpieza en caso de error
                             $archivosGuardados[] = $rutaCompleta;
                         }
@@ -1179,9 +1023,7 @@ class Scii extends BaseController
                 $this->limpiarArchivos($archivosGuardados);
                 throw new \Exception('La transacción de base de datos falló');
             }
-            // Log de éxito
-            log_message('info', "Informe #{$informeId} registrado exitosamente por usuario #{$id_usuario} con " . count($archivosGuardados) . " archivos");
-
+            // log_message('info', "Informe #{$informeId} registrado exitosamente por usuario #{$id_usuario} con " . count($archivosGuardados) . " archivos");
             return redirect()->to('/Scii/informe')
                 ->with('success', 'Informe registrado correctamente con ' . count($archivosGuardados) . ' archivo(s)');
         } catch (\Exception $e) {
