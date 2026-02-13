@@ -2892,7 +2892,7 @@ class Administrador extends BaseController
         if (!isset($this->session->id_usuario)) {
             return redirect()->to(base_url());
         }
-        
+
         // Validar permisos de administrador
         if ($this->session->adm == '0') {
             return redirect()->to(base_url() . '/inicio/land');
@@ -2902,9 +2902,14 @@ class Administrador extends BaseController
             ->first();
         $unidad = $idUnidad['id_unidad'] ?? null;
 
-        $id_unidad = $this->unidades
+        $unidad = $this->unidades
             ->where('id_unidad', $unidad)
             ->first();
+
+        $dataInforme = $this->informesGobierno
+            ->where('id_informe', $id_informe)
+            ->first();
+        $lineaAccionPED = $dataInforme['linea_accion_ped'] ?? null;
 
         $lineasModel = new LineasAccionModel();
         $lineas = $lineasModel->getLineasAccionConContexto();
@@ -2931,7 +2936,7 @@ class Administrador extends BaseController
         $builder->join('periodos_anuales', 'periodos_anuales.id_periodo_anual = informes_gobierno.id_periodo_anual', 'left');
         $builder->where('informes_gobierno.id_informe', $id_informe);
         $builder->orderBy('informes_gobierno.created_at', 'DESC');
-        
+
         $queryResult = $builder->get();
         $informe = $queryResult->getRowArray();
 
@@ -2956,12 +2961,24 @@ class Administrador extends BaseController
             $comentariosResult = $comentariosBuilder->get();
             $comentarios = $comentariosResult->getResultArray();
         }
+        $informesUnidad = [];
+        if ($unidad && $periodoAnual) {
+            $builder = $db->table('informes_gobierno');
+            $builder->select('id_informe, tema, estado, created_at');
+            $builder->where('id_unidad', $unidad['id_unidad']);
+            $builder->where('id_periodo_anual', $periodoAnual['id_periodo_anual']);
+            $builder->orderBy('created_at', 'DESC');
+            $builder->limit(10); // recientes
+
+            $informesUnidad = $builder->get()->getResultArray();
+        }
 
         // Preparar datos para la vista
         $datos = [
             'usuario' => $this->session->usuario,
             'current' => 'Detalle del Informe',
             'informe' => $informe,
+            'informe_id' => $id_informe,
             'periodoAnual' => $periodoAnual,
             'archivos' => $archivos,
             'comentarios' => $comentarios,
@@ -2971,7 +2988,9 @@ class Administrador extends BaseController
             'lineasSocioambiental' => $lineasSocioambiental,
             'lineasAgua' => $lineasAgua,
             'odsTemas' => $odsTemas,
-            'id_unidad' => $id_unidad
+            'unidad' => $unidad,
+            'lineaAccionPED' => $lineaAccionPED,
+            'informesUnidad' => $informesUnidad,
         ];
         echo view('scii/admin/header');
         echo view('scii/admin/informe/detalle', $datos);
@@ -3066,7 +3085,6 @@ class Administrador extends BaseController
 
 
 
-
     // Comienza el codigo concerniente a la evidencia de glosa
     public function glosa()
     {
@@ -3076,12 +3094,84 @@ class Administrador extends BaseController
         if ((($this->session->adm) == '0')) {
             return redirect()->to(base_url() . '/inicio/land');
         }
-        $current = 'Evidencia / Informe de Gobierno';
+        $current = 'Evidencia / Glosa del Informe de Gobierno';
         if (isset($edi))
             $ban = $this->cargas->where(['id_carga' => $edi])->first();
         $datos = isset($edi) ? ['usuario' => $this->session->usuario, 'current' => $current, 'edi' => $ban] : ['usuario' => $this->session->usuario, 'current' => $current];
         echo view('scii/admin/header');
         echo view('scii/admin/glosa', $datos);
         echo view('scii/admin/navbar');
+    }
+
+    public function solicitarGlosa()
+    {
+        if (!isset($this->session->id_usuario) || $this->session->adm == '0') {
+            return redirect()->to(base_url());
+        }
+        $anio = $this->request->getPost('anio');
+        $numeroEtapa = (int) $this->request->getPost('etapa');
+
+        if (!$anio || !$numeroEtapa) {
+            return redirect()->back()
+                ->with('mensaje', 'Selecciona un año y una etapa válidos.');
+        }
+        $periodoActivo = $this->periodosAnuales
+            ->where('estado', 'activo')
+            ->first();
+
+        if ($periodoActivo && $periodoActivo['anio'] != $anio) {
+            $this->periodosAnuales
+                ->where('id_periodo_anual', $periodoActivo['id_periodo_anual'])
+                ->set([
+                    'estado' => 'inactivo',
+                    'fecha_cierre' => date('Y-m-d')
+                ])
+                ->update();
+        }
+        // Buscar o crear periodo anual
+        $periodo = $this->periodosAnuales
+            ->where('anio', $anio)
+            ->first();
+        if (!$periodo) {
+            $idPeriodo = $this->periodosAnuales->insert([
+                'anio' => $anio,
+                'estado' => 'activo'
+            ]);
+            // Crear las 4 etapas
+            for ($i = 1; $i <= 4; $i++) {
+                $this->etapas->insert([
+                    'id_periodo_anual' => $idPeriodo,
+                    'numero_etapa' => $i,
+                    'nombre' => "Etapa $i",
+                    'estado' => 'cerrada'
+                ]);
+            }
+        } else {
+            $idPeriodo = $periodo['id_periodo_anual'];
+            $this->periodosAnuales
+                ->where('id_periodo_anual', $idPeriodo)
+                ->set(['estado' => 'activo'])
+                ->update();
+        }
+        // Cerrar cualquier etapa abierta
+        $this->etapas
+            ->where('estado', 'abierta')
+            ->set(['estado' => 'cerrada', 'fecha_fin' => date('Y-m-d')])
+            ->update();
+        //  Abrir la etapa seleccionada
+        $this->etapas
+            ->where('id_periodo_anual', $idPeriodo)
+            ->where('numero_etapa', $numeroEtapa)
+            ->set([
+                'estado' => 'abierta',
+                'fecha_inicio' => date('Y-m-d')
+            ])
+            ->update();
+        $this->usuarios
+            ->where(['loadinforme' => 1])
+            ->set(['informe' => 1])
+            ->update();
+        return redirect()->back()
+            ->with('mensaje', "Se abrió la Etapa $numeroEtapa del año $anio.");
     }
 }
