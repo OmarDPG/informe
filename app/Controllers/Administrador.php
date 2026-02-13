@@ -2589,9 +2589,6 @@ class Administrador extends BaseController
         return json_encode($response);
     }
 
-
-
-
     // Comienza el codigo concerniente a la evidencia de informe de gobierno
     public function informe()
     {
@@ -2697,111 +2694,14 @@ class Administrador extends BaseController
         echo view('scii/admin/navbar');
     }
 
-    // public function getUnidadesConInformes()
-    // {
-    //     if (!isset($this->session->id_usuario)) {
-    //         return $this->response->setJSON(['error' => 'No autorizado']);
-    //     }
-    //     if ((($this->session->adm) == '0')) {
-    //         return $this->response->setJSON(['error' => 'No autorizado']);
-    //     }
-    //     $db = \Config\Database::connect();
-    //     // Obtener todas las unidades activas
-    //     $unidades = $this->unidades->where('activo', 1)->findAll();
-    //     // Obtener usuarios con permisos de informe por unidad
-    //     $builder = $db->table('usuarios');
-    //     $builder->select('usuarios.id_unidad, COUNT(usuarios.id_usuario) as total_usuarios, 
-    //                      SUM(CASE WHEN usuarios.informe = 1 THEN 1 ELSE 0 END) as usuarios_con_informe,
-    //                      SUM(CASE WHEN usuarios.loadinforme = 1 THEN 1 ELSE 0 END) as usuarios_activos');
-    //     $builder->where('usuarios.activo', 1);
-    //     $builder->groupBy('usuarios.id_unidad');
-
-    //     $queryResult = $builder->get();
-    //     $estadisticasUsuarios = $queryResult->getResultArray();
-
-    //     // Crear un mapa de estadísticas por unidad
-    //     $statsMap = [];
-    //     foreach ($estadisticasUsuarios as $stat) {
-    //         $statsMap[$stat['id_unidad']] = $stat;
-    //     }
-    //     // Generar informes de ejemplo basados en las etapas y periodos actuales
-    //     $currentYear = date('Y');
-    //     $informesFormateados = [];
-
-    //     // Obtener etapas activas o recientes
-    //     $etapasBuilder = $db->table('etapas');
-    //     $etapasBuilder->select('etapas.*, periodos_anuales.anio');
-    //     $etapasBuilder->join('periodos_anuales', 'periodos_anuales.id_periodo_anual = etapas.id_periodo_anual', 'left');
-    //     $etapasBuilder->orderBy('periodos_anuales.anio', 'DESC');
-    //     $etapasBuilder->orderBy('etapas.numero_etapa', 'DESC');
-    //     $etapasBuilder->limit(20);
-
-    //     $etapasResult = $etapasBuilder->get();
-    //     $etapas = $etapasResult->getResultArray();
-    //     // Crear informes basados en etapas y unidades con usuarios activos
-    //     foreach ($unidades as $unidad) {
-    //         $idUnidad = $unidad['id_unidad'];
-    //         $tieneUsuarios = isset($statsMap[$idUnidad]) && $statsMap[$idUnidad]['usuarios_activos'] > 0;
-    //         if ($tieneUsuarios && !empty($etapas)) {
-    //             // Agregar algunos informes de ejemplo para unidades con usuarios activos
-    //             $numInformes = rand(2, min(6, count($etapas)));
-    //             for ($i = 0; $i < $numInformes; $i++) {
-    //                 if (isset($etapas[$i])) {
-    //                     $etapa = $etapas[$i];
-    //                     $anio = $etapa['anio'] ?? $currentYear;
-    //                     $numeroEtapa = $etapa['numero_etapa'] ?? ($i + 1);
-    //                     // Determinar estado basado en el estado de la etapa
-    //                     $estado = 'pendiente';
-    //                     if (isset($etapa['estado'])) {
-    //                         if ($etapa['estado'] == 'cerrada') {
-    //                             $estado = 'completado';
-    //                         } else if ($etapa['estado'] == 'abierta') {
-    //                             $estado = rand(0, 1) ? 'revision' : 'pendiente';
-    //                         }
-    //                     }
-    //                     $informesFormateados[] = [
-    //                         'id_unidad' => $idUnidad,
-    //                         'anio' => $anio,
-    //                         'etapa' => $numeroEtapa,
-    //                         'estado' => $estado,
-    //                         'fecha' => isset($etapa['fecha_fin']) ? $etapa['fecha_fin'] : (isset($etapa['fecha_inicio']) ? $etapa['fecha_inicio'] : null)
-    //                     ];
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     // Enriquecer unidades con información de estadísticas
-    //     foreach ($unidades as &$unidad) {
-    //         $idUnidad = $unidad['id_unidad'];
-    //         $unidad['total_usuarios'] = $statsMap[$idUnidad]['total_usuarios'] ?? 0;
-    //         $unidad['usuarios_con_informe'] = $statsMap[$idUnidad]['usuarios_con_informe'] ?? 0;
-    //         $unidad['usuarios_activos'] = $statsMap[$idUnidad]['usuarios_activos'] ?? 0;
-    //         // Contar informes para esta unidad
-    //         $count = 0;
-    //         foreach ($informesFormateados as $informe) {
-    //             if ($informe['id_unidad'] == $idUnidad) {
-    //                 $count++;
-    //             }
-    //         }
-    //         $unidad['total_informes'] = $count;
-    //     }
-    //     return $this->response->setJSON([
-    //         'unidades' => $unidades,
-    //         'informes' => $informesFormateados
-    //     ]);
-    // }
-
-
     public function getUnidadesConInformes()
     {
         if (!isset($this->session->id_usuario)) {
             return $this->response->setJSON(['error' => 'No autorizado']);
         }
-
         if ($this->session->adm == '0') {
             return $this->response->setJSON(['error' => 'No autorizado']);
         }
-
         $db = \Config\Database::connect();
 
         $unidades = $this->unidades
@@ -2811,7 +2711,6 @@ class Administrador extends BaseController
             ->where('estado', 'activo')
             ->first();
         $idPeriodoAnual = $periodosAnuales ? $periodosAnuales['id_periodo_anual'] : null;
-
 
         $builderUsuarios = $db->table('usuarios');
         $builderUsuarios->select('
@@ -2879,7 +2778,6 @@ class Administrador extends BaseController
                 }
             }
         }
-
         return $this->response->setJSON([
             'unidades' => $unidades,
             'informes' => $informesFormateados
@@ -2892,7 +2790,6 @@ class Administrador extends BaseController
         if (!isset($this->session->id_usuario)) {
             return redirect()->to(base_url());
         }
-
         // Validar permisos de administrador
         if ($this->session->adm == '0') {
             return redirect()->to(base_url() . '/inicio/land');
@@ -2921,7 +2818,6 @@ class Administrador extends BaseController
         $odsTemas = $odsTemasModel->getODS();
         $db = \Config\Database::connect();
 
-
         // Obtener información del periodo anual
         $periodoAnual = $this->periodosAnuales
             ->where('estado', 'activo')
@@ -2929,8 +2825,7 @@ class Administrador extends BaseController
 
         // Obtener el informe específico
         $builder = $db->table('informes_gobierno');
-        $builder->select('informes_gobierno.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m, 
-                         usuarios.usuario, etapas.numero_etapa, periodos_anuales.anio');
+        $builder->select('informes_gobierno.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m, usuarios.usuario, etapas.numero_etapa, periodos_anuales.anio');
         $builder->join('usuarios', 'usuarios.id_usuario = informes_gobierno.id_usuario', 'left');
         $builder->join('etapas', 'etapas.id_etapa = informes_gobierno.id_etapa', 'left');
         $builder->join('periodos_anuales', 'periodos_anuales.id_periodo_anual = informes_gobierno.id_periodo_anual', 'left');
@@ -2939,7 +2834,6 @@ class Administrador extends BaseController
 
         $queryResult = $builder->get();
         $informe = $queryResult->getRowArray();
-
         // Obtener archivos relacionados (si existen en la base de datos)
         $archivos = [];
         if ($informe) {
@@ -2949,7 +2843,6 @@ class Administrador extends BaseController
             $archivosResult = $archivosBuilder->get();
             $archivos = $archivosResult->getResultArray();
         }
-
         // Obtener comentarios relacionados (si existen en la base de datos)
         $comentarios = [];
         if ($informe) {
@@ -2972,7 +2865,6 @@ class Administrador extends BaseController
 
             $informesUnidad = $builder->get()->getResultArray();
         }
-
         // Preparar datos para la vista
         $datos = [
             'usuario' => $this->session->usuario,
@@ -2997,14 +2889,12 @@ class Administrador extends BaseController
         echo view('scii/admin/navbar');
     }
 
-
     public function finalizarEtapa()
     {
         //  Validar sesión y permisos
         if (!isset($this->session->id_usuario) || $this->session->adm == '0') {
             return redirect()->to(base_url());
         }
-
         //  Buscar la etapa actualmente abierta
         $etapaAbierta = $this->etapas
             ->where('estado', 'abierta')
@@ -3041,11 +2931,170 @@ class Administrador extends BaseController
             );
     }
 
+    //  * Guardar o actualizar un comentario
+    public function guardarComentario()
+    {
+        // Validar sesión
+        if (!isset($this->session->id_usuario)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Sesión no válida']);
+        }
 
+        // Obtener datos del POST
+        $id_informe = $this->request->getPost('id_informe');
+        $campo_referencia = $this->request->getPost('campo_referencia');
+        $comentario = $this->request->getPost('comentario');
+        $tipo = $this->request->getPost('tipo') ?? 'revision'; // 'revision', 'observacion', 'sugerencia'
 
+        // Validar datos requeridos
+        if (empty($id_informe) || empty($campo_referencia)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos']);
+        }
 
+        // Verificar si ya existe un comentario para este campo
+        $comentarioExistente = $this->informeComentarios
+            ->where('id_informe', $id_informe)
+            ->where('campo_referencia', $campo_referencia)
+            ->where('id_usuario', $this->session->id_usuario)
+            ->first();
 
+        try {
+            if ($comentarioExistente) {
+                // Actualizar comentario existente
+                if (empty($comentario)) {
+                    // Si el comentario está vacío, eliminarlo
+                    $this->informeComentarios->delete($comentarioExistente['id_comentario']);
+                    return $this->response->setJSON([
+                        'success' => true,
+                        'message' => 'Comentario eliminado',
+                        'action' => 'deleted'
+                    ]);
+                } else {
+                    // Actualizar
+                    $this->informeComentarios->update($comentarioExistente['id_comentario'], [
+                        'comentario' => $comentario,
+                        'tipo' => $tipo,
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ]);
+                    return $this->response->setJSON([
+                        'success' => true,
+                        'message' => 'Comentario actualizado',
+                        'action' => 'updated',
+                        'id_comentario' => $comentarioExistente['id_comentario']
+                    ]);
+                }
+            } else {
+                // Crear nuevo comentario solo si hay texto
+                if (!empty($comentario)) {
+                    $id_comentario = $this->informeComentarios->insert([
+                        'id_informe' => $id_informe,
+                        'id_usuario' => $this->session->id_usuario,
+                        'campo_referencia' => $campo_referencia,
+                        'comentario' => $comentario,
+                        'tipo' => $tipo,
+                        'estado' => 'activo',
+                        'created_at' => date('Y-m-d H:i:s')
+                    ]);
 
+                    return $this->response->setJSON([
+                        'success' => true,
+                        'message' => 'Comentario guardado',
+                        'action' => 'created',
+                        'id_comentario' => $id_comentario
+                    ]);
+                }
+            }
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Sin cambios',
+                'action' => 'none'
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al guardar: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    //  * Obtener comentarios de un informe
+    public function obtenerComentarios()
+    {
+        // Validar sesión
+        if (!isset($this->session->id_usuario)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Sesión no válida']);
+        }
+
+        $id_informe = $this->request->getGet('id_informe');
+        $campo_referencia = $this->request->getGet('campo_referencia');
+
+        if (empty($id_informe)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'ID de informe requerido']);
+        }
+
+        $db = \Config\Database::connect();
+        $builder = $db->table('informe_comentarios');
+        $builder->select('informe_comentarios.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m');
+        $builder->join('usuarios', 'usuarios.id_usuario = informe_comentarios.id_usuario', 'left');
+        $builder->where('informe_comentarios.id_informe', $id_informe);
+
+        if ($campo_referencia) {
+            $builder->where('informe_comentarios.campo_referencia', $campo_referencia);
+        }
+
+        $builder->orderBy('informe_comentarios.created_at', 'DESC');
+        $comentarios = $builder->get()->getResultArray();
+
+        return $this->response->setJSON([
+            'success' => true,
+            'comentarios' => $comentarios
+        ]);
+    }
+
+    public function enviarNotificaciones($id_informe)
+    {
+        // Validar sesión
+        if (!isset($this->session->id_usuario)) {
+            return redirect()->to(base_url());
+        }
+        // Validar permisos de administrador
+        if ($this->session->adm == '0') {
+            return redirect()->to(base_url() . '/inicio/land');
+        }
+        $informesRegistrado = $this->informesGobierno->where('id_informe', $id_informe)->first();
+        if (!$informesRegistrado) {
+            return redirect()->back()->with('mensaje', 'Informe no encontrado');
+        }
+        $datosUsario = $this->usuarios->where('id_usuario', $informesRegistrado['id_usuario'])->first();
+        if (!$datosUsario) {
+            return redirect()->back()->with('mensaje', 'Usuario no encontrado');
+        }
+
+        $temaInforme = $informesRegistrado['tema'] ?? 'sin tema';
+        $correo = $datosUsario['correo'];
+        $nombre = $datosUsario['nombre_s'] . ' ' . $datosUsario['apellido_p'] . ' ' . $datosUsario['apellido_m'];
+
+        $this->informesGobierno
+            ->where('id_informe', $id_informe)
+            ->set(['estado' => 'revisado'])
+            ->update();
+
+        $email = \Config\Services::email();
+        $email->setTo($correo);
+        $email->setSubject('Registro de Informe de Gobierno - ' . $temaInforme);
+        $email->setMessage('Estimado usuario, ha enviado un informe de gobierno.
+                            <br><br>
+                            Favor de mantenerse al pendiente de su correo electrónico, pues en él recibirá actualizaciones con respecto al informe enviado.
+                            <br><br>
+                            Atentamente,<br>
+                            Deparamento de Planeación y Evaluación<br>');
+        if (! $email->send(false)) { // ← importante: false
+            echo $email->printDebugger(['headers', 'subject', 'body']);
+        } else {
+
+            return redirect()->to(base_url('administrador/detalle/' . $id_informe))->with('mensaje', 'Notificación enviada a ' . $nombre);
+        }
+    }
 
 
 

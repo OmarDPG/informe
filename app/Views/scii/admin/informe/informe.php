@@ -206,7 +206,7 @@
                         </div>
 
                         <!-- Finalizar -->
-                        <div class="flex items-center justify-center">
+                        <div class="flex items-center justify-left">
                             <a href="<?= base_url('Administrador/finalizarEtapa') ?>"
                                 class="inline-flex items-center justify-center gap-2 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-6 py-3 transition shadow">
                                 Finalizar Etapa

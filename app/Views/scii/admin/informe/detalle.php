@@ -160,7 +160,7 @@
                                     </div>
                                     <!-- Form Container -->
                                     <div class="max-w-4xl mx-auto">
-                                        <form method="POST" class="space-y-6" action="<?php echo base_url(); ?>/Scii/registrarComentarios/<?= esc($informe_id ?? '') ?>" enctype="multipart/form-data">
+                                        <form method="POST" class="space-y-6" action="<?php echo base_url(); ?>/administrador/enviarNotificaciones/<?= esc($informe_id ?? '') ?>" enctype="multipart/form-data">
                                             <input type="hidden" name="informe_id" value="<?= esc($informe_id ?? '') ?>">
                                             <!-- Unidad Administrativa y Fecha de Corte -->
                                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -172,6 +172,7 @@
                                                         value="<?= esc($unidad['descripcion'] ?? '') ?>"
                                                         readonly
                                                         type="text"
+                                                        readonly
                                                         id="unidad_administrativa"
                                                         name="unidad_administrativa"
                                                         required
@@ -201,6 +202,7 @@
                                                     </label>
                                                     <div class="relative">
                                                         <select
+                                                            disabled
                                                             name="alineacionPED"
                                                             id="alineacionPED"
                                                             required
@@ -228,6 +230,7 @@
                                                     </label>
                                                     <div class="relative">
                                                         <select
+                                                                disabled
                                                             name="ordenPrioridad"
                                                             id="ordenPrioridad"
                                                             required
@@ -257,6 +260,7 @@
                                                 <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                                     <input
                                                         type="text"
+                                                        readonly
                                                         id="tema"
                                                         name="tema"
                                                         maxlength="100"
@@ -284,6 +288,7 @@
                                                 <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                                     <input
                                                         type="text"
+                                                        readonly
                                                         id="subtema"
                                                         name="subtema"
                                                         maxlength="100"
@@ -311,6 +316,7 @@
                                                 <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                                     <input
                                                         type="text"
+                                                        readonly
                                                         id="descripcion"
                                                         name="descripcion"
                                                         maxlength="100"
@@ -337,6 +343,7 @@
                                                 </label>
                                                 <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                                     <textarea
+                                                        readonly
                                                         id="contexto"
                                                         name="contexto"
                                                         maxlength="500"
@@ -364,6 +371,7 @@
                                                 <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                                     <input
                                                         type="text"
+                                                        readonly
                                                         id="accion"
                                                         name="accion"
                                                         maxlength="100"
@@ -390,6 +398,7 @@
                                                 </label>
                                                 <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                                     <textarea
+                                                        readonly
                                                         id="impacto"
                                                         name="impacto"
                                                         maxlength="300"
@@ -416,6 +425,7 @@
                                                 </label>
                                                 <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                                     <textarea
+                                                        readonly
                                                         id="territorio"
                                                         name="territorio"
                                                         maxlength="250"
@@ -444,6 +454,7 @@
                                                     <div>
                                                         <input
                                                             type="text"
+                                                            readonly
                                                             id="beneficiarios"
                                                             name="beneficiarios"
                                                             maxlength="150"
@@ -473,6 +484,7 @@
                                                 </label>
                                                 <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                                     <textarea
+                                                        readonly
                                                         id="inversion"
                                                         name="inversion"
                                                         maxlength="200"
@@ -499,6 +511,7 @@
                                                 </label>
                                                 <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                                     <textarea
+                                                        readonly
                                                         id="desarrollo_resultado"
                                                         name="desarrollo_resultado"
                                                         maxlength="3500"
@@ -526,19 +539,20 @@
                                                     </label>
                                                     <div class="relative">
                                                         <select
+                                                                disabled
                                                             name="alineacionProgramasDerivados"
                                                             id="alineacionProgramasDerivados"
                                                             required
                                                             class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
                                                             <option value="" disabled <?= empty($informe['id_alineacion_programa_derivado']) ? 'selected' : '' ?>>Seleccione una opción</option>
-                                                            <?php if ($unidad['id_unidad'] === 1): ?>
+                                                            <?php if ($unidad['id_unidad'] == 1): ?>
                                                                 <?php foreach ($lineasAgua as $la): ?>
                                                                     <option value="<?= $la['id'] ?>" <?= (isset($informe['id_alineacion_programa_derivado']) && $informe['id_alineacion_programa_derivado'] == $la['id']) ? 'selected' : '' ?>>
                                                                         <?= esc($la['codigo']) ?> — <?= esc($la['descripcion']) ?>
                                                                     </option>
                                                                 <?php endforeach; ?>
 
-                                                            <?php elseif ($unidad['id_unidad'] !== 1): ?>
+                                                            <?php elseif ($unidad['id_unidad'] != 1): ?>
                                                                 <?php foreach ($lineasSocioambiental as $ls): ?>
                                                                     <option value="<?= $ls['id'] ?>" <?= (isset($informe['id_alineacion_programa_derivado']) && $informe['id_alineacion_programa_derivado'] == $ls['id']) ? 'selected' : '' ?>>
                                                                         <?= esc($ls['codigo']) ?> — <?= esc($ls['descripcion']) ?>
@@ -561,6 +575,7 @@
                                                     </label>
                                                     <div class="relative">
                                                         <select
+                                                                    disabled
                                                             name="alineacionODS"
                                                             id="alineacionODS"
                                                             required
@@ -658,6 +673,7 @@
                                                 </label>
                                                 <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                                     <textarea
+                                                                readonly
                                                         id="conclusionTematica"
                                                         name="conclusionTematica"
                                                         maxlength="1900"
@@ -684,6 +700,7 @@
                                                 </label>
                                                 <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                                     <textarea
+                                                                readonly
                                                         id="logrosDestacados"
                                                         name="logrosDestacados"
                                                         maxlength="1900"
@@ -707,9 +724,13 @@
                                             <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200" style="gap: 1em;">
                                                 <button
                                                     type="submit"
-                                                    class="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                                                    Registrar Comentarios
+                                                    class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                                    Enviar notificaciones
                                                 </button>
+                                                <a href="<?= base_url('administrador/aprobarInforme/'.$informe['id_informe']) ?>"
+                                                    class="text-center flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                                    Aprobar
+                                                </a>
                                             </div>
                                         </form>
                                     </div>
@@ -830,6 +851,7 @@
         <p class="text-sm text-gray-600 mb-3" id="modalFieldLabel"></p>
 
         <textarea
+                            readonly
             id="commentText"
             rows="4"
             class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
@@ -1126,7 +1148,10 @@
     let currentField = null;
     let currentButton = null;
 
-    // Almacén temporal (luego va a backend)
+    // ID del informe actual
+    const idInforme = <?= $informe_id ?? 0 ?>;
+
+    // Almacén temporal de comentarios cargados
     const comments = {};
 
     // Verificar que los elementos existan antes de agregar event listeners
@@ -1144,13 +1169,54 @@
             });
         });
 
-        saveBtn.addEventListener('click', () => {
+        saveBtn.addEventListener('click', async () => {
             if (!currentField) return;
 
-            comments[currentField] = commentText.value.trim();
+            const comentario = commentText.value.trim();
+            
+            // Deshabilitar botón mientras se guarda
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
 
-            toggleIndicator(currentButton, commentText.value);
-            closeModal();
+            try {
+                // Enviar al servidor
+                const response = await fetch('<?= base_url() ?>/administrador/guardarComentario', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'id_informe': idInforme,
+                        'campo_referencia': currentField,
+                        'comentario': comentario,
+                        'tipo': 'revision'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Actualizar almacén local
+                    comments[currentField] = comentario;
+                    
+                    // Actualizar indicador visual
+                    toggleIndicador(currentButton, comentario);
+                    
+                    // Mostrar mensaje de éxito
+                    mostrarMensaje(data.message, 'success');
+                    
+                    closeModal();
+                } else {
+                    mostrarMensaje(data.message || 'Error al guardar el comentario', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarMensaje('Error de conexión al guardar el comentario', 'error');
+            } finally {
+                // Restaurar botón
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Guardar';
+            }
         });
 
         cancelBtn.addEventListener('click', closeModal);
@@ -1182,7 +1248,7 @@
             }
         }
 
-        function toggleIndicator(button, text) {
+        function toggleIndicador(button, text) {
             if (!button) return;
             const indicator = button.querySelector('.comment-indicator');
             if (indicator) {
@@ -1193,6 +1259,55 @@
                 }
             }
         }
+
+        // Función para cargar comentarios existentes
+        async function cargarComentariosExistentes() {
+            if (!idInforme) return;
+
+            try {
+                const response = await fetch(`<?= base_url() ?>/administrador/obtenerComentarios?id_informe=${idInforme}`);
+                const data = await response.json();
+
+                if (data.success && data.comentarios) {
+                    // Procesar comentarios y actualizar indicadores
+                    data.comentarios.forEach(comentario => {
+                        comments[comentario.campo_referencia] = comentario.comentario;
+                        
+                        // Buscar el botón correspondiente y actualizar indicador
+                        const btn = document.querySelector(`.comment-btn[data-field="${comentario.campo_referencia}"]`);
+                        if (btn) {
+                            toggleIndicador(btn, comentario.comentario);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error al cargar comentarios:', error);
+            }
+        }
+
+        // Función para mostrar mensajes
+        function mostrarMensaje(mensaje, tipo = 'success') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 ${
+                tipo === 'success' ? 'bg-green-100 border border-green-300 text-green-800' : 'bg-red-100 border border-red-300 text-red-800'
+            }`;
+            alertDiv.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fa-solid ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i>
+                    <span>${mensaje}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                setTimeout(() => alertDiv.remove(), 300);
+            }, 3000);
+        }
+
+        // Cargar comentarios existentes al iniciar
+        cargarComentariosExistentes();
     } else {
         console.error('Modal de comentarios: No se encontraron todos los elementos necesarios');
     }
