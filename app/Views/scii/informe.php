@@ -268,14 +268,14 @@
                                                 required
                                                 class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
                                                 <option value="" disabled selected>Seleccione una opción</option>
-                                                <?php if ($datos['id_unidad'] === 1): ?>
+                                                <?php if ($datos['id_unidad'] == 1): ?>
                                                     <?php foreach ($lineasAgua as $la): ?>
                                                         <option value="<?= $la['id'] ?>">
                                                             <?= esc($la['codigo']) ?> — <?= esc($la['descripcion']) ?>
                                                         </option>
                                                     <?php endforeach; ?>
 
-                                                <?php elseif ($datos['id_unidad'] !== 1): ?>
+                                                <?php elseif ($datos['id_unidad'] != 1): ?>
                                                     <?php foreach ($lineasSocioambiental as $ls): ?>
                                                         <option value="<?= $ls['id'] ?>">
                                                             <?= esc($ls['codigo']) ?> — <?= esc($ls['descripcion']) ?>
