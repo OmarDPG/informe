@@ -9,8 +9,8 @@ class Email extends BaseConfig
     /**
      * @var string
      */
-    public string $fromEmail;
-    // public string $fromEmail = 'omar.ch0896@gmail.com';
+    // public string $fromEmail;
+    public string $fromEmail = 'omar.ch0896@gmail.com';
 
     /**
      * @var string
@@ -55,16 +55,16 @@ class Email extends BaseConfig
      *
      * @var string
      */
-    // public $SMTPUser = 'omar.ch0896@gmail.com';
-    public $SMTPUser;
+    public $SMTPUser = 'omar.ch0896@gmail.com';
+    // public $SMTPUser;
 
     /**
      * SMTP Password
      *
      * @var string
      */
-    // public $SMTPPass = 'nblmaklfmgwmzdzb';
-    public $SMTPPass;
+    public $SMTPPass = 'nblmaklfmgwmzdzb';
+    // public $SMTPPass;
 
     /**
      * SMTP Port

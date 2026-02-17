@@ -148,15 +148,11 @@ document.addEventListener('DOMContentLoaded', function () {
             informeItems.forEach(i => {
                 i.classList.remove('border-green-500', 'bg-green-50');
             });
-
             // Agregar selección al item clickeado
             this.classList.add('border-green-500', 'bg-green-50');
 
             const titulo = this.querySelector('h4').textContent;
             console.log('Informe seleccionado:', titulo);
-
-            // Aquí puedes cargar los datos del informe en el formulario
-            // Por ejemplo: cargarInforme(informeId);
         });
     });
 
@@ -179,18 +175,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     counter.className = 'text-xs text-gray-500 mt-1 text-right';
                 }
             });
-
             // Remover selección de items
             informeItems.forEach(i => {
                 i.classList.remove('border-green-500', 'bg-green-50');
             });
-
             // Scroll al inicio del formulario
             window.scrollTo({
                 top: 0,
                 behavior: 'smooth'
             });
-
             console.log('Nuevo informe iniciado');
         });
     }
@@ -485,3 +478,5 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+// Si el formulario tiene datos de un informe seleccionado, cargar esos datos en el formulario

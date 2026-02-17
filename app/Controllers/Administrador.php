@@ -2938,7 +2938,6 @@ class Administrador extends BaseController
         if (!isset($this->session->id_usuario)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Sesión no válida']);
         }
-
         // Obtener datos del POST
         $id_informe = $this->request->getPost('id_informe');
         $campo_referencia = $this->request->getPost('campo_referencia');
@@ -3076,7 +3075,7 @@ class Administrador extends BaseController
 
         $this->informesGobierno
             ->where('id_informe', $id_informe)
-            ->set(['estado' => 'revisado'])
+            ->set(['estado' => 'observado'])
             ->update();
 
         $email = \Config\Services::email();
@@ -3088,7 +3087,7 @@ class Administrador extends BaseController
                             <br><br>
                             Atentamente,<br>
                             Deparamento de Planeación y Evaluación<br>');
-        if (! $email->send(false)) { // ← importante: false
+        if (! $email->send(false)) {
             echo $email->printDebugger(['headers', 'subject', 'body']);
         } else {
 
