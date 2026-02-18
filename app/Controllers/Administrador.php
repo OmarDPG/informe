@@ -19,6 +19,11 @@ use App\Models\GlosaModel;
 use App\Models\PeriodosAnualesModel;
 use App\Models\EtapasModel;
 
+use App\Models\GlosaGestionModel;
+use App\Models\GlosaArchivosModel;
+use App\Models\GlosaComentariosModel;
+use App\Models\GlosasGobiernoModel;
+
 use App\Models\EjesModel;
 use App\Models\EstrategiasModel;
 use App\Models\LineasAccionModel;
@@ -52,7 +57,7 @@ class Administrador extends BaseController
     protected $usuarios, $logs, $session, $reglasUnidad, $periodos, $cargas,
         $unidades, $reglasUsuario, $reglasPeriodo, $reglasUsuarioEdi, $categorias, $respuestas,
         $reglasCargaBas, $reglasCargaPTCI, $reglasCargaPTAR, $reglasCargaCE, $glosa,
-        $periodosAnuales, $etapas, $informesGobierno, $informeArchivos, $informeComentarios,
+        $periodosAnuales, $etapas, $glosaGestion, $glosaArchivos, $glosaComentarios, $glosasGobierno, $informesGobierno, $informeArchivos, $informeComentarios,
         $ejes, $estrategias, $lineasAccion, $objetivos, $tematicas,
         $programaSectorialSocioambiental, $ejesSocioambiental, $estrategiasSocioambiental, $lineasAccionSocioambiental, $objetivosSocioambiental, $tematicasSocioambiental,
         $programaSectorialAgua, $ejesAgua, $estrategiasAgua, $lineasAccionAgua, $objetivosAgua, $tematicasAgua,
@@ -72,6 +77,11 @@ class Administrador extends BaseController
         $this->glosa = new GlosaModel();
         $this->periodosAnuales = new PeriodosAnualesModel();
         $this->etapas = new EtapasModel();
+        $this->glosaGestion = new GlosaGestionModel();
+        $this->glosaArchivos = new GlosaArchivosModel();
+        $this->glosaComentarios = new GlosaComentariosModel();
+        $this->glosasGobierno = new GlosasGobiernoModel();
+
         $this->ejes = new EjesModel();
         $this->estrategias = new EstrategiasModel();
         $this->lineasAccion = new LineasAccionModel();
@@ -3142,7 +3152,7 @@ class Administrador extends BaseController
         if ((($this->session->adm) == '0')) {
             return redirect()->to(base_url() . '/inicio/land');
         }
-        $current = 'Evidencia / Informe de Gobierno';
+        $current = 'Evidencia / Glosa del Informe de Gobierno';
         if (isset($edi))
             $ban = $this->cargas->where(['id_carga' => $edi])->first();
         $datos = isset($edi) ? ['usuario' => $this->session->usuario, 'current' => $current, 'edi' => $ban] : ['usuario' => $this->session->usuario, 'current' => $current];
@@ -3150,4 +3160,514 @@ class Administrador extends BaseController
         echo view('scii/admin/glosa', $datos);
         echo view('scii/admin/navbar');
     }
+
+    public function solicitarGlosa()
+    {
+        // Validar sesión y permisos
+        if (!isset($this->session->id_usuario) || $this->session->adm == '0') {
+            return redirect()->to(base_url());
+        }
+
+        $anioActual = date('Y');
+        $nombreGlosa = 'Glosa ' . $anioActual;
+
+        // Buscar si ya existe glosa de este año
+        $glosaActual = $this->glosaGestion
+            ->where('nombre', $nombreGlosa)
+            ->first();
+
+        if ($glosaActual) {
+            // Si ya existe
+            if ($glosaActual['estado'] === 'abierta') {
+                return redirect()->back()
+                    ->with('mensaje', 'La ' . $nombreGlosa . ' ya está abierta.');
+            } else {
+                // Reabrir glosa existente
+                $this->glosaGestion
+                    ->where('id_glosa', $glosaActual['id_glosa'])
+                    ->set([
+                        'estado' => 'abierta',
+                        'fecha_inicio' => date('Y-m-d')
+                    ])
+                    ->update();
+
+                return redirect()->back()
+                    ->with('mensaje', 'La ' . $nombreGlosa . ' ha sido reabierta correctamente.');
+            }
+        }
+        // Si no existe, crear nueva glosa
+        $fechaInicio = date('Y-m-d');
+        $fechaFin = $anioActual . '-12-01';
+
+        $this->glosaGestion->insert([
+            'nombre' => $nombreGlosa,
+            'fecha_inicio' => $fechaInicio,
+            'fecha_fin_programada' => $anioActual . '-12-01',
+            'fecha_cierre_real' => null,
+            'estado' => 'abierta'
+        ]);
+
+        return redirect()->back()
+            ->with('mensaje', 'La ' . $nombreGlosa . ' ha sido creada y abierta correctamente.');
+    }
+
+
+
+    // public function informes()
+    // {
+    //     if (!isset($this->session->id_usuario)) {
+    //         return redirect()->to(base_url());
+    //     }
+    //     if ((($this->session->adm) == '0')) {
+    //         return redirect()->to(base_url() . '/inicio/land');
+    //     }
+    //     $current = 'Evidencia / Informes de Gobierno';
+    //     if (isset($edi))
+    //         $ban = $this->cargas->where(['id_carga' => $edi])->first();
+    //     $datos = isset($edi) ? ['usuario' => $this->session->usuario, 'current' => $current, 'edi' => $ban] : ['usuario' => $this->session->usuario, 'current' => $current];
+    //     echo view('scii/admin/header');
+    //     echo view('scii/admin/informe/informes', $datos);
+    //     echo view('scii/admin/navbar');
+    // }
+
+    public function getUnidadesConGlosas()
+    {
+        // Seguridad
+        if (!isset($this->session->id_usuario)) {
+            return $this->response->setJSON(['error' => 'No autorizado']);
+        }
+        if ($this->session->adm == '0') {
+            return $this->response->setJSON(['error' => 'No autorizado']);
+        }
+
+        $db = \Config\Database::connect();
+
+        // 1. Obtener unidades activas
+        $unidades = $this->unidades
+            ->where('activo', 1)
+            ->findAll();
+
+        // 2. Obtener glosa activa
+        $glosaActiva = $this->glosaGestion
+            ->where('estado', 'abierta')
+            ->first();
+
+        $idGlosa = $glosaActiva ? $glosaActiva['id_glosa'] : null;
+
+        // 3. Estadísticas de usuarios por unidad (igual que en informes)
+        $builderUsuarios = $db->table('usuarios');
+        $builderUsuarios->select('
+            usuarios.id_unidad,
+            COUNT(usuarios.id_usuario) AS total_usuarios,
+            SUM(CASE WHEN usuarios.glosa = 1 THEN 1 ELSE 0 END) AS usuarios_con_glosa,
+            SUM(CASE WHEN usuarios.loadglosa = 1 THEN 1 ELSE 0 END) AS usuarios_activos
+        ');
+        $builderUsuarios->where('usuarios.activo', 1);
+        $builderUsuarios->groupBy('usuarios.id_unidad');
+
+        $estadisticasUsuarios = $builderUsuarios->get()->getResultArray();
+
+        $statsMap = [];
+        foreach ($estadisticasUsuarios as $stat) {
+            $statsMap[$stat['id_unidad']] = $stat;
+        }
+
+        // 4. Obtener glosas del periodo de glosa activo
+        $glosasFormateadas = [];
+
+        if ($idGlosa) {
+            $builderGlosas = $db->table('glosas_gobierno');
+            $builderGlosas->select('
+                glosas_gobierno.id_glosa_gobierno,
+                glosas_gobierno.id_unidad,
+                glosas_gobierno.id_usuario,
+                glosas_gobierno.tema,
+                glosas_gobierno.estado,
+                glosa_gestion.nombre
+            ');
+            $builderGlosas->join('glosa_gestion', 'glosa_gestion.id_glosa = glosas_gobierno.id_glosa', 'left');
+            $builderGlosas->where('glosas_gobierno.id_glosa', $idGlosa);
+
+            $glosasDB = $builderGlosas->get()->getResultArray();
+
+            foreach ($glosasDB as $glosa) {
+                $glosasFormateadas[] = [
+                    'id_glosa_gobierno' => $glosa['id_glosa_gobierno'],
+                    'id_unidad'        => $glosa['id_unidad'],
+                    'id_usuario'       => $glosa['id_usuario'],
+                    'nombre_glosa'     => $glosa['nombre'],
+                    'tema'             => $glosa['tema'],
+                    'estado'           => $glosa['estado'],
+                ];
+            }
+        }
+
+        // 5. Enriquecer cada unidad con estadísticas y conteo de glosas
+        foreach ($unidades as &$unidad) {
+            $idUnidad = $unidad['id_unidad'];
+
+            $unidad['total_usuarios'] = $statsMap[$idUnidad]['total_usuarios'] ?? 0;
+            $unidad['usuarios_con_glosa'] = $statsMap[$idUnidad]['usuarios_con_glosa'] ?? 0;
+            $unidad['usuarios_activos'] = $statsMap[$idUnidad]['usuarios_activos'] ?? 0;
+
+            $unidad['total_glosas'] = 0;
+            foreach ($glosasFormateadas as $glosa) {
+                if ($glosa['id_unidad'] == $idUnidad) {
+                    $unidad['total_glosas']++;
+                }
+            }
+        }
+
+        // 6. Respuesta JSON
+        return $this->response->setJSON([
+            'unidades' => $unidades,
+            'glosas'   => $glosasFormateadas
+        ]);
+    }
+    
+    public function detalleGlosa($id_glosa_gobierno)
+    {
+        // Validar sesión
+        if (!isset($this->session->id_usuario)) {
+            return redirect()->to(base_url());
+        }
+        // Validar permisos de administrador
+        if ($this->session->adm == '0') {
+            return redirect()->to(base_url() . '/inicio/land');
+        }
+
+        $db = \Config\Database::connect();
+
+        // 1. Obtener unidad de la glosa
+        $dataGlosa = $this->glosasGobierno
+            ->where('id_glosa_gobierno', $id_glosa_gobierno)
+            ->first();
+
+        if (!$dataGlosa) {
+            return redirect()->back()->with('mensaje', 'Glosa no encontrada');
+        }
+
+        $unidad = $this->unidades
+            ->where('id_unidad', $dataGlosa['id_unidad'])
+            ->first();
+
+        // 2. Obtener alineación PED seleccionada
+        $lineaAccionPED = $dataGlosa['id_alineacion_ped'] ?? null;
+
+        // 3. Cargar catálogos (igual que en informe)
+        $lineasModel = new LineasAccionModel();
+        $lineas = $lineasModel->getLineasAccionConContexto();
+
+        $lineasSocioambientalModel = new LineasAccionSocioambientalModel();
+        $lineasSocioambiental = $lineasSocioambientalModel->getLineasAccionConContexto();
+
+        $lineasAguaModel = new LineasAccionAguaModel();
+        $lineasAgua = $lineasAguaModel->getLineasAccionConContexto();
+
+        $odsTemasModel = new OdsTemasModel();
+        $odsTemas = $odsTemasModel->getODS();
+
+        // 4. Obtener glosa con joins (usuario, glosa_gestion)
+        $builder = $db->table('glosas_gobierno');
+        $builder->select('
+            glosas_gobierno.*,
+            usuarios.nombre_s,
+            usuarios.apellido_p,
+            usuarios.apellido_m,
+            usuarios.usuario,
+            glosa_gestion.nombre AS nombre_glosa
+        ');
+        $builder->join('usuarios', 'usuarios.id_usuario = glosas_gobierno.id_usuario', 'left');
+        $builder->join('glosa_gestion', 'glosa_gestion.id_glosa = glosas_gobierno.id_glosa', 'left');
+        $builder->where('glosas_gobierno.id_glosa_gobierno', $id_glosa_gobierno);
+        $builder->orderBy('glosas_gobierno.created_at', 'DESC');
+
+        $glosa = $builder->get()->getRowArray();
+
+        // 5. Obtener archivos de la glosa
+        $archivosBuilder = $db->table('glosa_archivos');
+        $archivosBuilder->where('id_glosa_gobierno', $id_glosa_gobierno);
+        $archivosBuilder->orderBy('created_at', 'DESC');
+        $archivos = $archivosBuilder->get()->getResultArray();
+
+        // 6. Obtener comentarios de la glosa
+        $comentariosBuilder = $db->table('glosa_comentarios');
+        $comentariosBuilder->select('glosa_comentarios.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m');
+        $comentariosBuilder->join('usuarios', 'usuarios.id_usuario = glosa_comentarios.id_usuario', 'left');
+        $comentariosBuilder->where('id_glosa_gobierno', $id_glosa_gobierno);
+        $comentariosBuilder->orderBy('created_at', 'DESC');
+        $comentarios = $comentariosBuilder->get()->getResultArray();
+
+        // 7. Otras glosas recientes de la misma unidad y misma glosa (año)
+        $glosasUnidad = [];
+        if ($unidad) {
+            $builder = $db->table('glosas_gobierno');
+            $builder->select('id_glosa_gobierno, tema, estado, created_at');
+            $builder->where('id_unidad', $unidad['id_unidad']);
+            $builder->where('id_glosa', $dataGlosa['id_glosa']);
+            $builder->orderBy('created_at', 'DESC');
+            $builder->limit(10);
+
+            $glosasUnidad = $builder->get()->getResultArray();
+        }
+
+        // 8. Preparar datos para la vista
+        $datos = [
+            'usuario' => $this->session->usuario,
+            'current' => 'Detalle de la Glosa',
+            'glosa' => $glosa,
+            'glosa_id' => $id_glosa_gobierno,
+            'archivos' => $archivos,
+            'comentarios' => $comentarios,
+            'archivos_count' => count($archivos),
+            'comentarios_count' => count($comentarios),
+            'lineas' => $lineas,
+            'lineasSocioambiental' => $lineasSocioambiental,
+            'lineasAgua' => $lineasAgua,
+            'odsTemas' => $odsTemas,
+            'unidad' => $unidad,
+            'lineaAccionPED' => $lineaAccionPED,
+            'glosasUnidad' => $glosasUnidad,
+        ];
+
+        echo view('scii/admin/header');
+        echo view('scii/admin/glosa/detalle', $datos);
+        echo view('scii/admin/navbar');
+    }
+
+    public function finalizarGlosa()
+    {
+        // Validar sesión y permisos
+        if (!isset($this->session->id_usuario) || $this->session->adm == '0') {
+            return redirect()->to(base_url());
+        }
+
+        // Buscar la glosa actualmente abierta
+        $glosaAbierta = $this->glosaGestion
+            ->where('estado', 'abierta')
+            ->first();
+
+        if (!$glosaAbierta) {
+            return redirect()->back()
+                ->with('mensaje', 'No hay ninguna glosa abierta para finalizar.');
+        }
+
+        // Cerrar la glosa
+        $this->glosaGestion
+            ->where('id_glosa', $glosaAbierta['id_glosa'])
+            ->set([
+                'estado' => 'cerrada',
+                'fecha_cierre_real' => date('Y-m-d')
+            ])
+            ->update();
+
+
+        //  Opcional: bloquear glosa a usuarios
+        $this->usuarios
+            ->where('loadglosa', 1)
+            ->set(['glosa' => 0])
+            ->update();
+
+        return redirect()->back()
+            ->with('mensaje', 'La ' . $glosaAbierta['nombre'] . ' ha sido cerrada correctamente.');
+    }
+
+    //  * Guardar o actualizar un comentario
+    public function guardarComentarioGlosa()
+    {
+        // Validar sesión
+        if (!isset($this->session->id_usuario)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Sesión no válida']);
+        }
+
+        // Obtener datos del POST
+        $id_glosa_gobierno = $this->request->getPost('id_glosa_gobierno');
+        $campo_referencia = $this->request->getPost('campo_referencia');
+        $comentario = $this->request->getPost('comentario');
+        $tipo = $this->request->getPost('tipo') ?? 'observacion'; // observacion, correccion, aprobacion
+
+        // Validar datos requeridos
+        if (empty($id_glosa_gobierno) || empty($campo_referencia)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos']);
+        }
+
+        // (Opcional pero recomendado) Verificar que la glosa esté abierta
+        $db = \Config\Database::connect();
+        $builder = $db->table('glosas_gobierno');
+        $builder->select('glosas_gobierno.id_glosa, glosa_gestion.estado');
+        $builder->join('glosa_gestion', 'glosa_gestion.id_glosa = glosas_gobierno.id_glosa', 'left');
+        $builder->where('glosas_gobierno.id_glosa_gobierno', $id_glosa_gobierno);
+        $estadoGlosa = $builder->get()->getRowArray();
+
+        if (!$estadoGlosa || $estadoGlosa['estado'] !== 'abierta') {
+            return $this->response->setJSON(['success' => false, 'message' => 'La glosa está cerrada. No se pueden guardar comentarios.']);
+        }
+
+        // Verificar si ya existe un comentario para este campo por este usuario
+        $comentarioExistente = $this->glosaComentarios
+            ->where('id_glosa_gobierno', $id_glosa_gobierno)
+            ->where('campo_referencia', $campo_referencia)
+            ->where('id_usuario', $this->session->id_usuario)
+            ->first();
+
+        try {
+            if ($comentarioExistente) {
+                // Actualizar comentario existente
+                if (empty($comentario)) {
+                    // Si el comentario está vacío, eliminarlo
+                    $this->glosaComentarios->delete($comentarioExistente['id_comentario']);
+                    return $this->response->setJSON([
+                        'success' => true,
+                        'message' => 'Comentario eliminado',
+                        'action'  => 'deleted'
+                    ]);
+                } else {
+                    // Actualizar
+                    $this->glosaComentarios->update($comentarioExistente['id_comentario'], [
+                        'comentario' => $comentario,
+                        'tipo'       => $tipo,
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ]);
+                    return $this->response->setJSON([
+                        'success'      => true,
+                        'message'      => 'Comentario actualizado',
+                        'action'       => 'updated',
+                        'id_comentario'=> $comentarioExistente['id_comentario']
+                    ]);
+                }
+            } else {
+                // Crear nuevo comentario solo si hay texto
+                if (!empty($comentario)) {
+                    $id_comentario = $this->glosaComentarios->insert([
+                        'id_glosa_gobierno' => $id_glosa_gobierno,
+                        'id_usuario'        => $this->session->id_usuario,
+                        'campo_referencia'  => $campo_referencia,
+                        'comentario'        => $comentario,
+                        'tipo'              => $tipo,
+                        'estado'            => 'pendiente',
+                        'created_at'        => date('Y-m-d H:i:s')
+                    ]);
+
+                    return $this->response->setJSON([
+                        'success'      => true,
+                        'message'      => 'Comentario guardado',
+                        'action'       => 'created',
+                        'id_comentario'=> $id_comentario
+                    ]);
+                }
+            }
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Sin cambios',
+                'action'  => 'none'
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al guardar: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    //  * Obtener comentarios de un informe
+    public function obtenerComentariosGlosa()
+    {
+        // Validar sesión
+        if (!isset($this->session->id_usuario)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Sesión no válida']);
+        }
+
+        $id_glosa_gobierno = $this->request->getGet('id_glosa_gobierno');
+        $campo_referencia = $this->request->getGet('campo_referencia');
+
+        if (empty($id_glosa_gobierno)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'ID de glosa requerido']);
+        }
+
+        $db = \Config\Database::connect();
+        $builder = $db->table('glosa_comentarios');
+        $builder->select('glosa_comentarios.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m');
+        $builder->join('usuarios', 'usuarios.id_usuario = glosa_comentarios.id_usuario', 'left');
+        $builder->where('glosa_comentarios.id_glosa_gobierno', $id_glosa_gobierno);
+
+        if ($campo_referencia) {
+            $builder->where('glosa_comentarios.campo_referencia', $campo_referencia);
+        }
+
+        $builder->orderBy('glosa_comentarios.created_at', 'DESC');
+        $comentarios = $builder->get()->getResultArray();
+
+        return $this->response->setJSON([
+            'success' => true,
+            'comentarios' => $comentarios
+        ]);
+    }
+
+    public function enviarNotificacionesGlosa($id_glosa_gobierno)
+    {
+        // Validar sesión
+        if (!isset($this->session->id_usuario)) {
+            return redirect()->to(base_url());
+        }
+        // Validar permisos de administrador
+        if ($this->session->adm == '0') {
+            return redirect()->to(base_url() . '/inicio/land');
+        }
+
+        // Buscar la glosa
+        $glosaRegistrada = $this->glosasGobierno
+            ->where('id_glosa_gobierno', $id_glosa_gobierno)
+            ->first();
+
+        if (!$glosaRegistrada) {
+            return redirect()->back()->with('mensaje', 'Glosa no encontrada');
+        }
+
+        // Buscar al usuario dueño de la glosa
+        $datosUsuario = $this->usuarios
+            ->where('id_usuario', $glosaRegistrada['id_usuario'])
+            ->first();
+
+        if (!$datosUsuario) {
+            return redirect()->back()->with('mensaje', 'Usuario no encontrado');
+        }
+
+        // Preparar datos para el correo
+        $temaGlosa = $glosaRegistrada['tema'] ?? 'sin tema';
+        $correo = $datosUsuario['correo'];
+        $nombre = trim(
+            ($datosUsuario['nombre_s'] ?? '') . ' ' .
+            ($datosUsuario['apellido_p'] ?? '') . ' ' .
+            ($datosUsuario['apellido_m'] ?? '')
+        );
+
+        // Cambiar estado de la glosa a "revisado"
+        $this->glosasGobierno
+            ->where('id_glosa_gobierno', $id_glosa_gobierno)
+            ->set(['estado' => 'revisado'])
+            ->update();
+
+        // Enviar correo
+        $email = \Config\Services::email();
+        $email->setTo($correo);
+        $email->setSubject('Registro de Glosa del Informe de Gobierno - ' . $temaGlosa);
+        $email->setMessage(
+            'Estimado(a) ' . $nombre . ',<br><br>
+            Su glosa ha sido revisada por el área correspondiente.<br>
+            Favor de mantenerse al pendiente de su correo electrónico, ya que podría recibir observaciones o indicaciones adicionales.<br><br>
+            Atentamente,<br>
+            Departamento de Planeación y Evaluación'
+        );
+
+        if (!$email->send(false)) { // false = no limpiar para debug
+            echo $email->printDebugger(['headers', 'subject', 'body']);
+            return;
+        }
+
+        // Redirigir al detalle de la glosa con mensaje de éxito
+        return redirect()->to(base_url('administrador/detalleGlosa/' . $id_glosa_gobierno))
+            ->with('mensaje', 'Notificación enviada a ' . $nombre);
+    }
+
 }

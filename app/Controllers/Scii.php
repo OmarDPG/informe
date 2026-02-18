@@ -28,19 +28,12 @@ use App\Models\LineasAccionModel;
 use App\Models\ObjetivosModel;
 use App\Models\TematicasModel;
 
-use App\Models\ProgramaSectorialAguaModel;
-use App\Models\EjesAguaModel;
-use App\Models\EstrategiasAguaModel;
-use App\Models\LineasAccionAguaModel;
-use App\Models\ObjetivosAguaModel;
-use App\Models\TematicasAguaModel;
-
-use App\Models\ProgramaSectorialSocioambientalModel;
-use App\Models\EjesSocioambientalModel;
-use App\Models\EstrategiasSocioambientalModel;
-use App\Models\LineasAccionSocioambientalModel;
-use App\Models\ObjetivosSocioambientalModel;
-use App\Models\TematicasSocioambientalModel;
+use App\Models\ProgramaSectorialInformeModel;
+use App\Models\EjesInformeModel;
+use App\Models\EstrategiasInformeModel;
+use App\Models\LineasAccionInformeModel;
+use App\Models\ObjetivosInformeModel;
+use App\Models\TematicasInformeModel;
 
 use App\Models\OdsMetasModel;
 use App\Models\OdsObjetivosModel;
@@ -57,8 +50,7 @@ class Scii extends BaseController
         $partes, $preguntas,
         $respuestas, $categorias, $periodo, $glosa, $periodosAnuales, $etapas,
         $ejes, $estrategias, $lineasAccion, $objetivos, $tematicas,
-        $programaSectorialSocioambiental, $ejesSocioambiental, $estrategiasSocioambiental, $lineasAccionSocioambiental, $objetivosSocioambiental, $tematicasSocioambiental,
-        $programaSectorialAgua, $ejesAgua, $estrategiasAgua, $lineasAccionAgua, $objetivosAgua, $tematicasAgua,
+        $programaSectorialInforme, $ejesInforme, $estrategiasInforme, $lineasAccionInforme, $objetivosInforme, $tematicasInforme,
         $odsMetas, $odsObjetivos, $odsTemas;
     public function __construct()
     {
@@ -84,18 +76,12 @@ class Scii extends BaseController
         $this->lineasAccion = new LineasAccionModel();
         $this->objetivos = new ObjetivosModel();
         $this->tematicas = new TematicasModel();
-        $this->ejesAgua = new EjesAguaModel();
-        $this->estrategiasAgua = new EstrategiasAguaModel();
-        $this->lineasAccionAgua = new LineasAccionAguaModel();
-        $this->objetivosAgua = new ObjetivosAguaModel();
-        $this->tematicasAgua = new TematicasAguaModel();
-        $this->programaSectorialAgua = new ProgramaSectorialAguaModel();
-        $this->ejesSocioambiental = new EjesSocioambientalModel();
-        $this->estrategiasSocioambiental = new EstrategiasSocioambientalModel();
-        $this->lineasAccionSocioambiental = new LineasAccionSocioambientalModel();
-        $this->objetivosSocioambiental = new ObjetivosSocioambientalModel();
-        $this->tematicasSocioambiental = new TematicasSocioambientalModel();
-        $this->programaSectorialSocioambiental = new ProgramaSectorialSocioambientalModel();
+        $this->ejesInforme = new EjesInformeModel();
+        $this->estrategiasInforme = new EstrategiasInformeModel();
+        $this->lineasAccionInforme = new LineasAccionInformeModel();
+        $this->objetivosInforme = new ObjetivosInformeModel();
+        $this->tematicasInforme = new TematicasInformeModel();
+        $this->programaSectorialInforme = new ProgramaSectorialInformeModel();
         $this->odsMetas = new OdsMetasModel();
         $this->odsObjetivos = new OdsObjetivosModel();
         $this->odsTemas = new OdsTemasModel();
@@ -813,10 +799,10 @@ class Scii extends BaseController
         }
         $lineasModel = new LineasAccionModel();
         $lineas = $lineasModel->getLineasAccionConContexto();
-        $lineasSocioambientalModel = new LineasAccionSocioambientalModel();
-        $lineasSocioambiental = $lineasSocioambientalModel->getLineasAccionConContexto();
-        $lineasAguaModel = new LineasAccionAguaModel();
-        $lineasAgua = $lineasAguaModel->getLineasAccionConContexto();
+        $lineasSocioambientalModel = new LineasAccionInformeModel();
+        $lineasSocioambiental = $lineasSocioambientalModel->getLineasAccionPorPrograma(2);
+        $lineasAguaModel = new LineasAccionInformeModel();
+        $lineasAgua = $lineasAguaModel->getLineasAccionPorPrograma(1);
         $odsTemasModel = new OdsTemasModel();
         $odsTemas = $odsTemasModel->getODS();
         $periodoAnualActivo = $this->periodosAnuales
