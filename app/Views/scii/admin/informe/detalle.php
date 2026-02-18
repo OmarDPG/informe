@@ -132,7 +132,7 @@
                         <tbody>
                             <tr>
                                 <td tabindex="42" class="pt-4 align-middle text-center pr-2">
-                                    <i class="fa-solid fa-paper-plane text-2xl text-rose-900"></i>
+                                    <i class="fa-solid fa-file-invoice text-2xl text-rose-900"></i>
                                 </td>
                                 <td class="pt-4" tabindex="43"><a href="<?php echo base_url() . '/administrador/informes'; ?>" class="pl-4 mb-1 flex place-items-center text-emerald-600/100">
                                         Dashboard de Unidades</a></td>
@@ -597,7 +597,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-
+                                            <!-- Archivos adjuntos al informe -->
                                             <div style="border: solid 1px #d1d5db; border-radius: 10px; padding: 10px;">
                                                 <div class="flex justify-between items-center mb-4">
                                                     <label class="block text-sm font-medium text-gray-700">
@@ -789,7 +789,6 @@
                                     </div>
                                 <?php endif; ?>
                             </div>
-
                         </aside>
                     </div>
                 </section>
