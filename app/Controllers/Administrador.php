@@ -3191,7 +3191,10 @@ class Administrador extends BaseController
                         'fecha_inicio' => date('Y-m-d')
                     ])
                     ->update();
-
+                $this->usuarios
+                    ->where(['loadinforme' => 1])
+                    ->set(['informe' => 1])
+                    ->update();
                 return redirect()->back()
                     ->with('mensaje', 'La ' . $nombreGlosa . ' ha sido reabierta correctamente.');
             }
@@ -3207,29 +3210,14 @@ class Administrador extends BaseController
             'fecha_cierre_real' => null,
             'estado' => 'abierta'
         ]);
+        $this->usuarios
+            ->where(['loadinforme' => 1])
+            ->set(['informe' => 1])
+            ->update();
 
         return redirect()->back()
             ->with('mensaje', 'La ' . $nombreGlosa . ' ha sido creada y abierta correctamente.');
     }
-
-
-
-    // public function informes()
-    // {
-    //     if (!isset($this->session->id_usuario)) {
-    //         return redirect()->to(base_url());
-    //     }
-    //     if ((($this->session->adm) == '0')) {
-    //         return redirect()->to(base_url() . '/inicio/land');
-    //     }
-    //     $current = 'Evidencia / Informes de Gobierno';
-    //     if (isset($edi))
-    //         $ban = $this->cargas->where(['id_carga' => $edi])->first();
-    //     $datos = isset($edi) ? ['usuario' => $this->session->usuario, 'current' => $current, 'edi' => $ban] : ['usuario' => $this->session->usuario, 'current' => $current];
-    //     echo view('scii/admin/header');
-    //     echo view('scii/admin/informe/informes', $datos);
-    //     echo view('scii/admin/navbar');
-    // }
 
     public function getUnidadesConGlosas()
     {
