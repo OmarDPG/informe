@@ -850,7 +850,6 @@
         <p class="text-sm text-gray-600 mb-3" id="modalFieldLabel"></p>
 
         <textarea
-                            readonly
             id="commentText"
             rows="4"
             class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"

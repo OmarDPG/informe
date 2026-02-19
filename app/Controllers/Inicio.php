@@ -55,6 +55,7 @@ class Inicio extends BaseController
                     'adm'=>$datosusuario['adm'],
                     'fecha_ultimo_acceso'=>$datosusuario['fecha_ultimo_acceso'],
                     'c_acceso'=>date('Y-m-d H:i:s'),
+                    'correo'=>$datosusuario['correo'],
                     //'scii'=>$datosusuario['scii']
                     ];
                     $session=session();

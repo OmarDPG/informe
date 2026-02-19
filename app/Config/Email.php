@@ -15,7 +15,7 @@ class Email extends BaseConfig
     /**
      * @var string
      */
-    public string $fromName;
+    public string $fromName = 'Omar Cárcamo Hernández';
 
     /**
      * @var string
