@@ -7,7 +7,7 @@ public/uploads/
 writable/uploads/
 writable/session/
 writable/logs/
-writable/debugar/
+writable/debugbar/
 public/files/
 /writable/*
 app/Config/Database.php
