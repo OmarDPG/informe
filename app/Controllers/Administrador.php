@@ -19,10 +19,10 @@ use App\Models\GlosaModel;
 use App\Models\PeriodosAnualesModel;
 use App\Models\EtapasModel;
 
-// use App\Models\GlosaGestionModel;
-// use App\Models\GlosaArchivosModel;
-// use App\Models\GlosaComentariosModel;
-// use App\Models\GlosasGobiernoModel;
+use App\Models\GlosaGestionModel;
+use App\Models\GlosaArchivosModel;
+use App\Models\GlosaComentariosModel;
+use App\Models\GlosasGobiernoModel;
 
 use App\Models\EjesModel;
 use App\Models\EstrategiasModel;
@@ -30,19 +30,26 @@ use App\Models\LineasAccionModel;
 use App\Models\ObjetivosModel;
 use App\Models\TematicasModel;
 
-use App\Models\ProgramaSectorialAguaModel;
-use App\Models\EjesAguaModel;
-use App\Models\EstrategiasAguaModel;
-use App\Models\LineasAccionAguaModel;
-use App\Models\ObjetivosAguaModel;
-use App\Models\TematicasAguaModel;
+// use App\Models\ProgramaSectorialAguaModel;
+// use App\Models\EjesAguaModel;
+// use App\Models\EstrategiasAguaModel;
+// use App\Models\LineasAccionAguaModel;
+// use App\Models\ObjetivosAguaModel;
+// use App\Models\TematicasAguaModel;
 
-use App\Models\ProgramaSectorialSocioambientalModel;
-use App\Models\EjesSocioambientalModel;
-use App\Models\EstrategiasSocioambientalModel;
-use App\Models\LineasAccionSocioambientalModel;
-use App\Models\ObjetivosSocioambientalModel;
-use App\Models\TematicasSocioambientalModel;
+// use App\Models\ProgramaSectorialSocioambientalModel;
+// use App\Models\EjesSocioambientalModel;
+// use App\Models\EstrategiasSocioambientalModel;
+// use App\Models\LineasAccionSocioambientalModel;
+// use App\Models\ObjetivosSocioambientalModel;
+// use App\Models\TematicasSocioambientalModel;
+
+use App\Models\ProgramaSectorialInformeModel;
+use App\Models\EjesInformeModel;
+use App\Models\EstrategiasInformeModel;
+use App\Models\LineasAccionInformeModel;
+use App\Models\ObjetivosInformeModel;
+use App\Models\TematicasInformeModel;
 
 use App\Models\OdsMetasModel;
 use App\Models\OdsObjetivosModel;
@@ -59,8 +66,9 @@ class Administrador extends BaseController
         $reglasCargaBas, $reglasCargaPTCI, $reglasCargaPTAR, $reglasCargaCE, $glosa,
         $periodosAnuales, $etapas, $glosaGestion, $glosaArchivos, $glosaComentarios, $glosasGobierno, $informesGobierno, $informeArchivos, $informeComentarios,
         $ejes, $estrategias, $lineasAccion, $objetivos, $tematicas,
-        $programaSectorialSocioambiental, $ejesSocioambiental, $estrategiasSocioambiental, $lineasAccionSocioambiental, $objetivosSocioambiental, $tematicasSocioambiental,
-        $programaSectorialAgua, $ejesAgua, $estrategiasAgua, $lineasAccionAgua, $objetivosAgua, $tematicasAgua,
+        // $programaSectorialSocioambiental, $ejesSocioambiental, $estrategiasSocioambiental, $lineasAccionSocioambiental, $objetivosSocioambiental, $tematicasSocioambiental,
+        // $programaSectorialAgua, $ejesAgua, $estrategiasAgua, $lineasAccionAgua, $objetivosAgua, $tematicasAgua,
+        $programaSectorialInforme, $ejesInforme, $estrategiasInforme, $lineasAccionInforme, $objetivosInforme, $tematicasInforme,
         $odsMetas, $odsObjetivos, $odsTemas;
     public function __construct()
     {
@@ -77,28 +85,35 @@ class Administrador extends BaseController
         $this->glosa = new GlosaModel();
         $this->periodosAnuales = new PeriodosAnualesModel();
         $this->etapas = new EtapasModel();
-        // $this->glosaGestion = new GlosaGestionModel();
-        // $this->glosaArchivos = new GlosaArchivosModel();
-        // $this->glosaComentarios = new GlosaComentariosModel();
-        // $this->glosasGobierno = new GlosasGobiernoModel();
+        $this->glosaGestion = new GlosaGestionModel();
+        $this->glosaArchivos = new GlosaArchivosModel();
+        $this->glosaComentarios = new GlosaComentariosModel();
+        $this->glosasGobierno = new GlosasGobiernoModel();
 
         $this->ejes = new EjesModel();
         $this->estrategias = new EstrategiasModel();
         $this->lineasAccion = new LineasAccionModel();
         $this->objetivos = new ObjetivosModel();
         $this->tematicas = new TematicasModel();
-        $this->ejesAgua = new EjesAguaModel();
-        $this->estrategiasAgua = new EstrategiasAguaModel();
-        $this->lineasAccionAgua = new LineasAccionAguaModel();
-        $this->objetivosAgua = new ObjetivosAguaModel();
-        $this->tematicasAgua = new TematicasAguaModel();
-        $this->programaSectorialAgua = new ProgramaSectorialAguaModel();
-        $this->ejesSocioambiental = new EjesSocioambientalModel();
-        $this->estrategiasSocioambiental = new EstrategiasSocioambientalModel();
-        $this->lineasAccionSocioambiental = new LineasAccionSocioambientalModel();
-        $this->objetivosSocioambiental = new ObjetivosSocioambientalModel();
-        $this->tematicasSocioambiental = new TematicasSocioambientalModel();
-        $this->programaSectorialSocioambiental = new ProgramaSectorialSocioambientalModel();
+        // $this->ejesAgua = new EjesAguaModel();
+        // $this->estrategiasAgua = new EstrategiasAguaModel();
+        // $this->lineasAccionAgua = new LineasAccionAguaModel();
+        // $this->objetivosAgua = new ObjetivosAguaModel();
+        // $this->tematicasAgua = new TematicasAguaModel();
+        // $this->programaSectorialAgua = new ProgramaSectorialAguaModel();
+        // $this->ejesSocioambiental = new EjesSocioambientalModel();
+        // $this->estrategiasSocioambiental = new EstrategiasSocioambientalModel();
+        // $this->lineasAccionSocioambiental = new LineasAccionSocioambientalModel();
+        // $this->objetivosSocioambiental = new ObjetivosSocioambientalModel();
+        // $this->tematicasSocioambiental = new TematicasSocioambientalModel();
+        // $this->programaSectorialSocioambiental = new ProgramaSectorialSocioambientalModel();
+        $this->ejesInforme = new EjesInformeModel();
+        $this->estrategiasInforme = new EstrategiasInformeModel();
+        $this->lineasAccionInforme = new LineasAccionInformeModel();
+        $this->objetivosInforme = new ObjetivosInformeModel();
+        $this->tematicasInforme = new TematicasInformeModel();
+        $this->programaSectorialInforme = new ProgramaSectorialInformeModel();
+
         $this->odsMetas = new OdsMetasModel();
         $this->odsObjetivos = new OdsObjetivosModel();
         $this->odsTemas = new OdsTemasModel();
@@ -2820,10 +2835,10 @@ class Administrador extends BaseController
 
         $lineasModel = new LineasAccionModel();
         $lineas = $lineasModel->getLineasAccionConContexto();
-        $lineasSocioambientalModel = new LineasAccionSocioambientalModel();
-        $lineasSocioambiental = $lineasSocioambientalModel->getLineasAccionConContexto();
-        $lineasAguaModel = new LineasAccionAguaModel();
-        $lineasAgua = $lineasAguaModel->getLineasAccionConContexto();
+        $lineasSocioambientalModel = new LineasAccionInformeModel();
+        $lineasSocioambiental = $lineasSocioambientalModel->getLineasAccionPorPrograma(2);
+        $lineasAguaModel = new LineasAccionInformeModel();
+        $lineasAgua = $lineasAguaModel->getLineasAccionPorPrograma(1);
         $odsTemasModel = new OdsTemasModel();
         $odsTemas = $odsTemasModel->getODS();
         $db = \Config\Database::connect();
@@ -2871,6 +2886,7 @@ class Administrador extends BaseController
             $builder->where('id_unidad', $unidad['id_unidad']);
             $builder->where('id_periodo_anual', $periodoAnual['id_periodo_anual']);
             $builder->orderBy('created_at', 'DESC');
+            $builder->limit(10); // recientes
 
             $informesUnidad = $builder->get()->getResultArray();
         }
@@ -3089,57 +3105,13 @@ class Administrador extends BaseController
 
         $email = \Config\Services::email();
         $email->setTo($correo);
-        $email->setSubject('Observaciones y/o comentarios del Informe de Gobierno | SMADSOT');
-        $email->setMessage('Estimado/a enlace, por este medio se informa que <strong>has recibido observaciones y/o comentarios sobre los resultados institucionales</strong> capturados en el módulo de “Informe de Gobierno” del Sistema de Control Interno Institucional de la Secretaría de Medio Ambiente, Desarrollo Sustentable y Ordenamiento Territorial relacionado al tema de '.'<strong>'. $temaInforme . '</strong>' . ' por lo que <u>te solicitamos ingresar al sistema con tu usuario y contraseña para su atención</u> .
+        $email->setSubject('Registro de Informe de Gobierno - ' . $temaInforme);
+        $email->setMessage('Estimado usuario, ha enviado un informe de gobierno.
                             <br><br>
-                            En caso de cualquier duda al respecto, se ponen a disposición las extensiones 1211 y 1234 del Departamento de Planeación y Evaluación.
+                            Favor de mantenerse al pendiente de su correo electrónico, pues en él recibirá actualizaciones con respecto al informe enviado.
                             <br><br>
-                            Sin otro particular, se agradece la atención prestada.');
-        if (! $email->send(false)) {
-            echo $email->printDebugger(['headers', 'subject', 'body']);
-        } else {
-
-            return redirect()->to(base_url('administrador/detalle/' . $id_informe))->with('mensaje', 'Notificación enviada a ' . $nombre);
-        }
-    }
-    public function aprobarInforme($id_informe)
-    {
-        // Validar sesión
-        if (!isset($this->session->id_usuario)) {
-            return redirect()->to(base_url());
-        }
-        // Validar permisos de administrador
-        if ($this->session->adm == '0') {
-            return redirect()->to(base_url() . '/inicio/land');
-        }
-        $informesRegistrado = $this->informesGobierno->where('id_informe', $id_informe)->first();
-        if (!$informesRegistrado) {
-            return redirect()->back()->with('mensaje', 'Informe no encontrado');
-        }
-        $datosUsario = $this->usuarios->where('id_usuario', $informesRegistrado['id_usuario'])->first();
-        if (!$datosUsario) {
-            return redirect()->back()->with('mensaje', 'Usuario no encontrado');
-        }
-
-        $temaInforme = $informesRegistrado['tema'] ?? 'sin tema';
-        $correo = $datosUsario['correo'];
-        $nombre = $datosUsario['nombre_s'] . ' ' . $datosUsario['apellido_p'] . ' ' . $datosUsario['apellido_m'];
-
-        $this->informesGobierno
-            ->where('id_informe', $id_informe)
-            ->set(['estado' => 'aprobado'])
-            ->update();
-
-        $email = \Config\Services::email();
-        $email->setTo($correo);
-        $email->setSubject('Validación de resultados institucionales del Informe de Gobierno | SMADSOT - ' . $temaInforme);
-        $email->setMessage('Estimado/a enlace, por este medio se informa que <strong>han sido validados los resultados
-                            institucionales capturados de su Unidad Administrativa</strong> en el módulo de “Informe de Gobierno”
-                            del Sistema de Control Interno Institucional de la Secretaría de Medio Ambiente, Desarrollo
-                            Sustentable y Ordenamiento Territorial.
-                            <br>
-                            Sin otro particular, se agradece la atención prestada.
-                            <br><br>');
+                            Atentamente,<br>
+                            Deparamento de Planeación y Evaluación<br>');
         if (! $email->send(false)) {
             echo $email->printDebugger(['headers', 'subject', 'body']);
         } else {
@@ -3234,8 +3206,8 @@ class Administrador extends BaseController
                     ])
                     ->update();
                 $this->usuarios
-                    ->where(['loadglosa' => 1])
-                    ->set(['glosa' => 1])
+                    ->where(['loadinforme' => 1])
+                    ->set(['informe' => 1])
                     ->update();
                 return redirect()->back()
                     ->with('mensaje', 'La ' . $nombreGlosa . ' ha sido reabierta correctamente.');
@@ -3253,8 +3225,8 @@ class Administrador extends BaseController
             'estado' => 'abierta'
         ]);
         $this->usuarios
-            ->where(['loadglosa' => 1])
-            ->set(['glosa' => 1])
+            ->where(['loadinforme' => 1])
+            ->set(['informe' => 1])
             ->update();
 
         return redirect()->back()
@@ -3388,16 +3360,13 @@ class Administrador extends BaseController
         // 3. Cargar catálogos (igual que en informe)
         $lineasModel = new LineasAccionModel();
         $lineas = $lineasModel->getLineasAccionConContexto();
-
-        $lineasSocioambientalModel = new LineasAccionSocioambientalModel();
-        $lineasSocioambiental = $lineasSocioambientalModel->getLineasAccionConContexto();
-
-        $lineasAguaModel = new LineasAccionAguaModel();
-        $lineasAgua = $lineasAguaModel->getLineasAccionConContexto();
-
+        $lineasSocioambientalModel = new LineasAccionInformeModel();
+        $lineasSocioambiental = $lineasSocioambientalModel->getLineasAccionPorPrograma(2);
+        $lineasAguaModel = new LineasAccionInformeModel();
+        $lineasAgua = $lineasAguaModel->getLineasAccionPorPrograma(1);
         $odsTemasModel = new OdsTemasModel();
         $odsTemas = $odsTemasModel->getODS();
-
+        
         // 4. Obtener glosa con joins (usuario, glosa_gestion)
         $builder = $db->table('glosas_gobierno');
         $builder->select('
@@ -3437,6 +3406,7 @@ class Administrador extends BaseController
             $builder->where('id_unidad', $unidad['id_unidad']);
             $builder->where('id_glosa', $dataGlosa['id_glosa']);
             $builder->orderBy('created_at', 'DESC');
+            $builder->limit(10);
 
             $glosasUnidad = $builder->get()->getResultArray();
         }
