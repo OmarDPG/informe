@@ -785,9 +785,16 @@ class Scii extends BaseController
     }
     public function informe($id_informe = null)
     {
+        $estadoPeriodo = $this->periodosAnuales->where('estado', 'activo')->first();
+        if (!$estadoPeriodo) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'No hay un periodo anual activo. No se puede actualizar el informe.');
+        }
         if (!isset($this->session->id_usuario)) {
             return redirect()->to(base_url());
         }
+
         $usuario = $this->usuarios->where([
             'id_usuario'  => $this->session->id_usuario,
             'loadinforme' => 1,
@@ -825,14 +832,16 @@ class Scii extends BaseController
             $builder->select('id_informe, tema, estado, created_at');
             $builder->where('id_unidad', $unidad['id_unidad']);
             $builder->where('id_periodo_anual', $periodoAnual['id_periodo_anual']);
-            $builder->orderBy('created_at', 'DESC');
-            $builder->limit(10); // recientes
+            $builder->orderBy('estado', 'DESC');
 
             $informes = $builder->get()->getResultArray();
         }
 
         if ($id_informe !== NULL) {
-            $informesGobierno = $this->informesGobierno->where('id_informe', $id_informe)->first();
+            $informesGobierno = $this->informesGobierno
+                ->where('id_informe', $id_informe)
+                ->where('id_periodo_anual', $idPeriodoActivo)
+                ->first();
             $queryResult = $builder->get();
             $informe = $queryResult->getRowArray();
             $archivos = [];
@@ -962,6 +971,18 @@ class Scii extends BaseController
                 $this->limpiarArchivos($archivosGuardados);
                 throw new \Exception('La transacción de base de datos falló');
             }
+            // Agregar correo de confirmacion de envio de informe.
+            $email = \Config\Services::email();
+            $email->setTo($this->session->correo);
+            $email->setSubject('Captura de resultados institucionales para Informe de Gobierno | SMADSOT');
+            $email->setMessage('Estimado/a enlace, por este medio se informa la que <strong>Dirección de Planeación y Geomática ha recibido la información capturada de resultados institucionales</strong> de su Unidad Administrativa en el módulo de “Informe de Gobierno” del Sistema de Control Interno Institucional de la Secretaría de Medio Ambiente, Desarrollo Sustentable y Ordenamiento Territorial.
+            <br><br>
+            <u>Te solicitamos estar pendiente de tu correo electrónico institucional durante el proceso de revisión</u> por parte del Departamento de Planeación y Evaluación, en caso de que se requiera el apoyo para solventar observaciones y/o comentarios..
+                            <br><br>
+                            Sin otro particular, se agradece la atención prestada.');
+            if (! $email->send(false)) {
+                echo $email->printDebugger(['headers', 'subject', 'body']);
+            }
             return redirect()->to('/Scii/informe')
                 ->with('success', 'Informe registrado correctamente con ' . count($archivosGuardados) . ' archivo(s)');
         } catch (\Exception $e) {
@@ -985,6 +1006,12 @@ class Scii extends BaseController
 
     private function actualizarInforme($informeId)
     {
+        $estadoPeriodo = $this->periodosAnuales->where('estado', 'activo')->first();
+        if (!$estadoPeriodo) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'No hay un periodo anual activo. No se puede actualizar el informe.');
+        }
         $db = \Config\Database::connect();
         $archivosEliminados = [];
         $archivosGuardados = [];
@@ -1051,7 +1078,7 @@ class Scii extends BaseController
             foreach ($archivosExistentes as $archivo) {
                 // Extraer la ruta física del archivo
                 $rutaFisica = str_replace(base_url(), FCPATH, $archivo['ruta_archivo']);
-                
+
                 if (file_exists($rutaFisica)) {
                     if (unlink($rutaFisica)) {
                         $archivosEliminados[] = $rutaFisica;
@@ -1079,7 +1106,6 @@ class Scii extends BaseController
 
             return redirect()->to("/Scii/informe/{$informeId}")
                 ->with('success', 'Informe actualizado correctamente con ' . count($archivosGuardados) . ' archivo(s)');
-
         } catch (\Exception $e) {
             // Rollback
             if ($db->transStatus() !== false) {

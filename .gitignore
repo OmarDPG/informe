@@ -9,3 +9,7 @@ writable/session/
 writable/logs/
 writable/debugbar/
 public/files/
+/writable/*
+app/Config/Database.php
+app/Config/Email.php
+
