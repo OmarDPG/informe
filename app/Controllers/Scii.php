@@ -1445,4 +1445,704 @@ class Scii extends BaseController
             ]);
         }
     }
+
+    //Código relacionado con la glosa
+    public function glosa($id_glosa_gobierno = null)
+    {
+        // 1. Validar sesión
+        if (!isset($this->session->id_usuario)) {
+            return redirect()->to(base_url());
+        }
+
+        // 2. Validar permisos para glosa 
+        $usuario = $this->usuarios->where([
+            'id_usuario' => $this->session->id_usuario,
+            'loadglosa' => 1, 
+            'glosa' => 1      // idem
+        ])->first();
+
+        if (!$usuario) {
+            return redirect()->to(base_url('scii/inicio/'))
+                ->with('mensaje', 'No tienes acceso a esta sección.');
+        }
+
+        // 3. Cargar catálogos
+        $lineasModel = new LineasAccionModel();
+        $lineas = $lineasModel->getLineasAccionConContexto();
+        $lineasSocioambientalModel = new LineasAccionInformeModel();
+        $lineasSocioambiental = $lineasSocioambientalModel->getLineasAccionPorPrograma(2);
+        $lineasAguaModel = new LineasAccionInformeModel();
+        $lineasAgua = $lineasAguaModel->getLineasAccionPorPrograma(1);
+        $odsTemasModel = new OdsTemasModel();
+        $odsTemas = $odsTemasModel->getODS();
+
+        // 4. Obtener glosa activa
+        $glosaActiva = $this->glosaGestion
+            ->where('estado', 'abierta')
+            ->first();
+
+        // 5. Obtener unidad del usuario
+        $id_unidad = $usuario['id_unidad'];
+        $unidad = $this->unidades->where('id_unidad', $id_unidad)->first();
+        $usuario['nombre_unidad'] = $unidad['descripcion'] ?? '';
+
+        // 6. Obtener últimas glosas de la unidad (si hay glosa activa)
+        $db = \Config\Database::connect();
+        $glosas = [];
+
+        if ($unidad && $glosaActiva) {
+            $builder = $db->table('glosas_gobierno');
+            $builder->select('id_glosa_gobierno, tema, estado, created_at');
+            $builder->where('id_unidad', $unidad['id_unidad']);
+            $builder->where('id_glosa', $glosaActiva['id_glosa']);
+            $builder->orderBy('created_at', 'DESC');
+            $builder->limit(10);
+
+            $glosas = $builder->get()->getResultArray();
+        }
+
+        $glosaSeleccionada = null;
+        $archivos = [];
+        $comentarios = [];
+
+        // 7. Si se pidió una glosa específica
+        if ($id_glosa_gobierno !== null) {
+            $glosaSeleccionada = $this->glosasGobierno
+                ->where('id_glosa_gobierno', $id_glosa_gobierno)
+                ->first();
+
+            if (!$glosaSeleccionada) {
+                return redirect()->to(base_url('scii/glosa'))
+                    ->with('mensaje', 'Glosa no encontrada.');
+            }
+
+            // Verificar que sea de su unidad
+            if ($glosaSeleccionada['id_unidad'] != $usuario['id_unidad']) {
+                return redirect()->to(base_url('scii/glosa'))
+                    ->with('mensaje', 'No tienes permiso para ver esta glosa.');
+            }
+
+            // Obtener archivos de la glosa
+            $archivosBuilder = $db->table('glosa_archivos');
+            $archivosBuilder->where('id_glosa_gobierno', $id_glosa_gobierno);
+            $archivosBuilder->orderBy('created_at', 'DESC');
+            $archivos = $archivosBuilder->get()->getResultArray();
+
+            // Obtener comentarios de la glosa
+            $comentariosBuilder = $db->table('glosa_comentarios');
+            $comentariosBuilder->where('id_glosa_gobierno', $id_glosa_gobierno);
+            $comentariosBuilder->orderBy('created_at', 'DESC');
+            $comentarios = $comentariosBuilder->get()->getResultArray();
+        }
+
+        // 8. Preparar datos para la vista
+        $datos = [
+            'nombre_s' => $this->session->nombre_s,
+            'current'  => 'Glosa',
+            'datos'    => $usuario,
+            'area'     => $usuario['nombre_unidad'],
+            'glosaActiva' => $glosaActiva,
+            'lineas' => $lineas,
+            'lineasSocioambiental' => $lineasSocioambiental,
+            'lineasAgua' => $lineasAgua,
+            'odsTemas' => $odsTemas,
+            'glosas' => $glosas,
+            'glosaSeleccionada' => $glosaSeleccionada,
+            'archivosGlosa' => $archivos,
+            'comentariosGlosa' => $comentarios
+        ];
+
+        // 9. Renderizar vistas
+        echo view('scii/headerscii', $datos);
+        echo view('scii/glosa');
+        echo view('scii/footerscii');
+    }
+
+    public function registrarGlosaGobierno()
+    {
+        // Validar sesión
+        if (!isset($this->session->id_usuario)) {
+            return redirect()->to(base_url());
+        }
+
+        // Detectar si es creación o actualización
+        $glosaId = $this->request->getPost('id_glosa_gobierno');
+
+        if (!empty($glosaId) && is_numeric($glosaId)) {
+            // ACTUALIZACIÓN
+            return $this->actualizarGlosa($glosaId);
+        } else {
+            // CREACIÓN
+            return $this->crearGlosa();
+        }
+    }
+
+    private function crearGlosa()
+    {
+        $db = \Config\Database::connect();
+        $archivosGuardados = [];
+
+        try {
+            // Iniciar transacción
+            $db->transStart();
+
+            // Datos de contexto
+            $id_usuario = $this->session->id_usuario;
+            $id_unidad  = $this->session->id_unidad;
+
+            // Obtener glosa activa
+            $glosaActiva = $this->glosaGestion
+                ->where('estado', 'abierta')
+                ->first();
+
+            if (!$glosaActiva) {
+                throw new \Exception('No hay una glosa abierta actualmente.');
+            }
+
+            $id_glosa = $glosaActiva['id_glosa'];
+
+            // Modelos
+            $glosasGobierno = new \App\Models\GlosasGobiernoModel();
+
+            // Armar datos desde el formulario
+            $dataGlosa = [
+                'fecha_corte' => $this->request->getPost('fecha_corte'),
+                'id_alineacion_ped' => $this->request->getPost('alineacionPED'),
+                'orden_prioridad' => $this->request->getPost('ordenPrioridad'),
+
+                'tema' => $this->request->getPost('tema'),
+                'introduccion' => $this->request->getPost('introduccion'),
+                'accion' => $this->request->getPost('accion'),
+                'desarrollo' => $this->request->getPost('desarrollo'),
+
+                'id_alineacion_programa_derivado' => $this->request->getPost('alineacionProgramasDerivados'),
+                'id_alineacion_ods' => $this->request->getPost('alineacionODS'),
+
+                'id_usuario' => $id_usuario,
+                'id_unidad'  => $id_unidad,
+                'id_glosa'   => $id_glosa,
+
+                'estado' => 'borrador'
+            ];
+
+            // Validar datos
+            if (!$glosasGobierno->validate($dataGlosa)) {
+                throw new \Exception('Errores de validación: ' . json_encode($glosasGobierno->errors()));
+            }
+
+            // Insertar glosa
+            $insertResult = $glosasGobierno->insert($dataGlosa);
+            if ($insertResult === false) {
+                throw new \Exception('Error al insertar la glosa: ' . json_encode($glosasGobierno->errors()));
+            }
+
+            $glosaGobiernoId = $glosasGobierno->getInsertID();
+            if (!$glosaGobiernoId || $glosaGobiernoId <= 0) {
+                throw new \Exception('No se pudo obtener el ID de la glosa insertada');
+            }
+
+            // Procesar archivos (función análoga a informes)
+            $archivosGuardados = $this->procesarArchivosGlosa($glosaGobiernoId);
+
+            // Completar transacción
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                // Limpiar archivos si algo falló
+                $this->limpiarArchivos($archivosGuardados);
+                throw new \Exception('La transacción de base de datos falló');
+            }
+
+            return redirect()->to('/Scii/glosa')
+                ->with('success', 'Glosa registrada correctamente con ' . count($archivosGuardados) . ' archivo(s)');
+
+        } catch (\Exception $e) {
+            // Rollback
+            if ($db->transStatus() !== false) {
+                $db->transRollback();
+            }
+
+            // Limpiar archivos subidos
+            if (!empty($archivosGuardados)) {
+                $this->limpiarArchivos($archivosGuardados);
+            }
+
+            // Log del error
+            log_message('error', 'Error al registrar glosa: ' . $e->getMessage());
+            log_message('error', 'Stack trace: ' . $e->getTraceAsString());
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Error al registrar la glosa: ' . $e->getMessage());
+        }
+    }
+
+    private function actualizarGlosa($id_glosa_gobierno)
+    {
+        $db = \Config\Database::connect();
+        $archivosEliminados = [];
+        $archivosGuardados = [];
+
+        try {
+            $db->transStart();
+
+            $id_usuario = $this->session->id_usuario;
+            $id_unidad  = $this->session->id_unidad;
+
+            // Buscar glosa existente
+            $glosaExistente = $this->glosasGobierno->find($id_glosa_gobierno);
+            if (!$glosaExistente) {
+                throw new \Exception('La glosa no existe');
+            }
+
+            // Verificar que sea de la misma unidad
+            if ($glosaExistente['id_unidad'] != $id_unidad) {
+                throw new \Exception('No tienes permisos para editar esta glosa');
+            }
+
+            // Regla de negocio: solo editar si está en estado "observado"
+            if ($glosaExistente['estado'] !== 'observado') {
+                throw new \Exception(
+                    'Solo se pueden editar glosas en estado "observado". Estado actual: ' . $glosaExistente['estado']
+                );
+            }
+
+            // Preparar datos para actualización
+            $dataGlosa = [
+                'fecha_corte' => $this->request->getPost('fecha_corte'),
+                'id_alineacion_ped' => $this->request->getPost('alineacionPED'),
+                'orden_prioridad' => $this->request->getPost('ordenPrioridad'),
+
+                'tema' => $this->request->getPost('tema'),
+                'introduccion' => $this->request->getPost('introduccion'),
+                'accion' => $this->request->getPost('accion'),
+                'desarrollo' => $this->request->getPost('desarrollo'),
+
+                'id_alineacion_programa_derivado' => $this->request->getPost('alineacionProgramasDerivados'),
+                'id_alineacion_ods' => $this->request->getPost('alineacionODS'),
+
+                // Al reenviar, vuelve a enviado (o el estado que tú definas)
+                'estado' => 'enviado'
+            ];
+
+            // Validar datos
+            if (!$this->glosasGobierno->validate($dataGlosa)) {
+                throw new \Exception('Errores de validación: ' . json_encode($this->glosasGobierno->errors()));
+            }
+
+            // Actualizar glosa
+            $updateResult = $this->glosasGobierno->update($id_glosa_gobierno, $dataGlosa);
+            if ($updateResult === false) {
+                throw new \Exception('Error al actualizar la glosa: ' . json_encode($this->glosasGobierno->errors()));
+            }
+
+            // Gestión de archivos: eliminar archivos existentes
+            $archivosExistentes = $this->glosaArchivos
+                ->where('id_glosa_gobierno', $id_glosa_gobierno)
+                ->findAll();
+
+            foreach ($archivosExistentes as $archivo) {
+                // Ruta física
+                $rutaFisica = str_replace(base_url(), FCPATH, $archivo['ruta_archivo']);
+
+                if (file_exists($rutaFisica)) {
+                    if (unlink($rutaFisica)) {
+                        $archivosEliminados[] = $rutaFisica;
+                    } else {
+                        log_message('warning', "No se pudo eliminar el archivo: {$rutaFisica}");
+                    }
+                }
+
+                // Eliminar registro en BD
+                $this->glosaArchivos->delete($archivo['id_archivo']);
+            }
+
+            // Subir nuevos archivos
+            $archivosGuardados = $this->procesarArchivosGlosa($id_glosa_gobierno);
+
+            // Completar transacción
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                throw new \Exception('La transacción de base de datos falló');
+            }
+
+            log_message('info', "Glosa #{$id_glosa_gobierno} actualizada exitosamente por usuario #{$id_usuario}");
+
+            return redirect()->to("/Scii/glosa/{$id_glosa_gobierno}")
+                ->with('success', 'Glosa actualizada correctamente con ' . count($archivosGuardados) . ' archivo(s)');
+
+        } catch (\Exception $e) {
+            // Rollback
+            if ($db->transStatus() !== false) {
+                $db->transRollback();
+            }
+
+            // Limpiar archivos nuevos si se subieron
+            if (!empty($archivosGuardados)) {
+                $this->limpiarArchivos($archivosGuardados);
+            }
+
+            // Log del error
+            log_message('error', "Error al actualizar glosa #{$id_glosa_gobierno}: " . $e->getMessage());
+            log_message('error', 'Stack trace: ' . $e->getTraceAsString());
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Error al actualizar la glosa: ' . $e->getMessage());
+        }
+    }
+
+    private function procesarArchivosGlosa($id_glosa_gobierno)
+    {
+        // Mapeo entre nombres de inputs (plural) y valores ENUM de BD (singular)
+        $tiposMap = [
+            'mapas' => 'mapa',
+            'graficas' => 'grafico',
+            'cuadros' => 'cuadro',
+            'esquemas' => 'esquema',
+            'fotografias' => 'fotografia',
+            'resultados' => 'resultados'
+        ];
+
+        $archivosGuardados = [];
+        $orden = 1;
+
+        foreach ($tiposMap as $tipoInput => $tipoEnum) {
+            // Verificar si hay archivos para este tipo
+            if (isset($_FILES[$tipoInput]) && is_array($_FILES[$tipoInput]['name'])) {
+                $fileCount = count($_FILES[$tipoInput]['name']);
+
+                for ($i = 0; $i < $fileCount; $i++) {
+                    // Verificar que el archivo existe y no tiene errores
+                    if ($_FILES[$tipoInput]['error'][$i] === UPLOAD_ERR_OK) {
+
+                        // Tipos permitidos
+                        $allowedTypes = [
+                            'image/jpeg',
+                            'image/jpg',
+                            'image/png',
+                            'image/gif',
+                            'image/webp',
+
+                            'application/pdf',
+
+                            'application/zip',
+                            'application/x-zip-compressed',
+                            'application/vnd.rar',
+                            'application/x-rar-compressed',
+
+                            'application/vnd.ms-excel',
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+
+                            'application/msword',
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+
+                            'application/vnd.ms-powerpoint',
+                            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                        ];
+
+                        $maxSize = 10 * 1024 * 1024; // 10MB
+
+                        // Obtener información del archivo desde $_FILES
+                        $clientName = $_FILES[$tipoInput]['name'][$i];
+                        $tmpName = $_FILES[$tipoInput]['tmp_name'][$i];
+                        $fileMimeType = $_FILES[$tipoInput]['type'][$i];
+                        $fileSize = $_FILES[$tipoInput]['size'][$i];
+
+                        if (!in_array($fileMimeType, $allowedTypes)) {
+                            throw new \Exception("Tipo de archivo no permitido: {$clientName} (tipo: {$fileMimeType})");
+                        }
+                        if ($fileSize > $maxSize) {
+                            throw new \Exception("Archivo demasiado grande: {$clientName} (" . round($fileSize / 1024 / 1024, 2) . "MB)");
+                        }
+
+                        // Preparar nombres y datos
+                        $extension = pathinfo($clientName, PATHINFO_EXTENSION);
+                        $nombreOriginal = $clientName;
+                        $tamanioKB = round($fileSize / 1024, 2);
+                        $newName = uniqid() . '_' . bin2hex(random_bytes(10)) . '.' . $extension;
+
+                        // Definir rutas
+                        $ruta = WRITEPATH . "uploads/glosas/{$id_glosa_gobierno}/{$tipoInput}/";
+                        $rutaServidor = base_url() . "/uploads/glosas/{$id_glosa_gobierno}/{$tipoInput}/";
+
+                        // Crear directorio si no existe
+                        if (!is_dir($ruta)) {
+                            if (!mkdir($ruta, 0755, true)) {
+                                throw new \Exception("No se pudo crear el directorio: {$ruta}");
+                            }
+                        }
+
+                        // Mover archivo
+                        $rutaCompleta = $ruta . $newName;
+                        $rutaCompletaServidor = $rutaServidor . $newName;
+
+                        if (!move_uploaded_file($tmpName, $rutaCompleta)) {
+                            throw new \Exception("Error al mover el archivo: {$nombreOriginal}");
+                        }
+
+                        // Verificar que se movió
+                        if (!file_exists($rutaCompleta)) {
+                            throw new \Exception("El archivo no existe después de moverlo: {$rutaCompleta}");
+                        }
+
+                        // Guardar registro en BD
+                        $archivoData = [
+                            'id_glosa_gobierno' => $id_glosa_gobierno,
+                            'tipo_archivo' => $tipoEnum,
+                            'nombre_archivo' => $newName,
+                            'nombre_original' => $nombreOriginal,
+                            'ruta_archivo' => $rutaCompletaServidor,
+                            'extension' => $extension,
+                            'tamanio_kb' => $tamanioKB,
+                            'mime_type' => $fileMimeType,
+                            'orden' => $orden++,
+                            'estado' => 'activo'
+                        ];
+
+                        $archivoInsertResult = $this->glosaArchivos->insert($archivoData);
+
+                        if ($archivoInsertResult === false) {
+                            throw new \Exception(
+                                "Error al registrar archivo en BD: {$nombreOriginal} - " .
+                                json_encode($this->glosaArchivos->errors())
+                            );
+                        }
+
+                        // Guardar referencia física para limpieza en caso de error
+                        $archivosGuardados[] = $rutaCompleta;
+                    }
+                }
+            }
+        }
+
+        return $archivosGuardados;
+    }
+    
+    public function obtenerComentariosGlosa()
+    {
+        // Validar sesión
+        if (!isset($this->session->id_usuario)) {
+            return redirect()->to(base_url());
+        }
+
+        // Validar permisos para glosa
+        $usuario = $this->usuarios->where([
+            'id_usuario'  => $this->session->id_usuario,
+            'loadglosa' => 1, 
+            'glosa'     => 1  
+        ])->first();
+
+        if (!$usuario) {
+            return redirect()->to(base_url('scii/inicio/'))
+                ->with('mensaje', 'No tienes acceso a esta sección.');
+        }
+
+        $id_glosa_gobierno = $this->request->getGet('id_glosa_gobierno');
+        $campo_referencia  = $this->request->getGet('campo_referencia');
+
+        if (empty($id_glosa_gobierno)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'ID de glosa requerido'
+            ]);
+        }
+
+        $db = \Config\Database::connect();
+        $builder = $db->table('glosa_comentarios');
+        $builder->select('glosa_comentarios.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m');
+        $builder->join('usuarios', 'usuarios.id_usuario = glosa_comentarios.id_usuario', 'left');
+        $builder->where('glosa_comentarios.id_glosa_gobierno', $id_glosa_gobierno);
+
+        if (!empty($campo_referencia)) {
+            $builder->where('glosa_comentarios.campo_referencia', $campo_referencia);
+        }
+
+        $builder->orderBy('glosa_comentarios.created_at', 'DESC');
+        $comentarios = $builder->get()->getResultArray();
+
+        return $this->response->setJSON([
+            'success' => true,
+            'comentarios' => $comentarios
+        ]);
+    }
+
+    public function getGlosas()
+    {
+        // Validar sesión
+        if (!isset($this->session->id_usuario)) {
+            return redirect()->to(base_url());
+        }
+
+        // Validar permisos para glosa
+        $usuario = $this->usuarios->where([
+            'id_usuario'  => $this->session->id_usuario,
+            'loadglosa' => 1,
+            'glosa'     => 1 
+        ])->first();
+
+        if (!$usuario) {
+            return redirect()->to(base_url('scii/inicio/'))
+                ->with('mensaje', 'No tienes acceso a esta sección.');
+        }
+
+        $db = \Config\Database::connect();
+
+        // Unidad del usuario
+        $unidadId = $this->session->id_unidad;
+        $unidad = $this->unidades
+            ->where('id_unidad', $unidadId)
+            ->first();
+
+        // Glosa activa
+        $glosaActiva = $this->glosaGestion
+            ->where('estado', 'abierta')
+            ->first();
+
+        $idGlosa = $glosaActiva['id_glosa'] ?? null;
+
+        // Estadísticas de usuarios de la unidad
+        $builderUsuarios = $db->table('usuarios');
+        $builderUsuarios->select('
+            usuarios.id_unidad,
+            COUNT(usuarios.id_usuario) AS total_usuarios,
+            SUM(CASE WHEN usuarios.glosa = 1 THEN 1 ELSE 0 END) AS usuarios_con_glosa,
+            SUM(CASE WHEN usuarios.loadglosa = 1 THEN 1 ELSE 0 END) AS usuarios_activos
+        ');
+        $builderUsuarios->where('usuarios.activo', 1);
+        $builderUsuarios->where('usuarios.id_unidad', $unidadId);
+        $builderUsuarios->groupBy('usuarios.id_unidad');
+
+        $estadisticasUsuarios = $builderUsuarios->get()->getResultArray();
+
+        // Obtener glosas de la unidad (si hay glosa activa)
+        $glosasFormateadas = [];
+
+        if ($idGlosa && $unidad) {
+            $builderGlosas = $db->table('glosas_gobierno');
+            $builderGlosas->select('
+                glosas_gobierno.id_glosa_gobierno,
+                glosas_gobierno.id_unidad,
+                glosas_gobierno.id_usuario,
+                glosas_gobierno.tema,
+                glosas_gobierno.estado,
+                glosas_gobierno.created_at
+            ');
+            $builderGlosas->where('glosas_gobierno.id_glosa', $idGlosa);
+            $builderGlosas->where('glosas_gobierno.id_unidad', $unidadId);
+            $builderGlosas->orderBy('glosas_gobierno.created_at', 'DESC');
+
+            $glosasDB = $builderGlosas->get()->getResultArray();
+
+            foreach ($glosasDB as $glosa) {
+                $glosasFormateadas[] = [
+                    'id_glosa_gobierno' => $glosa['id_glosa_gobierno'],
+                    'id_unidad'         => $glosa['id_unidad'],
+                    'id_usuario'        => $glosa['id_usuario'],
+                    'tema'              => $glosa['tema'],
+                    'estado'            => $glosa['estado'],
+                    'fecha'             => $glosa['created_at'],
+                ];
+            }
+        }
+
+        if ($unidad) {
+            $unidad['total_glosas'] = count($glosasFormateadas);
+        }
+
+        return $this->response->setJSON([
+            'unidad' => $unidad,
+            'glosas' => $glosasFormateadas,
+            'glosaActiva' => $glosaActiva
+        ]);
+    }
+
+    public function guardarComentarioGlosa()
+    {
+        // Validar sesión
+        if (!isset($this->session->id_usuario)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Sesión no válida']);
+        }
+
+        // Obtener datos del POST
+        $id_glosa_gobierno = $this->request->getPost('id_glosa_gobierno');
+        $campo_referencia  = $this->request->getPost('campo_referencia');
+        $comentario        = $this->request->getPost('comentario');
+        $tipo              = $this->request->getPost('tipo') ?? 'observacion';
+
+        // Validar datos requeridos
+        if (empty($id_glosa_gobierno) || empty($campo_referencia)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos']);
+        }
+
+        // Verificar si ya existe un comentario para este campo y este usuario
+        $comentarioExistente = $this->glosaComentarios
+            ->where('id_glosa_gobierno', $id_glosa_gobierno)
+            ->where('campo_referencia', $campo_referencia)
+            ->where('id_usuario', $this->session->id_usuario)
+            ->first();
+
+        try {
+            if ($comentarioExistente) {
+                // Actualizar comentario existente
+                if (empty($comentario)) {
+                    // Si el comentario está vacío, eliminarlo
+                    $this->glosaComentarios->delete($comentarioExistente['id_comentario']);
+
+                    return $this->response->setJSON([
+                        'success' => true,
+                        'message' => 'Comentario eliminado',
+                        'action'  => 'deleted'
+                    ]);
+                } else {
+                    // Actualizar
+                    $this->glosaComentarios->update($comentarioExistente['id_comentario'], [
+                        'comentario' => $comentario,
+                        'tipo'       => $tipo,
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ]);
+
+                    return $this->response->setJSON([
+                        'success' => true,
+                        'message' => 'Comentario actualizado',
+                        'action'  => 'updated',
+                        'id_comentario' => $comentarioExistente['id_comentario']
+                    ]);
+                }
+            } else {
+                // Crear nuevo comentario solo si hay texto
+                if (!empty($comentario)) {
+                    $id_comentario = $this->glosaComentarios->insert([
+                        'id_glosa_gobierno' => $id_glosa_gobierno,
+                        'id_usuario'        => $this->session->id_usuario,
+                        'campo_referencia'  => $campo_referencia,
+                        'comentario'        => $comentario,
+                        'tipo'              => $tipo,
+                        'estado'            => 'activo',
+                        'created_at'        => date('Y-m-d H:i:s')
+                    ]);
+
+                    return $this->response->setJSON([
+                        'success' => true,
+                        'message' => 'Comentario guardado',
+                        'action'  => 'created',
+                        'id_comentario' => $id_comentario
+                    ]);
+                }
+            }
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Sin cambios',
+                'action'  => 'none'
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al guardar: ' . $e->getMessage()
+            ]);
+        }
+    }
+
 }
