@@ -1522,8 +1522,7 @@ class Scii extends BaseController
             $builder->where('id_unidad', $unidad['id_unidad']);
             $builder->where('id_glosa', $glosaActiva['id_glosa']);
             $builder->orderBy('created_at', 'DESC');
-            $builder->limit(10);
-
+            
             $glosas = $builder->get()->getResultArray();
         }
 

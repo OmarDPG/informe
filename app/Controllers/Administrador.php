@@ -2886,7 +2886,6 @@ class Administrador extends BaseController
             $builder->where('id_unidad', $unidad['id_unidad']);
             $builder->where('id_periodo_anual', $periodoAnual['id_periodo_anual']);
             $builder->orderBy('created_at', 'DESC');
-            $builder->limit(10); // recientes
 
             $informesUnidad = $builder->get()->getResultArray();
         }
@@ -3206,8 +3205,8 @@ class Administrador extends BaseController
                     ])
                     ->update();
                 $this->usuarios
-                    ->where(['loadinforme' => 1])
-                    ->set(['informe' => 1])
+                    ->where(['loadglosa' => 1])
+                    ->set(['glosa' => 1])
                     ->update();
                 return redirect()->back()
                     ->with('mensaje', 'La ' . $nombreGlosa . ' ha sido reabierta correctamente.');
@@ -3225,8 +3224,8 @@ class Administrador extends BaseController
             'estado' => 'abierta'
         ]);
         $this->usuarios
-            ->where(['loadinforme' => 1])
-            ->set(['informe' => 1])
+            ->where(['loadglosa' => 1])
+            ->set(['glosa' => 1])
             ->update();
 
         return redirect()->back()
@@ -3406,8 +3405,7 @@ class Administrador extends BaseController
             $builder->where('id_unidad', $unidad['id_unidad']);
             $builder->where('id_glosa', $dataGlosa['id_glosa']);
             $builder->orderBy('created_at', 'DESC');
-            $builder->limit(10);
-
+            
             $glosasUnidad = $builder->get()->getResultArray();
         }
 
