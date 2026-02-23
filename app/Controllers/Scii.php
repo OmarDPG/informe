@@ -18,6 +18,11 @@ use App\Models\InformesGobiernoModel;
 use App\Models\InformeArchivosModel;
 use App\Models\InformeComentariosModel;
 
+use App\Models\GlosaGestionModel;
+use App\Models\GlosasGobiernoModel;
+use App\Models\GlosaArchivosModel;
+use App\Models\GlosaComentariosModel;
+
 use App\Models\GlosaModel;
 use App\Models\PeriodosAnualesModel;
 use App\Models\EtapasModel;
@@ -51,6 +56,7 @@ class Scii extends BaseController
         $respuestas, $categorias, $periodo, $glosa, $periodosAnuales, $etapas,
         $ejes, $estrategias, $lineasAccion, $objetivos, $tematicas,
         $programaSectorialInforme, $ejesInforme, $estrategiasInforme, $lineasAccionInforme, $objetivosInforme, $tematicasInforme,
+        $glosaGestion, $glosasGobierno, $glosaArchivos, $glosaComentarios,
         $odsMetas, $odsObjetivos, $odsTemas;
     public function __construct()
     {
@@ -67,6 +73,11 @@ class Scii extends BaseController
         $this->informesGobierno = new InformesGobiernoModel();
         $this->informeArchivos = new InformeArchivosModel();
         $this->informeComentarios = new InformeComentariosModel();
+
+        $this->glosaGestion = new GlosaGestionModel();
+        $this->glosasGobierno  = new GlosasGobiernoModel();
+        $this->glosaArchivos   = new GlosaArchivosModel();
+        $this->glosaComentarios= new GlosaComentariosModel();
 
         $this->glosa = new GlosaModel();
         $this->periodosAnuales = new PeriodosAnualesModel();
