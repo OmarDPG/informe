@@ -958,7 +958,7 @@ class Scii extends BaseController
                 'id_unidad' => $id_unidad,
                 'id_etapa' => $id_etapa,
                 'id_periodo_anual' => $id_periodo_actual,
-                'estado' => 'borrador'
+                'estado' => 'enviado'
             ];
             if (!$informesGobierno->validate($dataInforme)) {
                 throw new \Exception('Errores de validación: ' . json_encode($informesGobierno->errors()));
