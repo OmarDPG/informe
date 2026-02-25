@@ -3104,13 +3104,57 @@ class Administrador extends BaseController
 
         $email = \Config\Services::email();
         $email->setTo($correo);
-        $email->setSubject('Registro de Informe de Gobierno - ' . $temaInforme);
-        $email->setMessage('Estimado usuario, ha enviado un informe de gobierno.
+        $email->setSubject('Observaciones y/o comentarios del Informe de Gobierno | SMADSOT');
+        $email->setMessage('Estimado/a enlace, por este medio se informa que <strong>has recibido observaciones y/o comentarios sobre los resultados institucionales</strong> capturados en el módulo de “Informe de Gobierno” del Sistema de Control Interno Institucional de la Secretaría de Medio Ambiente, Desarrollo Sustentable y Ordenamiento Territorial relacionado al tema de '.'<strong>'. $temaInforme . '</strong>' . ' por lo que <u>te solicitamos ingresar al sistema con tu usuario y contraseña para su atención</u> .
                             <br><br>
-                            Favor de mantenerse al pendiente de su correo electrónico, pues en él recibirá actualizaciones con respecto al informe enviado.
+                            En caso de cualquier duda al respecto, se ponen a disposición las extensiones 1211 y 1234 del Departamento de Planeación y Evaluación.
                             <br><br>
-                            Atentamente,<br>
-                            Deparamento de Planeación y Evaluación<br>');
+                            Sin otro particular, se agradece la atención prestada.');
+        if (! $email->send(false)) {
+            echo $email->printDebugger(['headers', 'subject', 'body']);
+        } else {
+
+            return redirect()->to(base_url('administrador/detalle/' . $id_informe))->with('mensaje', 'Notificación enviada a ' . $nombre);
+        }
+    }
+        public function aprobarInforme($id_informe)
+    {
+        // Validar sesión
+        if (!isset($this->session->id_usuario)) {
+            return redirect()->to(base_url());
+        }
+        // Validar permisos de administrador
+        if ($this->session->adm == '0') {
+            return redirect()->to(base_url() . '/inicio/land');
+        }
+        $informesRegistrado = $this->informesGobierno->where('id_informe', $id_informe)->first();
+        if (!$informesRegistrado) {
+            return redirect()->back()->with('mensaje', 'Informe no encontrado');
+        }
+        $datosUsario = $this->usuarios->where('id_usuario', $informesRegistrado['id_usuario'])->first();
+        if (!$datosUsario) {
+            return redirect()->back()->with('mensaje', 'Usuario no encontrado');
+        }
+
+        $temaInforme = $informesRegistrado['tema'] ?? 'sin tema';
+        $correo = $datosUsario['correo'];
+        $nombre = $datosUsario['nombre_s'] . ' ' . $datosUsario['apellido_p'] . ' ' . $datosUsario['apellido_m'];
+
+        $this->informesGobierno
+            ->where('id_informe', $id_informe)
+            ->set(['estado' => 'aprobado'])
+            ->update();
+
+        $email = \Config\Services::email();
+        $email->setTo($correo);
+        $email->setSubject('Validación de resultados institucionales del Informe de Gobierno | SMADSOT - ' . $temaInforme);
+        $email->setMessage('Estimado/a enlace, por este medio se informa que <strong>han sido validados los resultados
+                            institucionales capturados de su Unidad Administrativa</strong> en el módulo de “Informe de Gobierno”
+                            del Sistema de Control Interno Institucional de la Secretaría de Medio Ambiente, Desarrollo
+                            Sustentable y Ordenamiento Territorial.
+                            <br>
+                            Sin otro particular, se agradece la atención prestada.
+                            <br><br>');
         if (! $email->send(false)) {
             echo $email->printDebugger(['headers', 'subject', 'body']);
         } else {
