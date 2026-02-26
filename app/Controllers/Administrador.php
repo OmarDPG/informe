@@ -3171,7 +3171,7 @@ class Administrador extends BaseController
             $ban = $this->cargas->where(['id_carga' => $edi])->first();
         $datos = isset($edi) ? ['usuario' => $this->session->usuario, 'current' => $current, 'edi' => $ban] : ['usuario' => $this->session->usuario, 'current' => $current];
         echo view('scii/admin/header');
-        echo view('scii/admin/glosa', $datos);
+        echo view('scii/admin/glosa/glosa', $datos);
         echo view('scii/admin/navbar');
     }
 
@@ -3230,6 +3230,23 @@ class Administrador extends BaseController
 
         return redirect()->back()
             ->with('mensaje', 'La ' . $nombreGlosa . ' ha sido creada y abierta correctamente.');
+    }
+
+    public function glosas()
+    {
+        if (!isset($this->session->id_usuario)) {
+            return redirect()->to(base_url());
+        }
+        if ((($this->session->adm) == '0')) {
+            return redirect()->to(base_url() . '/inicio/land');
+        }
+        $current = 'Evidencia / Glosas del Informe de Gobierno';
+        if (isset($edi))
+            $ban = $this->cargas->where(['id_carga' => $edi])->first();
+        $datos = isset($edi) ? ['usuario' => $this->session->usuario, 'current' => $current, 'edi' => $ban] : ['usuario' => $this->session->usuario, 'current' => $current];
+        echo view('scii/admin/header');
+        echo view('scii/admin/glosa/glosas', $datos);
+        echo view('scii/admin/navbar');
     }
 
     public function getUnidadesConGlosas()
