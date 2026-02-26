@@ -4,10 +4,11 @@ yarn-error.log
 .env
 public/originales/
 public/uploads/
-writable/uploads/
-writable/session/
-writable/logs/
-writable/debugbar/
+writable/cache/*
+writable/debugbar/*
+writable/logs/*
+writable/session/*
+writable/uploads/*
 public/files/
 /writable/*
 app/Config/Database.php
