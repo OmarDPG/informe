@@ -10,7 +10,7 @@ writable/logs/*
 writable/session/*
 writable/uploads/*
 public/files/
-/writable/*
+# /writable/*
 app/Config/Database.php
 app/Config/Email.php
 
