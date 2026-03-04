@@ -1,4 +1,4 @@
-<nav class="bg-slate-200 flex justify-center items-center p-4">
+<nav class="bg-slate-200 flex justify-center items-center p-4 fixed bottom-0 w-full z-50">
   <ul class="flex space-x-4">
     <li>
       <div class="group flex relative">
