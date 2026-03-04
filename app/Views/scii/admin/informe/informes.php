@@ -449,8 +449,16 @@
 
     // Ver detalle de una unidad
     function verDetalleUnidad(idUnidad) {
-        const unidad = unidadesData.find(u => u.id_unidad === idUnidad);
-        const informes = informesData.filter(inf => inf.id_unidad === idUnidad);
+        // const unidad = unidadesData.find(u => u.id_unidad === idUnidad);
+        // const informes = informesData.filter(inf => inf.id_unidad === idUnidad);
+        const unidad = unidadesData.find(u => Number(u.id_unidad) === Number(idUnidad));
+
+        if (!unidad) {
+            console.error("Unidad no encontrada:", idUnidad);
+            return;
+        }
+
+        const informes = informesData.filter(g => Number(g.id_unidad) === Number(idUnidad));
 
         const content = `
         <div class="mb-6">

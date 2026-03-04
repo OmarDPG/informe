@@ -367,8 +367,6 @@
                                 const match = glosa.nombre_glosa?.match(/\b(20\d{2})\b/);
                                 const anio = match ? match[1] : '';
 
-                                console.log("Buscando unidaad:", anio);
-
                                 return `
                                     <a href="<?php echo base_url() . '/administrador/detalleGlosa/${glosa.id_glosa_gobierno}'; ?>"
                                     class="block bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition hover:bg-gray-50">
@@ -440,11 +438,17 @@
 
     // Ver detalle de una unidad
     function verDetalleUnidad(idUnidad) {
-        const unidad = unidadesData.find(u => u.id_unidad === idUnidad);
-        const glosas = glosasData.filter(g => g.id_unidad === idUnidad);
+        // const unidad = unidadesData.find(u => u.id_unidad === idUnidad);
+        // const glosas = glosasData.filter(g => g.id_unidad === idUnidad);
 
-        console.log("Buscando unidad:", idUnidad);
-        console.log("Unidades disponibles:", unidadesData);
+        const unidad = unidadesData.find(u => Number(u.id_unidad) === Number(idUnidad));
+
+        if (!unidad) {
+            console.error("Unidad no encontrada:", idUnidad);
+            return;
+        }
+
+        const glosas = glosasData.filter(g => Number(g.id_unidad) === Number(idUnidad));
 
         const content = `
         <div class="mb-6">

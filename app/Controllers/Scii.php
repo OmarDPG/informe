@@ -1612,7 +1612,7 @@ class Scii extends BaseController
             return $this->crearGlosa();
         }
     }
-
+    
     private function crearGlosa()
     {
         $db = \Config\Database::connect();
@@ -1638,7 +1638,7 @@ class Scii extends BaseController
             $id_glosa = $glosaActiva['id_glosa'];
 
             // Modelos
-            $glosasGobierno = new \App\Models\GlosasGobiernoModel();
+            $glosasGobierno = new GlosasGobiernoModel();
 
             // Armar datos desde el formulario
             $dataGlosa = [
@@ -1688,7 +1688,18 @@ class Scii extends BaseController
                 $this->limpiarArchivos($archivosGuardados);
                 throw new \Exception('La transacción de base de datos falló');
             }
-
+            //Agregar correo de confirmacion de envio de informe.
+            $email = \Config\Services::email();
+            $email->setTo($this->session->correo);
+            $email->setSubject('Captura de resultados institucionales para Glosa de Informe de Gobierno | SMADSOT');
+            $email->setMessage('Estimado/a enlace, por este medio se informa la que <strong>Dirección de Planeación y Geomática ha recibido la información capturada de resultados institucionales</strong> de su Unidad Administrativa en el módulo de “Glosa del Informe de Gobierno” del Sistema de Control Interno Institucional de la Secretaría de Medio Ambiente, Desarrollo Sustentable y Ordenamiento Territorial.
+            <br><br>
+            <u>Te solicitamos estar pendiente de tu correo electrónico institucional durante el proceso de revisión</u> por parte del Departamento de Planeación y Evaluación, en caso de que se requiera el apoyo para solventar observaciones y/o comentarios..
+                            <br><br>
+                            Sin otro particular, se agradece la atención prestada.');
+            if (! $email->send(false)) {
+                echo $email->printDebugger(['headers', 'subject', 'body']);
+            }
             return redirect()->to('/Scii/glosa')
                 ->with('success', 'Glosa registrada correctamente con ' . count($archivosGuardados) . ' archivo(s)');
 
@@ -1829,7 +1840,11 @@ class Scii extends BaseController
         }
     }
 
-    private function procesarArchivosGlosa($id_glosa_gobierno)
+    /**
+     * Procesar y guardar archivos de la glosa
+     * @return array Rutas de archivos guardados
+     */
+    private function procesarArchivosGlosa($glosaId)
     {
         // Mapeo entre nombres de inputs (plural) y valores ENUM de BD (singular)
         $tiposMap = [
@@ -1900,8 +1915,8 @@ class Scii extends BaseController
                         $newName = uniqid() . '_' . bin2hex(random_bytes(10)) . '.' . $extension;
 
                         // Definir rutas
-                        $ruta = WRITEPATH . "uploads/glosas/{$id_glosa_gobierno}/{$tipoInput}/";
-                        $rutaServidor = base_url() . "/uploads/glosas/{$id_glosa_gobierno}/{$tipoInput}/";
+                        $ruta = WRITEPATH . "uploads/glosas/$glosaId/$tipoInput/";
+                        $rutaServidor = base_url() . "/uploads/glosas/$glosaId/{$tipoInput}/";
 
                         // Crear directorio si no existe
                         if (!is_dir($ruta)) {
@@ -1925,7 +1940,7 @@ class Scii extends BaseController
 
                         // Guardar registro en BD
                         $archivoData = [
-                            'id_glosa_gobierno' => $id_glosa_gobierno,
+                            'id_glosa_gobierno' => $glosaId,
                             'tipo_archivo' => $tipoEnum,
                             'nombre_archivo' => $newName,
                             'nombre_original' => $nombreOriginal,
@@ -1941,9 +1956,7 @@ class Scii extends BaseController
 
                         if ($archivoInsertResult === false) {
                             throw new \Exception(
-                                "Error al registrar archivo en BD: {$nombreOriginal} - " .
-                                json_encode($this->glosaArchivos->errors())
-                            );
+                                "Error al registrar archivo en BD: {$nombreOriginal} - " . json_encode($this->glosaArchivos->errors()));
                         }
 
                         // Guardar referencia física para limpieza en caso de error

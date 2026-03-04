@@ -3710,14 +3710,12 @@ class Administrador extends BaseController
         // Enviar correo
         $email = \Config\Services::email();
         $email->setTo($correo);
-        $email->setSubject('Registro de Glosa del Informe de Gobierno - ' . $temaGlosa);
-        $email->setMessage(
-            'Estimado(a) ' . $nombre . ',<br><br>
-            Su glosa ha sido revisada por el área correspondiente.<br>
-            Favor de mantenerse al pendiente de su correo electrónico, ya que podría recibir observaciones o indicaciones adicionales.<br><br>
-            Atentamente,<br>
-            Departamento de Planeación y Evaluación'
-        );
+        $email->setSubject('Observaciones y/o comentarios de la Glosa del Informe de Gobierno | SMADSOT');
+        $email->setMessage('Estimado/a enlace, por este medio se informa que <strong>has recibido observaciones y/o comentarios sobre los resultados institucionales</strong> capturados en el módulo de “Glosa del Informe de Gobierno” del Sistema de Control Interno Institucional de la Secretaría de Medio Ambiente, Desarrollo Sustentable y Ordenamiento Territorial relacionado al tema de '.'<strong>'. $temaGlosa . '</strong>' . ' por lo que <u>te solicitamos ingresar al sistema con tu usuario y contraseña para su atención</u> .
+                            <br><br>
+                            En caso de cualquier duda al respecto, se ponen a disposición las extensiones 1211 y 1234 del Departamento de Planeación y Evaluación.
+                            <br><br>
+                            Sin otro particular, se agradece la atención prestada.');
 
         if (!$email->send(false)) { // false = no limpiar para debug
             echo $email->printDebugger(['headers', 'subject', 'body']);
@@ -3729,4 +3727,49 @@ class Administrador extends BaseController
             ->with('mensaje', 'Notificación enviada a ' . $nombre);
     }
 
+    public function aprobarGlosa($id_glosa_gobierno)
+    {
+        // Validar sesión
+        if (!isset($this->session->id_usuario)) {
+            return redirect()->to(base_url());
+        }
+        // Validar permisos de administrador
+        if ($this->session->adm == '0') {
+            return redirect()->to(base_url() . '/inicio/land');
+        }
+        $glosasRegistradas = $this->glosasGobierno->where('id_glosa_gobierno', $id_glosa_gobierno)->first();
+        if (!$glosasRegistradas) {
+            return redirect()->back()->with('mensaje', 'Glosa no encontrada');
+        }
+        $datosUsario = $this->usuarios->where('id_usuario', $glosasRegistradas['id_usuario'])->first();
+        if (!$datosUsario) {
+            return redirect()->back()->with('mensaje', 'Usuario no encontrado');
+        }
+
+        $temaGlosa = $glosasRegistradas['tema'] ?? 'sin tema';
+        $correo = $datosUsario['correo'];
+        $nombre = $datosUsario['nombre_s'] . ' ' . $datosUsario['apellido_p'] . ' ' . $datosUsario['apellido_m'];
+
+        $this->glosasGobierno
+            ->where('id_glosa_gobierno', $id_glosa_gobierno)
+            ->set(['estado' => 'aprobado'])
+            ->update();
+
+        $email = \Config\Services::email();
+        $email->setTo($correo);
+        $email->setSubject('Validación de resultados institucionales de la Glosa del Informe de Gobierno | SMADSOT - ' . $temaGlosa);
+        $email->setMessage('Estimado/a enlace, por este medio se informa que <strong>han sido validados los resultados
+                            institucionales capturados de su Unidad Administrativa</strong> en el módulo de “Glosa del Informe de Gobierno”
+                            del Sistema de Control Interno Institucional de la Secretaría de Medio Ambiente, Desarrollo
+                            Sustentable y Ordenamiento Territorial.
+                            <br>
+                            Sin otro particular, se agradece la atención prestada.
+                            <br><br>');
+        if (! $email->send(false)) {
+            echo $email->printDebugger(['headers', 'subject', 'body']);
+        } else {
+
+            return redirect()->to(base_url('administrador/detalleGlosa/' . $id_glosa_gobierno))->with('mensaje', 'Notificación enviada a ' . $nombre);
+        }
+    }
 }
