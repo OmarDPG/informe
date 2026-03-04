@@ -280,8 +280,13 @@
   }
 
   function closeModal(modalId) {
-    var modal = document.getElementById(modalId);
-    modal.classList.add('hidden');
+    // var modal = document.getElementById(modalId);
+    // modal.classList.add('hidden');
+    const modal_informe = document.getElementById('informeModal');
+    const modal_glosa = document.getElementById('glosaModal');
+
+    modal_informe?.classList.add('hidden');
+    modal_glosa?.classList.add('hidden');
   }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
