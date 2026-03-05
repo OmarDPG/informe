@@ -280,11 +280,11 @@
   }
 
   function closeModal(modalId) {
-    // var modal = document.getElementById(modalId);
-    // modal.classList.add('hidden');
+    var modal = document.getElementById(modalId);
     const modal_informe = document.getElementById('informeModal');
     const modal_glosa = document.getElementById('glosaModal');
 
+    modal?.classList.add('hidden');
     modal_informe?.classList.add('hidden');
     modal_glosa?.classList.add('hidden');
   }
