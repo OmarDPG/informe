@@ -106,56 +106,56 @@
             <div class="w-full flex-grow lg:flex lg:items-center lg:w-auto hidden lg:block mt-2 lg:mt-0 z-20" id="nav-content">
                 <ul class="list-reset lg:flex flex-1 items-center px-4 md:px-0">
                     <li class="my-2 md:my-0 bg-[#e1dbd1] mr-1 rounded-t-lg">
-                        <a href="<?php echo base_url(); ?>/scii/inicio/" class="block py-1 md:py-3 pl-1 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Inicio") ? 'border-emerald-900 bg-emerald-900 rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
+                        <a href="<?php echo base_url(); ?>/scii/inicio/" class="block py-1 md:py-3 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Inicio") ? 'border-emerald-900 bg-emerald-900 rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
                             <i class="fas ml-3 fa-home fa-fw mr-3 <?php echo ($current == "Inicio") ? 'text-white' : ''; ?>"></i><span class="pb-1 md:pb-0 text-sm mr-3 <?php echo ($current == "Inicio") ? 'text-white' : ''; ?>">Inicio</span>
                         </a>
                     </li>
                     <li class="my-2 md:my-0 bg-[#e1dbd1] mr-1 rounded-t-lg">
-                        <a href="<?php echo base_url(); ?>/scii/normatividad/" class="block py-1 md:py-3 pl-1 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Normatividad") ? 'border-emerald-900  bg-emerald-900  rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
+                        <a href="<?php echo base_url(); ?>/scii/normatividad/" class="block py-1 md:py-3 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Normatividad") ? 'border-emerald-900  bg-emerald-900  rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
                             <i class="fas ml-3 fa-gavel fa-fw mr-3 <?php echo ($current == "Normatividad") ? 'text-white' : ''; ?>"></i><span class="pb-1 md:pb-0 text-sm mr-3 <?php echo ($current == "Normatividad") ? 'text-white' : ''; ?>">Normatividad</span>
                         </a>
                     </li>
                     <li class="my-2 md:my-0 bg-[#e1dbd1] mr-1 rounded-t-lg">
-                        <a href="<?php echo base_url(); ?>/scii/cronograma/" class="block py-1 md:py-3 pl-1 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Cronograma") ? 'border-emerald-900  bg-emerald-900  rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
+                        <a href="<?php echo base_url(); ?>/scii/cronograma/" class="block py-1 md:py-3 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Cronograma") ? 'border-emerald-900  bg-emerald-900  rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
                             <i class="fas ml-3 fa-clock fa-fw mr-3 <?php echo ($current == "Cronograma") ? 'text-white' : ''; ?>"></i><span class="pb-1 md:pb-0 text-sm mr-3 <?php echo ($current == "Cronograma") ? 'text-white' : ''; ?>">Cronograma</span>
                         </a>
                     </li>
                     <li class="my-2 md:my-0 bg-[#e1dbd1] mr-1 rounded-t-lg">
-                        <a href="<?php echo base_url(); ?>/scii/herramientas/" class="block py-1 md:py-3 pl-1 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Herramientas") ? 'border-emerald-900 bg-emerald-900 rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
+                        <a href="<?php echo base_url(); ?>/scii/herramientas/" class="block py-1 md:py-3 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Herramientas") ? 'border-emerald-900 bg-emerald-900 rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
                             <i class="fas ml-3 fa-solid fa-gears fa-fw mr-3 <?php echo ($current == "Herramientas") ? 'text-white' : ''; ?>"></i><span class="pb-1 md:pb-0 text-sm mr-3 <?php echo ($current == "Herramientas") ? 'text-white' : ''; ?>">Herramientas del SCII</span>
                         </a>
                     </li>
                     <li class="my-2 md:my-0 bg-[#e1dbd1] mr-1 rounded-t-lg">
-                        <a href="<?php echo base_url(); ?>/scii/material/" class="block py-1 md:py-3 pl-1 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Material") ? 'border-emerald-900 bg-emerald-900 rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
+                        <a href="<?php echo base_url(); ?>/scii/material/" class="block py-1 md:py-3 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Material") ? 'border-emerald-900 bg-emerald-900 rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
                             <i class="fas ml-3 fa-solid fa-magnifying-glass fa-fw mr-3 <?php echo ($current == "Material") ? 'text-white' : ''; ?>"></i><span class="pb-1 md:pb-0 text-sm mr-3 <?php echo ($current == "Material") ? 'text-white' : ''; ?>">Material de Consulta</span>
                         </a>
                     </li>
                     <?php if ($session->admGen == 1) { ?><li class="my-2 md:my-0 bg-[#e1dbd1] mr-1 rounded-t-lg">
-                            <a href="<?php echo base_url(); ?>/scii/cumplimiento/" class="block py-1 md:py-3 pl-1 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Cumplimiento") ? 'border-emerald-900 bg-emerald-900 rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
+                            <a href="<?php echo base_url(); ?>/scii/cumplimiento/" class="block py-1 md:py-3 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Cumplimiento") ? 'border-emerald-900 bg-emerald-900 rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
                                 <i class="fas ml-3 fa-solid fa-chart-pie fa-fw mr-3 <?php echo ($current == "Cumplimiento") ? 'text-white' : ''; ?>"></i><span class="pb-1 md:pb-0 text-sm mr-3 <?php echo ($current == "Cumplimiento") ? 'text-white' : ''; ?>">Cumplimiento Institucional</span>
                             </a>
                         </li>
                     <?php } ?>
                     <?php if ($datos['evaluacion'] == 1) { ?><li class="my-2 md:my-0 bg-[#e1dbd1] mr-1 rounded-t-lg">
-                            <a href="<?php echo base_url(); ?>/scii/nuevaEvaluacion/" class="block py-1 md:py-3 pl-1 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Evaluacion") ? 'border-emerald-900 bg-emerald-900 rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
+                            <a href="<?php echo base_url(); ?>/scii/nuevaEvaluacion/" class="block py-1 md:py-3 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Evaluacion") ? 'border-emerald-900 bg-emerald-900 rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
                                 <i class="fas ml-3 fa-solid fa-list fa-fw mr-3 <?php echo ($current == "Evaluacion") ? 'text-white' : ''; ?>"></i><span class="pb-1 md:pb-0 text-sm mr-3 <?php echo ($current == "Evaluacion") ? 'text-white' : ''; ?>">Evaluacion al desempeño</span>
                             </a>
                         </li>
                     <?php } ?>
                     <?php if ($datos['ver_evaluacion'] == 1) { ?><li class="my-2 md:my-0 bg-[#e1dbd1] mr-1 rounded-t-lg">
-                            <a href="<?php echo base_url(); ?>/scii/verEvaluacion/" class="block py-1 md:py-3 pl-1 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Evaluaciones") ? 'border-emerald-900 bg-emerald-900 rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
+                            <a href="<?php echo base_url(); ?>/scii/verEvaluacion/" class="block py-1 md:py-3 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Evaluaciones") ? 'border-emerald-900 bg-emerald-900 rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
                                 <i class="fas ml-3 fa-solid fa-list fa-fw mr-3 <?php echo ($current == "Evaluaciones") ? 'text-white' : ''; ?>"></i><span class="pb-1 md:pb-0 text-sm mr-3 <?php echo ($current == "Evaluaciones") ? 'text-white' : ''; ?>">Evaluaciones</span>
                             </a>
                         </li>
                     <?php } ?>
                     <?php if ($datos['informe'] == 1) { ?><li class="my-2 md:my-0 bg-[#e1dbd1] mr-1 rounded-t-lg">
-                            <a href="<?php echo base_url(); ?>/scii/informe/" class="block py-1 md:py-3 pl-1 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Informe") ? 'border-emerald-900 bg-emerald-900 rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
+                            <a href="<?php echo base_url(); ?>/scii/informe/" class="block py-1 md:py-3 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Informe") ? 'border-emerald-900 bg-emerald-900 rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
                                 <i class="fas ml-3 fa-solid fa-list fa-fw mr-3 <?php echo ($current == "Informe") ? 'text-white' : ''; ?>"></i><span class="pb-1 md:pb-0 text-sm mr-3 <?php echo ($current == "Informe") ? 'text-white' : ''; ?>">Informe de GOBIERNO <?php echo date('Y'); ?></span>
                             </a>
                         </li>
                     <?php } ?>
                     <?php if ($datos['glosa'] == 1) { ?><li class="my-2 md:my-0 bg-[#e1dbd1] mr-1 rounded-t-lg">
-                            <a href="<?php echo base_url(); ?>/scii/glosa/" class="block py-1 md:py-3 pl-1 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Glosa") ? 'border-emerald-900 bg-emerald-900 rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
+                            <a href="<?php echo base_url(); ?>/scii/glosa/" class="block py-1 md:py-3 align-middle text-gray-700 no-underline hover:text-emerald-900 border-b-2 <?php echo ($current == "Glosa") ? 'border-emerald-900 bg-emerald-900 rounded-t-lg border-gray-500' : 'border-emerald-900'; ?> hover:border-emerald-500">
                                 <i class="fas ml-3 fa-solid fa-list fa-fw mr-3 <?php echo ($current == "Glosa") ? 'text-white' : ''; ?>"></i><span class="pb-1 md:pb-0 text-sm mr-3 <?php echo ($current == "Glosa") ? 'text-white' : ''; ?>">Glosa del Informe de Gobierno <?php echo date('Y'); ?> </span>
                             </a>
                         </li>
