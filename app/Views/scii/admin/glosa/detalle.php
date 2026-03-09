@@ -160,7 +160,7 @@
                                     </div>
                                     <!-- Form Container -->
                                     <div class="max-w-4xl mx-auto">
-                                        <form method="POST" class="space-y-6" action="<?php echo base_url(); ?>/administrador/enviarNotificaciones/<?= esc($glosa_id ?? '') ?>" enctype="multipart/form-data">
+                                        <form method="POST" class="space-y-6" action="<?php echo base_url(); ?>/administrador/enviarNotificacionesGlosa/<?= esc($glosa_id ?? '') ?>" enctype="multipart/form-data">
                                             <input type="hidden" name="glosa_id" value="<?= esc($glosa_id ?? '') ?>">
                                             <!-- Unidad Administrativa y Fecha de Corte -->
                                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -938,7 +938,7 @@
 
             try {
                 // Enviar al servidor
-                const response = await fetch('<?= base_url() ?>/administrador/guardarComentario', {
+                const response = await fetch('<?= base_url() ?>/administrador/guardarComentarioGlosa', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -1023,7 +1023,7 @@
             if (!idGlosa) return;
 
             try {
-                const response = await fetch(`<?= base_url() ?>/administrador/obtenerComentarios?id_glosa_gobierno=${idGlosa}`);
+                const response = await fetch(`<?= base_url() ?>/administrador/obtenerComentariosGlosa?id_glosa_gobierno=${idGlosa}`);
                 const data = await response.json();
 
                 if (data.success && data.comentarios) {

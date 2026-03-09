@@ -994,6 +994,7 @@
             try {
                 const response = await fetch("<?= site_url('scii/obtenerComentariosGlosa') ?>?id_glosa_gobierno=<?= esc($glosaSeleccionada['id_glosa_gobierno'] ?? '') ?>");
                 const data = await response.json();
+                console.log("Comentarios:",data.comentarios)
 
                 if (data.success && data.comentarios) {
                     // Procesar comentarios y actualizar indicadores

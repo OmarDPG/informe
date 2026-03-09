@@ -1,5 +1,8 @@
-<nav class="bg-slate-200 flex justify-center items-center p-4 fixed bottom-0 w-full z-50">
+<nav class="bg-slate-200 flex justify-center items-center p-4">
   <ul class="flex space-x-4">
+
+
+
     <li>
       <div class="group flex relative">
         <a href="<?php echo base_url(); ?>/administrador/inicio" class="text-gray-700 hover:text-emerald-700" onclick="openModal('dashboard-modal')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-house-door-fill" viewBox="0 0 16 16">
@@ -288,7 +291,7 @@
     modal_informe?.classList.add('hidden');
     modal_glosa?.classList.add('hidden');
   }
-</script>
+</script>t>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 
