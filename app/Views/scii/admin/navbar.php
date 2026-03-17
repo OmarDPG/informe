@@ -291,7 +291,7 @@
     modal_informe?.classList.add('hidden');
     modal_glosa?.classList.add('hidden');
   }
-</script>t>
+</script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 
