@@ -3550,7 +3550,7 @@ class Administrador extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos']);
         }
 
-        // (Opcional pero recomendado) Verificar que la glosa esté abierta
+        //Verificar que la glosa esté abierta
         $db = \Config\Database::connect();
         $builder = $db->table('glosas_gobierno');
         $builder->select('glosas_gobierno.id_glosa, glosa_gestion.estado');
@@ -3582,8 +3582,9 @@ class Administrador extends BaseController
                     ]);
                 } else {
                     // Actualizar
+                    $comentarioFinal = 'Admin: ' . trim($comentario);
                     $this->glosaComentarios->update($comentarioExistente['id_comentario'], [
-                        'comentario' => $comentario,
+                        'comentario' => $comentarioFinal,
                         'tipo'       => $tipo,
                         'updated_at' => date('Y-m-d H:i:s')
                     ]);
@@ -3597,13 +3598,14 @@ class Administrador extends BaseController
             } else {
                 // Crear nuevo comentario solo si hay texto
                 if (!empty($comentario)) {
+                    $comentarioFinal = 'Admin: ' . trim($comentario);
                     $id_comentario = $this->glosaComentarios->insert([
                         'id_glosa_gobierno' => $id_glosa_gobierno,
                         'id_usuario'        => $this->session->id_usuario,
                         'campo_referencia'  => $campo_referencia,
-                        'comentario'        => $comentario,
+                        'comentario'        => $comentarioFinal,
                         'tipo'              => $tipo,
-                        'estado'            => 'pendiente',
+                        'estado'            => 'activo',
                         'created_at'        => date('Y-m-d H:i:s')
                     ]);
 
@@ -3645,18 +3647,35 @@ class Administrador extends BaseController
         }
 
         $db = \Config\Database::connect();
-        $builder = $db->table('glosa_comentarios');
-        $builder->select('glosa_comentarios.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m');
-        $builder->join('usuarios', 'usuarios.id_usuario = glosa_comentarios.id_usuario', 'left');
-        $builder->where('glosa_comentarios.id_glosa_gobierno', $id_glosa_gobierno);
+        // $builder = $db->table('glosa_comentarios');
+        // $builder->select('glosa_comentarios.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m');
+        // $builder->join('usuarios', 'usuarios.id_usuario = glosa_comentarios.id_usuario', 'left');
+        // $builder->where('glosa_comentarios.id_glosa_gobierno', $id_glosa_gobierno);
 
-        if ($campo_referencia) {
-            $builder->where('glosa_comentarios.campo_referencia', $campo_referencia);
-        }
+        // if ($campo_referencia) {
+        //     $builder->where('glosa_comentarios.campo_referencia', $campo_referencia);
+        // }
 
-        $builder->orderBy('glosa_comentarios.created_at', 'DESC');
-        $comentarios = $builder->get()->getResultArray();
+        // $builder->orderBy('glosa_comentarios.created_at', 'DESC');
+        // $comentarios = $builder->get()->getResultArray();
+        $sql = "
+            SELECT gc.*, u.nombre_s, u.apellido_p, u.apellido_m
+            FROM glosa_comentarios gc
+            LEFT JOIN usuarios u ON u.id_usuario = gc.id_usuario
+            INNER JOIN (
+                SELECT campo_referencia, MAX(updated_at) AS max_updated
+                FROM glosa_comentarios
+                WHERE id_glosa_gobierno = ?
+                GROUP BY campo_referencia
+            ) ultimos
+            ON gc.campo_referencia = ultimos.campo_referencia
+            AND gc.updated_at = ultimos.max_updated
+            WHERE gc.id_glosa_gobierno = ?
+        ";
 
+        $query = $db->query($sql, [$id_glosa_gobierno, $id_glosa_gobierno]);
+        $comentarios = $query->getResultArray();
+        
         return $this->response->setJSON([
             'success' => true,
             'comentarios' => $comentarios

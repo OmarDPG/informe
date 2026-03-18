@@ -1070,7 +1070,8 @@
                 setTimeout(() => {
                     // Normalizar la ruta
                     const ruta = archivo.ruta_archivo.replace(/\\/g, '/');
-                    const url = ruta;
+                    console.log(ruta);
+                    const url =  ruta; //AQUIIIIIIIIIIIIIIIIIIIIII
                     descargarArchivo(url, archivo.nombre_archivo);
                 }, index * 300); // 300ms de delay entre cada descarga
             });
