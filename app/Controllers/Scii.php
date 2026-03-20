@@ -1688,7 +1688,7 @@ class Scii extends BaseController
                 $this->limpiarArchivos($archivosGuardados);
                 throw new \Exception('La transacción de base de datos falló');
             }
-            //Agregar correo de confirmacion de envio de informe.
+            // Agregar correo de confirmacion de envio de informe.
             $email = \Config\Services::email();
             $email->setTo($this->session->correo);
             $email->setSubject('Captura de resultados institucionales para Glosa de Informe de Gobierno | SMADSOT');
@@ -1915,8 +1915,9 @@ class Scii extends BaseController
                         $newName = uniqid() . '_' . bin2hex(random_bytes(10)) . '.' . $extension;
 
                         // Definir rutas
-                        $ruta = WRITEPATH . "uploads/glosas/$glosaId/$tipoInput/";
-                        $rutaServidor = base_url() . "/uploads/glosas/$glosaId/{$tipoInput}/";
+                        $ruta = FCPATH . "uploads/glosas/$glosaId/$tipoInput/";
+                        // $rutaServidor = base_url() . "/uploads/glosas/$glosaId/{$tipoInput}/";
+                        $rutaServidor = "/uploads/glosas/$glosaId/{$tipoInput}/";
 
                         // Crear directorio si no existe
                         if (!is_dir($ruta)) {

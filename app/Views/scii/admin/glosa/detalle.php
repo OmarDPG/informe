@@ -847,7 +847,7 @@
             archivos.forEach((archivo, index) => {
                 setTimeout(() => {
                     // Normalizar la ruta
-                    const ruta = archivo.ruta_archivo.replace(/\\/g, '/');
+                    const ruta = archivo.ruta_archivo.replace(/\\/g, '/');                   
                     const url = '<?= base_url() ?>/' + ruta;
                     descargarArchivo(url, archivo.nombre_archivo);
                 }, index * 300); // 300ms de delay entre cada descarga
@@ -933,7 +933,6 @@
 
                 modalTitle.textContent = 'Comentario';
                 modalFieldLabel.textContent = `Campo: ${btn.dataset.label}`;
-                commentText.value = comments[currentField] || '';
                 const comentario = comments[currentField] || '';
                 if (comentario) {
                     comentarioAnteriorContainer.classList.remove('hidden');
