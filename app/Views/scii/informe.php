@@ -740,7 +740,7 @@
                                         <?= (!empty($informeSeleccionado['estado']) && $informeSeleccionado['estado'] !== 'observado') ? 'disabled' : '' ?>
                                         type="submit"
                                         class="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                                        Registrar Informe
+                                        <?= !empty($informeSeleccionado['id_informe']) ? 'Actualizar Informe' : 'Registrar Informe' ?>
                                     </button>
                                     <button
                                         <?= (!empty($informeSeleccionado['estado']) && $informeSeleccionado['estado'] !== 'observado') ? 'disabled' : '' ?>
@@ -750,7 +750,7 @@
                                     </button>
                                     <button
                                         type="button"
-                                        onclick="window.location.href='<?php echo base_url(); ?>/Scii/informesGobierno';"
+                                        onclick="window.location.href='<?php echo base_url(); ?>/Scii/informe';"
                                         id="nuevoInformeBtn"
                                         class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-6 rounded-lg transition duration-200 shadow-sm hover:shadow-md">
                                         Nuevo Informe
@@ -908,156 +908,6 @@
             }
         });
     });
-
-    // // Función para mostrar los archivos seleccionados
-    // function updateFileNames(input) {
-    //     const inputId = input.id;
-    //     const fileListId = 'fileList' + inputId.charAt(0).toUpperCase() + inputId.slice(1);
-    //     const fileList = document.getElementById(fileListId);
-
-    //     if (!fileList) return;
-
-    //     fileList.innerHTML = '';
-
-    //     if (input.files.length > 0) {
-    //         fileList.classList.remove('hidden');
-
-    //         Array.from(input.files).forEach((file, index) => {
-    //             const fileItem = document.createElement('div');
-    //             fileItem.className = 'flex items-center justify-between p-2 bg-gray-50 rounded text-xs';
-    //             fileItem.innerHTML = `
-    //                 <span class="truncate flex-1 text-gray-700">
-    //                     <i class="fa-solid fa-file mr-1 text-green-600"></i>
-    //                     ${file.name}
-    //                 </span>
-    //                 <span class="text-gray-500 ml-2">${(file.size / 1024).toFixed(1)} KB</span>
-    //             `;
-    //             fileList.appendChild(fileItem);
-    //         });
-    //     } else {
-    //         fileList.classList.add('hidden');
-    //     }
-    // }
-
-    // // Variables globales para el modal
-    // let archivoActual = {
-    //     url: '',
-    //     nombre: ''
-    // };
-
-    // // Función para ver archivo en modal
-    // function verArchivo(ruta, nombre) {
-    //     const modal = document.getElementById('modalArchivo');
-    //     const titulo = document.getElementById('modalTitulo');
-    //     const contenido = document.getElementById('modalContenido');
-
-    //     // Normalizar la ruta reemplazando backslashes por forward slashes
-    //     const rutaNormalizada = ruta.replace(/\\/g, '/');
-    //     archivoActual = {
-    //         url: '<?= base_url() ?>/' + rutaNormalizada,
-    //         nombre: nombre
-    //     };
-
-    //     titulo.textContent = nombre;
-    //     modal.classList.remove('hidden');
-
-    //     const extension = nombre.split('.').pop().toLowerCase();
-
-    //     // Determinar el tipo de visualización según la extensión
-    //     if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg'].includes(extension)) {
-    //         contenido.innerHTML = `<img src="${archivoActual.url}" alt="${nombre}" class="max-w-full h-auto rounded-lg shadow-lg">`;
-    //     } else if (extension === 'pdf') {
-    //         contenido.innerHTML = `<iframe src="${archivoActual.url}" class="w-full h-96 border-0 rounded-lg"></iframe>`;
-    //     } else if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(extension)) {
-    //         contenido.innerHTML = `
-    //             <div class="text-center py-8">
-    //                 <i class="fa-solid fa-file-${extension.includes('doc') ? 'word' : extension.includes('xls') ? 'excel' : 'powerpoint'} text-6xl text-blue-500 mb-4"></i>
-    //                 <p class="text-gray-700 font-medium mb-2">${nombre}</p>
-    //                 <p class="text-gray-500 text-sm mb-4">Este tipo de archivo no se puede previsualizar en el navegador</p>
-    //                 <button onclick="descargarArchivoModal()" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
-    //                     <i class="fa-solid fa-download mr-2"></i>Descargar archivo
-    //                 </button>
-    //             </div>`;
-    //     } else if (['zip', 'rar', '7z'].includes(extension)) {
-    //         contenido.innerHTML = `
-    //             <div class="text-center py-8">
-    //                 <i class="fa-solid fa-file-zipper text-6xl text-yellow-500 mb-4"></i>
-    //                 <p class="text-gray-700 font-medium mb-2">${nombre}</p>
-    //                 <p class="text-gray-500 text-sm mb-4">Archivo comprimido</p>
-    //                 <button onclick="descargarArchivoModal()" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
-    //                     <i class="fa-solid fa-download mr-2"></i>Descargar archivo
-    //                 </button>
-    //             </div>`;
-    //     } else {
-    //         contenido.innerHTML = `
-    //             <div class="text-center py-8">
-    //                 <i class="fa-solid fa-file text-6xl text-gray-400 mb-4"></i>
-    //                 <p class="text-gray-700 font-medium mb-2">${nombre}</p>
-    //                 <p class="text-gray-500 text-sm mb-4">No se puede previsualizar este tipo de archivo</p>
-    //                 <button onclick="descargarArchivoModal()" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
-    //                     <i class="fa-solid fa-download mr-2"></i>Descargar archivo
-    //                 </button>
-    //             </div>`;
-    //     }
-    // }
-
-    // // Función para cerrar el modal
-    // function cerrarModal() {
-    //     const modal = document.getElementById('modalArchivo');
-    //     modal.classList.add('hidden');
-    //     archivoActual = {
-    //         url: '',
-    //         nombre: ''
-    //     };
-    // }
-
-    // // Cerrar modal al hacer clic fuera de él
-    // document.getElementById('modalArchivo').addEventListener('click', function(e) {
-    //     if (e.target === this) {
-    //         cerrarModal();
-    //     }
-    // });
-
-    // // Función para descargar archivo desde el modal
-    // function descargarArchivoModal() {
-    //     if (archivoActual.url) {
-    //         descargarArchivo(archivoActual.url, archivoActual.nombre);
-    //     }
-    // }
-
-    // // Función para descargar un archivo individual
-    // function descargarArchivo(url, nombre) {
-    //     const link = document.createElement('a');
-    //     link.href = url;
-    //     link.download = nombre;
-    //     link.target = '_blank';
-    //     document.body.appendChild(link);
-    //     link.click();
-    //     document.body.removeChild(link);
-    // }
-
-    // // Función para descargar todos los archivos
-    // function descargarTodosArchivos() {
-    //     const archivos = <?= json_encode($archivos ?? [], JSON_UNESCAPED_SLASHES) ?>;
-
-    //     if (archivos.length === 0) {
-    //         alert('No hay archivos para descargar');
-    //         return;
-    //     }
-
-    //     // Mostrar confirmación
-    //     if (confirm(`¿Desea descargar todos los archivos (${archivos.length} archivos)?`)) {
-    //         // Descargar cada archivo con un pequeño delay para evitar bloqueos del navegador
-    //         archivos.forEach((archivo, index) => {
-    //             setTimeout(() => {
-    //                 // Normalizar la ruta
-    //                 const ruta = archivo.ruta_archivo.replace(/\\/g, '/');
-    //                 const url = '<?= base_url() ?>/' + ruta;
-    //                 descargarArchivo(url, archivo.nombre_archivo);
-    //             }, index * 300); // 300ms de delay entre cada descarga
-    //         });
-    //     }
-    // }
 
     // Funcionalidad del botón "Nuevo Informe" en el sidebar
     document.addEventListener('DOMContentLoaded', function() {

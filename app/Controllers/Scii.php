@@ -1079,30 +1079,56 @@ class Scii extends BaseController
                 throw new \Exception('Error al actualizar el informe: ' . json_encode($this->informesGobierno->errors()));
             }
 
-            // 7. GESTIÓN DE ARCHIVOS: Eliminar archivos existentes y subir nuevos
-            // Obtener archivos existentes del informe
-            $archivosExistentes = $this->informeArchivos
-                ->where('id_informe', $informeId)
-                ->findAll();
+            // 7. GESTIÓN DE ARCHIVOS: Solo actualizar tipos de archivo que el usuario haya modificado
+            // Detectar qué tipos de archivos se están subiendo
+            $tiposConArchivosNuevos = [];
+            $tiposMap = [
+                'mapas' => 'mapa',
+                'graficas' => 'grafico',
+                'cuadros' => 'cuadro',
+                'esquemas' => 'esquema',
+                'fotografias' => 'fotografia',
+                'resultados' => 'resultados'
+            ];
 
-            // Eliminar archivos físicos y registros de BD
-            foreach ($archivosExistentes as $archivo) {
-                // Extraer la ruta física del archivo
-                $rutaFisica = str_replace(base_url(), FCPATH, $archivo['ruta_archivo']);
-
-                if (file_exists($rutaFisica)) {
-                    if (unlink($rutaFisica)) {
-                        $archivosEliminados[] = $rutaFisica;
-                    } else {
-                        log_message('warning', "No se pudo eliminar el archivo: {$rutaFisica}");
+            foreach ($tiposMap as $tipoInput => $tipoEnum) {
+                if (isset($_FILES[$tipoInput]) && is_array($_FILES[$tipoInput]['name'])) {
+                    // Verificar si hay al menos un archivo válido
+                    foreach ($_FILES[$tipoInput]['error'] as $error) {
+                        if ($error === UPLOAD_ERR_OK) {
+                            $tiposConArchivosNuevos[] = $tipoEnum;
+                            break;
+                        }
                     }
                 }
-
-                // Eliminar registro de BD
-                $this->informeArchivos->delete($archivo['id_archivo']);
             }
 
-            // 8. SUBIR NUEVOS ARCHIVOS (usar la misma lógica de creación)
+            // Solo eliminar archivos de los tipos que se van a reemplazar
+            if (!empty($tiposConArchivosNuevos)) {
+                $archivosExistentes = $this->informeArchivos
+                    ->where('id_informe', $informeId)
+                    ->whereIn('tipo_archivo', $tiposConArchivosNuevos)
+                    ->findAll();
+
+                // Eliminar archivos físicos y registros de BD solo de los tipos modificados
+                foreach ($archivosExistentes as $archivo) {
+                    // Construir la ruta física del archivo desde la ruta relativa
+                    $rutaFisica = WRITEPATH . $archivo['ruta_archivo'];
+
+                    if (file_exists($rutaFisica)) {
+                        if (unlink($rutaFisica)) {
+                            $archivosEliminados[] = $rutaFisica;
+                        } else {
+                            log_message('warning', "No se pudo eliminar el archivo: {$rutaFisica}");
+                        }
+                    }
+
+                    // Eliminar registro de BD
+                    $this->informeArchivos->delete($archivo['id_archivo']);
+                }
+            }
+
+            // 8. SUBIR NUEVOS ARCHIVOS (solo los que el usuario seleccionó)
             $archivosGuardados = $this->procesarArchivosInforme($informeId);
 
             // 9. COMPLETAR TRANSACCIÓN
@@ -1115,8 +1141,12 @@ class Scii extends BaseController
 
             log_message('info', "Informe #{$informeId} actualizado exitosamente por usuario #{$id_usuario}");
 
+            $mensajeArchivos = count($archivosGuardados) > 0 
+                ? ' y ' . count($archivosGuardados) . ' archivo(s) actualizado(s)' 
+                : '';
+
             return redirect()->to("/Scii/informe/{$informeId}")
-                ->with('success', 'Informe actualizado correctamente con ' . count($archivosGuardados) . ' archivo(s)');
+                ->with('success', 'Informe actualizado correctamente' . $mensajeArchivos);
         } catch (\Exception $e) {
             // Rollback
             if ($db->transStatus() !== false) {
@@ -1210,36 +1240,35 @@ class Scii extends BaseController
                         $tamanioKB = round($fileSize / 1024, 2);
                         $newName = uniqid() . '_' . bin2hex(random_bytes(10)) . '.' . $extension;
 
-                        // Definir ruta
-                        $ruta = WRITEPATH . "uploads/informes/$informeId/$tipoInput/";
-                        $rutaServidor = base_url() . "/uploads/informes/$informeId/$tipoInput/";
+                        // Definir ruta relativa y absoluta
+                        $rutaRelativa = "uploads/informes/$informeId/$tipoInput/";
+                        $rutaAbsoluta = WRITEPATH . $rutaRelativa;
 
                         // Crear directorio si no existe
-                        if (!is_dir($ruta)) {
-                            if (!mkdir($ruta, 0755, true)) {
-                                throw new \Exception("No se pudo crear el directorio: $ruta");
+                        if (!is_dir($rutaAbsoluta)) {
+                            if (!mkdir($rutaAbsoluta, 0755, true)) {
+                                throw new \Exception("No se pudo crear el directorio: $rutaAbsoluta");
                             }
                         }
-
                         // Mover archivo manualmente usando move_uploaded_file
-                        $rutaCompleta = $ruta . $newName;
-                        $rutaCompletaServidor = $rutaServidor . $newName;
-                        if (!move_uploaded_file($tmpName, $rutaCompleta)) {
+                        $rutaCompletaAbsoluta = $rutaAbsoluta . $newName;
+                        $rutaCompletaRelativa = $rutaRelativa . $newName;
+                        
+                        if (!move_uploaded_file($tmpName, $rutaCompletaAbsoluta)) {
                             throw new \Exception("Error al mover el archivo: {$nombreOriginal}");
                         }
 
                         // Verificar que el archivo se movió correctamente
-                        if (!file_exists($rutaCompleta)) {
-                            throw new \Exception("El archivo no existe después de moverlo: $rutaCompleta");
+                        if (!file_exists($rutaCompletaAbsoluta)) {
+                            throw new \Exception("El archivo no existe después de moverlo: $rutaCompletaAbsoluta");
                         }
-
-                        // Guardar registro en BD
+                        // Guardar registro en BD con ruta relativa
                         $archivoData = [
                             'id_informe' => $informeId,
                             'tipo_archivo' => $tipoEnum,
                             'nombre_archivo' => $newName,
                             'nombre_original' => $nombreOriginal,
-                            'ruta_archivo' => $rutaCompletaServidor,
+                            'ruta_archivo' => $rutaCompletaRelativa,
                             'extension' => $extension,
                             'tamanio_kb' => $tamanioKB,
                             'mime_type' => $fileMimeType,
@@ -1253,13 +1282,12 @@ class Scii extends BaseController
                             throw new \Exception("Error al registrar archivo en BD: {$nombreOriginal} - " . json_encode($this->informeArchivos->errors()));
                         }
 
-                        // Guardar referencia para limpieza en caso de error
-                        $archivosGuardados[] = $rutaCompleta;
+                        // Guardar referencia para limpieza en caso de error (usar ruta absoluta)
+                        $archivosGuardados[] = $rutaCompletaAbsoluta;
                     }
                 }
             }
         }
-
         return $archivosGuardados;
     }
     //  * Método auxiliar para limpiar archivos
@@ -1298,17 +1326,34 @@ class Scii extends BaseController
         }
 
         $db = \Config\Database::connect();
-        $builder = $db->table('informe_comentarios');
-        $builder->select('informe_comentarios.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m');
-        $builder->join('usuarios', 'usuarios.id_usuario = informe_comentarios.id_usuario', 'left');
-        $builder->where('informe_comentarios.id_informe', $id_informe);
-
+        
         if ($campo_referencia) {
+            // Si se especifica un campo, obtener todos sus comentarios
+            $builder = $db->table('informe_comentarios');
+            $builder->select('informe_comentarios.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m');
+            $builder->join('usuarios', 'usuarios.id_usuario = informe_comentarios.id_usuario', 'left');
+            $builder->where('informe_comentarios.id_informe', $id_informe);
             $builder->where('informe_comentarios.campo_referencia', $campo_referencia);
+            $builder->orderBy('informe_comentarios.created_at', 'DESC');
+            $comentarios = $builder->get()->getResultArray();
+        } else {
+            // Si no se especifica campo, obtener el último comentario de cada campo
+            $subquery = $db->table('informe_comentarios')
+                ->select('campo_referencia, MAX(created_at) as max_created_at')
+                ->where('id_informe', $id_informe)
+                ->groupBy('campo_referencia')
+                ->getCompiledSelect();
+            
+            $builder = $db->table('informe_comentarios ic');
+            $builder->select('ic.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m');
+            $builder->join('usuarios', 'usuarios.id_usuario = ic.id_usuario', 'left');
+            $builder->join("($subquery) as latest", 
+                'ic.campo_referencia = latest.campo_referencia AND ic.created_at = latest.max_created_at', 
+                'inner');
+            $builder->where('ic.id_informe', $id_informe);
+            $builder->orderBy('ic.created_at', 'DESC');
+            $comentarios = $builder->get()->getResultArray();
         }
-
-        $builder->orderBy('informe_comentarios.created_at', 'DESC');
-        $comentarios = $builder->get()->getResultArray();
 
         return $this->response->setJSON([
             'success' => true,
@@ -1414,6 +1459,19 @@ class Scii extends BaseController
         // Validar datos requeridos
         if (empty($id_informe) || empty($campo_referencia)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos']);
+        }
+
+        // Validar que el informe existe y está en estado "observado"
+        $informe = $this->informesGobierno->find($id_informe);
+        if (!$informe) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Informe no encontrado']);
+        }
+
+        if ($informe['estado'] !== 'observado') {
+            return $this->response->setJSON([
+                'success' => false, 
+                'message' => 'Aun no es posible agregar comentarios a este infome"'
+            ]);
         }
 
         // Verificar si ya existe un comentario para este campo
@@ -1789,8 +1847,8 @@ class Scii extends BaseController
                 ->findAll();
 
             foreach ($archivosExistentes as $archivo) {
-                // Ruta física
-                $rutaFisica = str_replace(base_url(), FCPATH, $archivo['ruta_archivo']);
+                // Construir la ruta física del archivo desde la ruta relativa
+                $rutaFisica = WRITEPATH . $archivo['ruta_archivo'];
 
                 if (file_exists($rutaFisica)) {
                     if (unlink($rutaFisica)) {
@@ -1914,37 +1972,37 @@ class Scii extends BaseController
                         $tamanioKB = round($fileSize / 1024, 2);
                         $newName = uniqid() . '_' . bin2hex(random_bytes(10)) . '.' . $extension;
 
-                        // Definir rutas
-                        $ruta = WRITEPATH . "uploads/glosas/$glosaId/$tipoInput/";
-                        $rutaServidor = base_url() . "/uploads/glosas/$glosaId/{$tipoInput}/";
+                        // Definir ruta relativa y absoluta
+                        $rutaRelativa = "uploads/glosas/$glosaId/$tipoInput/";
+                        $rutaAbsoluta = WRITEPATH . $rutaRelativa;
 
                         // Crear directorio si no existe
-                        if (!is_dir($ruta)) {
-                            if (!mkdir($ruta, 0755, true)) {
-                                throw new \Exception("No se pudo crear el directorio: {$ruta}");
+                        if (!is_dir($rutaAbsoluta)) {
+                            if (!mkdir($rutaAbsoluta, 0755, true)) {
+                                throw new \Exception("No se pudo crear el directorio: {$rutaAbsoluta}");
                             }
                         }
 
                         // Mover archivo
-                        $rutaCompleta = $ruta . $newName;
-                        $rutaCompletaServidor = $rutaServidor . $newName;
+                        $rutaCompletaAbsoluta = $rutaAbsoluta . $newName;
+                        $rutaCompletaRelativa = $rutaRelativa . $newName;
 
-                        if (!move_uploaded_file($tmpName, $rutaCompleta)) {
+                        if (!move_uploaded_file($tmpName, $rutaCompletaAbsoluta)) {
                             throw new \Exception("Error al mover el archivo: {$nombreOriginal}");
                         }
 
                         // Verificar que se movió
-                        if (!file_exists($rutaCompleta)) {
-                            throw new \Exception("El archivo no existe después de moverlo: {$rutaCompleta}");
+                        if (!file_exists($rutaCompletaAbsoluta)) {
+                            throw new \Exception("El archivo no existe después de moverlo: {$rutaCompletaAbsoluta}");
                         }
 
-                        // Guardar registro en BD
+                        // Guardar registro en BD con ruta relativa
                         $archivoData = [
                             'id_glosa_gobierno' => $glosaId,
                             'tipo_archivo' => $tipoEnum,
                             'nombre_archivo' => $newName,
                             'nombre_original' => $nombreOriginal,
-                            'ruta_archivo' => $rutaCompletaServidor,
+                            'ruta_archivo' => $rutaCompletaRelativa,
                             'extension' => $extension,
                             'tamanio_kb' => $tamanioKB,
                             'mime_type' => $fileMimeType,
@@ -1959,8 +2017,8 @@ class Scii extends BaseController
                                 "Error al registrar archivo en BD: {$nombreOriginal} - " . json_encode($this->glosaArchivos->errors()));
                         }
 
-                        // Guardar referencia física para limpieza en caso de error
-                        $archivosGuardados[] = $rutaCompleta;
+                        // Guardar referencia física para limpieza en caso de error (usar ruta absoluta)
+                        $archivosGuardados[] = $rutaCompletaAbsoluta;
                     }
                 }
             }
