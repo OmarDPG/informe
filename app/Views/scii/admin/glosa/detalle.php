@@ -478,7 +478,7 @@
                                                                 <div class="space-y-1 max-h-40 overflow-y-auto">
                                                                     <?php foreach ($archivosDelTipo as $archivo): ?>
                                                                         <div class="flex items-center justify-between p-2 bg-white rounded hover:bg-gray-100 transition cursor-pointer group"
-                                                                            onclick="verArchivo('<?= esc($archivo['ruta_archivo']) ?>', '<?= esc($archivo['nombre_archivo']) ?>')">
+                                                                            onclick="verArchivo(<?= $archivo['id_archivo'] ?>, '<?= esc($archivo['nombre_archivo']) ?>')">
                                                                             <div class="flex items-center min-w-0 flex-1">
                                                                                 <i class="fa-solid <?= $config['icon'] ?> <?= $config['color'] ?> mr-2 flex-shrink-0"></i>
                                                                                 <span class="text-xs text-gray-700 truncate" title="<?= esc($archivo['nombre_archivo']) ?>">
@@ -486,7 +486,7 @@
                                                                                 </span>
                                                                             </div>
                                                                             <button type="button"
-                                                                                onclick="event.stopPropagation(); descargarArchivo('<?= base_url() . '/' . esc($archivo['ruta_archivo']) ?>', '<?= esc($archivo['nombre_archivo']) ?>')"
+                                                                                onclick="event.stopPropagation(); descargarArchivo(<?= $archivo['id_archivo'] ?>, '<?= esc($archivo['nombre_archivo']) ?>')"
                                                                                 class="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                                                 <i class="fa-solid fa-download text-gray-400 hover:text-blue-600 text-sm"></i>
                                                                             </button>
@@ -737,20 +737,22 @@
 
     // Variables globales para el modal
     let archivoActual = {
+        id: null,
         url: '',
         nombre: ''
     };
 
     // Función para ver archivo en modal
-    function verArchivo(ruta, nombre) {
+    function verArchivo(idArchivo, nombre) {
         const modal = document.getElementById('modalArchivo');
         const titulo = document.getElementById('modalTitulo');
         const contenido = document.getElementById('modalContenido');
 
-        // Normalizar la ruta reemplazando backslashes por forward slashes
-        const rutaNormalizada = ruta.replace(/\\/g, '/');
+        // Construir URL usando el ID del archivo
+        const url = '<?= base_url() ?>/administrador/descargarArchivoGlosa/' + idArchivo;
         archivoActual = {
-            url: '<?= base_url() ?>/' + rutaNormalizada,
+            id: idArchivo,
+            url: url,
             nombre: nombre
         };
 
@@ -802,6 +804,7 @@
         const modal = document.getElementById('modalArchivo');
         modal.classList.add('hidden');
         archivoActual = {
+            id: null,
             url: '',
             nombre: ''
         };
@@ -816,13 +819,14 @@
 
     // Función para descargar archivo desde el modal
     function descargarArchivoModal() {
-        if (archivoActual.url) {
-            descargarArchivo(archivoActual.url, archivoActual.nombre);
+        if (archivoActual.id && archivoActual.nombre) {
+            descargarArchivo(archivoActual.id, archivoActual.nombre);
         }
     }
 
     // Función para descargar un archivo individual
-    function descargarArchivo(url, nombre) {
+    function descargarArchivo(idArchivo, nombre) {
+        const url = '<?= base_url() ?>/administrador/descargarArchivoGlosa/' + idArchivo;
         const link = document.createElement('a');
         link.href = url;
         link.download = nombre;
@@ -846,10 +850,8 @@
             // Descargar cada archivo con un pequeño delay para evitar bloqueos del navegador
             archivos.forEach((archivo, index) => {
                 setTimeout(() => {
-                    // Normalizar la ruta
-                    const ruta = archivo.ruta_archivo.replace(/\\/g, '/');                   
-                    const url = '<?= base_url() ?>/' + ruta;
-                    descargarArchivo(url, archivo.nombre_archivo);
+                    // Usar el ID del archivo para construir la URL de descarga
+                    descargarArchivo(archivo.id_archivo, archivo.nombre_archivo);
                 }, index * 300); // 300ms de delay entre cada descarga
             });
         }

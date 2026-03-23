@@ -156,6 +156,7 @@
                             <label for="anio" class="text-sm font-semibold text-gray-700">
                                 Año de evaluación
                             </label>
+                            <?php $anioSeleccionado = old('anio') ?? ($periodo['anio'] ?? ''); ?>
                             <select name="anio" id="anio"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
                                focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 
@@ -165,7 +166,8 @@
                                 <?php
                                 $currentYear = date('Y');
                                 for ($y = $currentYear; $y >= $currentYear - 2; $y--) {
-                                    echo "<option value=\"$y\">$y</option>";
+                                    $selected = ((string) $anioSeleccionado === (string) $y) ? 'selected' : '';
+                                    echo "<option value=\"$y\" $selected>$y</option>";
                                 }
                                 ?>
                             </select>
@@ -176,16 +178,17 @@
                             <label for="etapa" class="text-sm font-semibold text-gray-700">
                                 Etapa
                             </label>
+                            <?php $etapaSeleccionada = old('etapa') ?? ($etapas['numero_etapa'] ?? ''); ?>
                             <select name="etapa" id="etapa"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
                                focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 
                                block w-full p-2.5 transition"
                                 required>
                                 <option value="">Selecciona una etapa</option>
-                                <option value="1">Etapa 1</option>
-                                <option value="2">Etapa 2</option>
-                                <option value="3">Etapa 3</option>
-                                <option value="4">Etapa 4</option>
+                                <option value="1" <?= ((string) $etapaSeleccionada === '1') ? 'selected' : '' ?>>Etapa 1</option>
+                                <option value="2" <?= ((string) $etapaSeleccionada === '2') ? 'selected' : '' ?>>Etapa 2</option>
+                                <option value="3" <?= ((string) $etapaSeleccionada === '3') ? 'selected' : '' ?>>Etapa 3</option>
+                                <option value="4" <?= ((string) $etapaSeleccionada === '4') ? 'selected' : '' ?>>Etapa 4</option>
                             </select>
                         </div>
 

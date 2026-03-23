@@ -2624,9 +2624,15 @@ class Administrador extends BaseController
             return redirect()->to(base_url() . '/inicio/land');
         }
         $current = 'Evidencia / Informe de Gobierno';
+        $periodo = $this->periodosAnuales
+            ->where('estado', 'activo')
+            ->first();
+        $etapas = $this->etapas
+            ->where('estado', 'abierta')
+            ->first();
         if (isset($edi))
             $ban = $this->cargas->where(['id_carga' => $edi])->first();
-        $datos = isset($edi) ? ['usuario' => $this->session->usuario, 'current' => $current, 'edi' => $ban] : ['usuario' => $this->session->usuario, 'current' => $current];
+        $datos = isset($edi) ? ['usuario' => $this->session->usuario, 'current' => $current, 'edi' => $ban, 'periodo' => $periodo, 'etapas' => $etapas] : ['usuario' => $this->session->usuario, 'current' => $current, 'periodo' => $periodo, 'etapas' => $etapas];
         echo view('scii/admin/header');
         echo view('scii/admin/informe/informe', $datos);
         echo view('scii/admin/navbar');
@@ -3056,17 +3062,34 @@ class Administrador extends BaseController
         }
 
         $db = \Config\Database::connect();
-        $builder = $db->table('informe_comentarios');
-        $builder->select('informe_comentarios.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m');
-        $builder->join('usuarios', 'usuarios.id_usuario = informe_comentarios.id_usuario', 'left');
-        $builder->where('informe_comentarios.id_informe', $id_informe);
-
+        
         if ($campo_referencia) {
+            // Si se especifica un campo, obtener todos sus comentarios
+            $builder = $db->table('informe_comentarios');
+            $builder->select('informe_comentarios.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m');
+            $builder->join('usuarios', 'usuarios.id_usuario = informe_comentarios.id_usuario', 'left');
+            $builder->where('informe_comentarios.id_informe', $id_informe);
             $builder->where('informe_comentarios.campo_referencia', $campo_referencia);
+            $builder->orderBy('informe_comentarios.created_at', 'DESC');
+            $comentarios = $builder->get()->getResultArray();
+        } else {
+            // Si no se especifica campo, obtener el último comentario de cada campo
+            $subquery = $db->table('informe_comentarios')
+                ->select('campo_referencia, MAX(created_at) as max_created_at')
+                ->where('id_informe', $id_informe)
+                ->groupBy('campo_referencia')
+                ->getCompiledSelect();
+            
+            $builder = $db->table('informe_comentarios ic');
+            $builder->select('ic.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m');
+            $builder->join('usuarios', 'usuarios.id_usuario = ic.id_usuario', 'left');
+            $builder->join("($subquery) as latest", 
+                'ic.campo_referencia = latest.campo_referencia AND ic.created_at = latest.max_created_at', 
+                'inner');
+            $builder->where('ic.id_informe', $id_informe);
+            $builder->orderBy('ic.created_at', 'DESC');
+            $comentarios = $builder->get()->getResultArray();
         }
-
-        $builder->orderBy('informe_comentarios.created_at', 'DESC');
-        $comentarios = $builder->get()->getResultArray();
 
         return $this->response->setJSON([
             'success' => true,
@@ -3790,5 +3813,196 @@ class Administrador extends BaseController
 
             return redirect()->to(base_url('administrador/detalleGlosa/' . $id_glosa_gobierno))->with('mensaje', 'Notificación enviada a ' . $nombre);
         }
+    }
+
+    /**
+     * Descargar archivo de informe de forma segura
+     * Los archivos están en writable/ (no accesibles públicamente)
+     */
+    public function descargarArchivoInforme($id_archivo)
+    {
+        // Validar sesión y permisos
+        if (!isset($this->session->id_usuario)) {
+            return redirect()->to(base_url())->with('error', 'No autorizado');
+        }
+
+        if ($this->session->adm == '0') {
+            return redirect()->to(base_url())->with('error', 'Acceso denegado');
+        }
+
+        // Buscar el archivo en la base de datos
+        $archivo = $this->informeArchivos->find($id_archivo);
+
+        if (!$archivo) {
+            log_message('error', "Archivo ID {$id_archivo} no encontrado en BD");
+            return redirect()->back()->with('error', 'Archivo no encontrado en base de datos');
+        }
+
+        // Construir la ruta física del archivo (normalizar para Windows)
+        $rutaRelativa = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $archivo['ruta_archivo']);
+        $rutaFisica = WRITEPATH . $rutaRelativa;
+
+        // Verificar que el archivo existe físicamente
+        if (!file_exists($rutaFisica)) {
+            log_message('error', "Archivo no encontrado en disco: {$rutaFisica}");
+            log_message('error', "WRITEPATH: " . WRITEPATH);
+            log_message('error', "Ruta BD: " . $archivo['ruta_archivo']);
+            log_message('error', "Ruta normalizada: " . $rutaRelativa);
+            return redirect()->back()->with('error', 'Archivo no encontrado en servidor');
+        }
+
+        // Verificar que el archivo es legible
+        if (!is_readable($rutaFisica)) {
+            log_message('error', "Archivo no legible: {$rutaFisica}");
+            return redirect()->back()->with('error', 'Archivo no legible');
+        }
+
+        // Registrar descarga
+        $fileSize = filesize($rutaFisica);
+        log_message('info', "Descarga iniciada - Usuario: {$this->session->id_usuario}, Archivo: {$id_archivo}, Nombre: {$archivo['nombre_original']}, Tamaño: {$fileSize} bytes");
+
+        // CRÍTICO: Aumentar límites de PHP para archivos grandes
+        @ini_set('memory_limit', '512M');
+        @ini_set('max_execution_time', '300');
+        @ini_set('output_buffering', 'Off');
+        @ini_set('zlib.output_compression', 'Off');
+        @ini_set('implicit_flush', '1');
+
+        // Limpiar TODOS los niveles de output buffering
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        // Deshabilitar compresión de Apache
+        if (function_exists('apache_setenv')) {
+            @apache_setenv('no-gzip', '1');
+        }
+
+        // Limpiar cualquier salida previa
+        if (ob_get_length()) {
+            ob_clean();
+        }
+
+        // Establecer headers HTTP
+        header_remove(); // Limpiar todos los headers previos
+        header('Content-Type: ' . ($archivo['mime_type'] ?? 'application/octet-stream'));
+        header('Content-Disposition: attachment; filename="' . $archivo['nombre_original'] . '"');
+        header('Content-Length: ' . $fileSize);
+        header('Content-Transfer-Encoding: binary');
+        header('Accept-Ranges: none');
+        header('Cache-Control: no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        header('Connection: close');
+
+        // Usar readfile() que es la forma más eficiente y directa
+        set_time_limit(0);
+        
+        $bytesEnviados = @readfile($rutaFisica);
+        
+        if ($bytesEnviados === false) {
+            log_message('error', "readfile() falló para: {$rutaFisica}");
+            exit('Error al leer el archivo');
+        }
+
+        log_message('info', "Descarga completada - Bytes enviados: {$bytesEnviados} de {$fileSize} esperados");
+
+        // Terminar la ejecución
+        exit();
+    }
+
+    /**
+     * Descargar archivo de glosa de forma segura
+     */
+    public function descargarArchivoGlosa($id_archivo)
+    {
+        // Validar sesión y permisos
+        if (!isset($this->session->id_usuario)) {
+            return redirect()->to(base_url())->with('error', 'No autorizado');
+        }
+
+        if ($this->session->adm == '0') {
+            return redirect()->to(base_url())->with('error', 'Acceso denegado');
+        }
+
+        // Buscar el archivo en la base de datos
+        $archivo = $this->glosaArchivos->find($id_archivo);
+
+        if (!$archivo) {
+            log_message('error', "Archivo glosa ID {$id_archivo} no encontrado en BD");
+            return redirect()->back()->with('error', 'Archivo no encontrado en base de datos');
+        }
+
+        // Construir la ruta física del archivo (normalizar para Windows)
+        $rutaRelativa = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $archivo['ruta_archivo']);
+        $rutaFisica = WRITEPATH . $rutaRelativa;
+
+        // Verificar que el archivo existe físicamente
+        if (!file_exists($rutaFisica)) {
+            log_message('error', "Archivo glosa no encontrado en disco: {$rutaFisica}");
+            log_message('error', "WRITEPATH: " . WRITEPATH);
+            log_message('error', "Ruta BD: " . $archivo['ruta_archivo']);
+            log_message('error', "Ruta normalizada: " . $rutaRelativa);
+            return redirect()->back()->with('error', 'Archivo no encontrado en servidor');
+        }
+
+        // Verificar que el archivo es legible
+        if (!is_readable($rutaFisica)) {
+            log_message('error', "Archivo glosa no legible: {$rutaFisica}");
+            return redirect()->back()->with('error', 'Archivo no legible');
+        }
+
+        // Registrar descarga
+        $fileSize = filesize($rutaFisica);
+        log_message('info', "Descarga glosa iniciada - Usuario: {$this->session->id_usuario}, Archivo: {$id_archivo}, Nombre: {$archivo['nombre_original']}, Tamaño: {$fileSize} bytes");
+
+        // CRÍTICO: Aumentar límites de PHP para archivos grandes
+        @ini_set('memory_limit', '512M');
+        @ini_set('max_execution_time', '300');
+        @ini_set('output_buffering', 'Off');
+        @ini_set('zlib.output_compression', 'Off');
+        @ini_set('implicit_flush', '1');
+
+        // Limpiar TODOS los niveles de output buffering
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        // Deshabilitar compresión de Apache
+        if (function_exists('apache_setenv')) {
+            @apache_setenv('no-gzip', '1');
+        }
+
+        // Limpiar cualquier salida previa
+        if (ob_get_length()) {
+            ob_clean();
+        }
+
+        // Establecer headers HTTP
+        header_remove(); // Limpiar todos los headers previos
+        header('Content-Type: ' . ($archivo['mime_type'] ?? 'application/octet-stream'));
+        header('Content-Disposition: attachment; filename="' . $archivo['nombre_original'] . '"');
+        header('Content-Length: ' . $fileSize);
+        header('Content-Transfer-Encoding: binary');
+        header('Accept-Ranges: none');
+        header('Cache-Control: no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        header('Connection: close');
+
+        // Usar readfile() que es la forma más eficiente y directa
+        set_time_limit(0);
+        
+        $bytesEnviados = @readfile($rutaFisica);
+        
+        if ($bytesEnviados === false) {
+            log_message('error', "readfile() falló para archivo glosa: {$rutaFisica}");
+            exit('Error al leer el archivo');
+        }
+
+        log_message('info', "Descarga glosa completada - Bytes enviados: {$bytesEnviados} de {$fileSize} esperados");
+
+        // Terminar la ejecución
+        exit();
     }
 }
