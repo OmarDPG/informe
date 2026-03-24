@@ -383,7 +383,7 @@
                                         <div class="flex-1">
                                             <div class="flex items-center gap-2 mb-1">
                                                 <span class="text-sm font-semibold text-gray-700">
-                                                    ${informe.anio} - Etapa ${informe.tema}
+                                                    ${informe.tema}
                                                 </span>
                                                 <span class="badge-status badge-${informe.estado}" style="text-transform: capitalize;">
                                                     ${getEstadoLabel(informe.estado)}
@@ -449,8 +449,6 @@
 
     // Ver detalle de una unidad
     function verDetalleUnidad(idUnidad) {
-        // const unidad = unidadesData.find(u => u.id_unidad === idUnidad);
-        // const informes = informesData.filter(inf => inf.id_unidad === idUnidad);
         const unidad = unidadesData.find(u => Number(u.id_unidad) === Number(idUnidad));
 
         if (!unidad) {

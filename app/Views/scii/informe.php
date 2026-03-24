@@ -26,7 +26,7 @@
                                             Unidad Administrativa
                                         </label>
                                         <input
-                                            
+
                                             value="<?= esc($datos['nombre_unidad'] ?? '') ?>"
                                             readonly
                                             type="text"
@@ -112,7 +112,10 @@
                                 <!-- Tema -->
                                 <div>
                                     <label for="tema" class="block mb-2 text-sm font-medium text-gray-700">
-                                        Tema <span class="text-gray-500 text-xs">(máximo 100 caracteres)</span>
+                                        Tema
+                                        <i class="fa-solid fa-circle-info text-blue-500 cursor-help ml-1 tooltip-trigger" 
+                                           data-tooltip="Tiene por finalidad organizar y agrupar la información por tema, por lo que varios resultados podrán corresponder al mismo. No deberá contener más de 6 palabras."></i>
+                                        <span class="text-gray-500 text-xs">(máximo 100 caracteres)</span>
                                     </label>
                                     <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                         <input
@@ -126,15 +129,15 @@
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese el tema del informe">
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
-                                        <button
-                                            type="button"
-                                            class="comment-btn absolute right-3 top-1/2 -translate-y-1/2 text-xl text-gray-400 hover:text-green-600 transition"
-                                            data-field="tema"
-                                            data-label="Tema"
-                                            aria-label="Ver comentario correspondiente al campo Tema">
-                                            <i class="fa-solid fa-eye"></i>
-                                            <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                                        </button>
+                                            <button
+                                                type="button"
+                                                class="comment-btn absolute right-3 top-1/2 -translate-y-1/2 text-xl text-gray-400 hover:text-green-600 transition"
+                                                data-field="tema"
+                                                data-label="Tema"
+                                                aria-label="Ver comentario correspondiente al campo Tema">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                            </button>
                                         <?php endif; ?>
                                     </div>
                                     <p id="tema-count" class="text-xs text-gray-500 mt-1 text-right">0 / 100 caracteres</p>
@@ -142,7 +145,10 @@
                                 <!-- Subtema -->
                                 <div>
                                     <label for="subtema" class="block mb-2 text-sm font-medium text-gray-700">
-                                        Subtema <span class="text-gray-500 text-xs">(máximo 100 caracteres)</span>
+                                        Subtema
+                                        <i class="fa-solid fa-circle-info text-blue-500 cursor-help ml-1 tooltip-trigger" 
+                                           data-tooltip="Tiene por finalidad organizar y agrupar la información por Subtema, por lo que varios resultados podrán corresponder al mismo. No deberá contener más de 6 palabras."></i>
+                                        <span class="text-gray-500 text-xs">(máximo 100 caracteres)</span>
                                     </label>
                                     <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                         <input
@@ -156,22 +162,25 @@
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese el subtema del informe">
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
-                                        <button
-                                            type="button"
-                                            class="comment-btn absolute right-3 top-1/2 -translate-y-1/2 text-xl text-gray-400 hover:text-green-600 transition"
-                                            data-field="subtema"
-                                            data-label="Subtema"
-                                            aria-label="Ver comentario correspondiente al campo Subtema">
-                                            <i class="fa-solid fa-eye"></i>
-                                            <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                                        <?php endif; ?>
+                                            <button
+                                                type="button"
+                                                class="comment-btn absolute right-3 top-1/2 -translate-y-1/2 text-xl text-gray-400 hover:text-green-600 transition"
+                                                data-field="subtema"
+                                                data-label="Subtema"
+                                                aria-label="Ver comentario correspondiente al campo Subtema">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                            <?php endif; ?>
                                     </div>
                                     <p id="subtema-count" class="text-xs text-gray-500 mt-1 text-right">0 / 100 caracteres</p>
                                 </div>
                                 <!-- Descripción del resultado -->
                                 <div>
                                     <label for="descripcion" class="block mb-2 text-sm font-medium text-gray-700">
-                                        Descripción del resultado <span class="text-gray-500 text-xs">(Contexto + Acción + Impacto + Territorio + Beneficiarios + Inversión)</span>
+                                        Descripción del resultado
+                                        <i class="fa-solid fa-circle-info text-blue-500 cursor-help ml-1 tooltip-trigger" 
+                                           data-tooltip="Contexto + Acción + Impacto + Territorio + Beneficiarios + Inversión"></i>
+                                        <span class="text-gray-500 text-xs">(Contexto + Acción + Impacto + Territorio + Beneficiarios + Inversión)</span>
                                     </label>
                                     <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                         <input
@@ -185,22 +194,25 @@
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese la descripción del informe">
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
-                                        <button
-                                            type="button"
-                                            class="comment-btn absolute right-3 top-1/2 -translate-y-1/2 text-xl text-gray-400 hover:text-green-600 transition"
-                                            data-field="descripcion"
-                                            data-label="Descripción del resultado"
-                                            aria-label="Ver comentario correspondiente al campo Descripción del resultado">
-                                            <i class="fa-solid fa-eye"></i>
-                                            <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                                        <?php endif; ?>
+                                            <button
+                                                type="button"
+                                                class="comment-btn absolute right-3 top-1/2 -translate-y-1/2 text-xl text-gray-400 hover:text-green-600 transition"
+                                                data-field="descripcion"
+                                                data-label="Descripción del resultado"
+                                                aria-label="Ver comentario correspondiente al campo Descripción del resultado">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                            <?php endif; ?>
                                     </div>
                                     <p id="descripcion-count" class="text-xs text-gray-500 mt-1 text-right">0 / 100 caracteres</p>
                                 </div>
                                 <!-- Contexto -->
                                 <div>
                                     <label for="contexto" class="block mb-2 text-sm font-medium text-gray-700">
-                                        Contexto <span class="text-gray-500 text-xs">(máximo 500 caracteres)</span>
+                                        Contexto
+                                        <i class="fa-solid fa-circle-info text-blue-500 cursor-help ml-1 tooltip-trigger" 
+                                           data-tooltip="Refiere a incluir la descripción general de la acción o su objetivo. No deberá contener más de un párrafo."></i>
+                                        <span class="text-gray-500 text-xs">(máximo 500 caracteres)</span>
                                     </label>
                                     <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                         <textarea
@@ -213,15 +225,15 @@
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200 resize-none"
                                             placeholder="Ingrese el contexto del informe"><?= esc($informeSeleccionado['contexto'] ?? '') ?></textarea>
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
-                                        <button
-                                            type="button"
-                                            class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
-                                            data-field="contexto"
-                                            data-label="Contexto"
-                                            aria-label="Agregar comentario al campo Contexto">
-                                            <i class="fa-solid fa-eye"></i>
-                                            <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                                        </button>
+                                            <button
+                                                type="button"
+                                                class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
+                                                data-field="contexto"
+                                                data-label="Contexto"
+                                                aria-label="Agregar comentario al campo Contexto">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                            </button>
                                         <?php endif; ?>
                                     </div>
                                     <p id="contexto-count" class="text-xs text-gray-500 mt-1 text-right">0 / 500 caracteres</p>
@@ -229,7 +241,10 @@
                                 <!-- Acción -->
                                 <div>
                                     <label for="accion" class="block mb-2 text-sm font-medium text-gray-700">
-                                        Acción <span class="text-gray-500 text-xs">(máximo 100 caracteres)</span>
+                                        Acción
+                                        <i class="fa-solid fa-circle-info text-blue-500 cursor-help ml-1 tooltip-trigger" 
+                                           data-tooltip="Nombre de la acción, convenio, proyecto o programa."></i>
+                                        <span class="text-gray-500 text-xs">(máximo 100 caracteres)</span>
                                     </label>
                                     <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                         <input
@@ -243,23 +258,26 @@
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese la descripción del informe">
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
-                                        <button
-                                            type="button"
-                                            class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
-                                            data-field="accion"
-                                            data-label="Acción"
-                                            aria-label="Agregar comentario al campo Acción">
-                                            <i class="fa-solid fa-eye"></i>
-                                            <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                                        </button>
+                                            <button
+                                                type="button"
+                                                class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
+                                                data-field="accion"
+                                                data-label="Acción"
+                                                aria-label="Agregar comentario al campo Acción">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                            </button>
                                         <?php endif; ?>
-                                        </div>
+                                    </div>
                                     <p id="accion-count" class="text-xs text-gray-500 mt-1 text-right">0 / 100 caracteres</p>
                                 </div>
                                 <!-- Impacto -->
                                 <div>
                                     <label for="impacto" class="block mb-2 text-sm font-medium text-gray-700">
-                                        Impacto <span class="text-gray-500 text-xs">(máximo 300 caracteres)</span>
+                                        Impacto
+                                        <i class="fa-solid fa-circle-info text-blue-500 cursor-help ml-1 tooltip-trigger" 
+                                           data-tooltip="Descripción de las acciones y resultados, detallando el mecanismo de implementación y destacando los beneficios obtenidos para la población, así como el objetivo y el alcance del proyecto."></i>
+                                        <span class="text-gray-500 text-xs">(máximo 300 caracteres)</span>
                                     </label>
                                     <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                         <textarea
@@ -272,15 +290,15 @@
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese la descripción del informe"><?= esc($informeSeleccionado['impacto'] ?? '') ?></textarea>
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
-                                        <button
-                                            type="button"
-                                            class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
-                                            data-field="impacto"
-                                            data-label="Impacto"
-                                            aria-label="Agregar comentario al campo Impacto">
-                                            <i class="fa-solid fa-eye"></i>
-                                            <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                                        </button>
+                                            <button
+                                                type="button"
+                                                class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
+                                                data-field="impacto"
+                                                data-label="Impacto"
+                                                aria-label="Agregar comentario al campo Impacto">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                            </button>
                                         <?php endif; ?>
                                     </div>
                                     <p id="impacto-count" class="text-xs text-gray-500 mt-1 text-right">0 / 300 caracteres</p>
@@ -288,7 +306,10 @@
                                 <!-- Territorio -->
                                 <div>
                                     <label for="territorio" class="block mb-2 text-sm font-medium text-gray-700">
-                                        Territorio <span class="text-gray-500 text-xs">(máximo 250 caracteres)</span>
+                                        Territorio
+                                        <i class="fa-solid fa-circle-info text-blue-500 cursor-help ml-1 tooltip-trigger" 
+                                           data-tooltip="Precisar el lugar donde se realizó la obra o acción, señalando la localidad, municipio o el lugar físico del evento para la población, objetivo y alcance."></i>
+                                        <span class="text-gray-500 text-xs">(máximo 250 caracteres)</span>
                                     </label>
                                     <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                         <textarea
@@ -301,15 +322,15 @@
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese la descripción del informe"><?= esc($informeSeleccionado['territorio'] ?? '') ?></textarea>
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
-                                        <button
-                                            type="button"
-                                            class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
-                                            data-field="territorio"
-                                            data-label="Territorio"
-                                            aria-label="Agregar comentario al campo Territorio">
-                                            <i class="fa-solid fa-eye"></i>
-                                            <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                                        </button>
+                                            <button
+                                                type="button"
+                                                class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
+                                                data-field="territorio"
+                                                data-label="Territorio"
+                                                aria-label="Agregar comentario al campo Territorio">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                            </button>
                                         <?php endif; ?>
                                     </div>
                                     <p id="territorio-count" class="text-xs text-gray-500 mt-1 text-right">0 / 250 caracteres</p>
@@ -317,7 +338,10 @@
                                 <!-- Beneficiarios -->
                                 <div>
                                     <label for="beneficiarios" class="block mb-2 text-sm font-medium text-gray-700">
-                                        Beneficiarios <span class="text-gray-500 text-xs">(máximo 150 caracteres)</span>
+                                        Beneficiarios
+                                        <i class="fa-solid fa-circle-info text-blue-500 cursor-help ml-1 tooltip-trigger" 
+                                           data-tooltip="Mencionar la población favorecida, así como la atención a las desigualdades que existen en el territorio, encaminadas a todos los sectores de población."></i>
+                                        <span class="text-gray-500 text-xs">(máximo 150 caracteres)</span>
                                     </label>
                                     <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                         <input
@@ -331,15 +355,15 @@
                                             placeholder="Ingrese la descripción del informe"
                                             value="<?= esc($informeSeleccionado['beneficiarios'] ?? '') ?>">
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
-                                        <button
-                                            type="button"
-                                            class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
-                                            data-field="beneficiarios"
-                                            data-label="Beneficiarios"
-                                            aria-label="Agregar comentario al campo Beneficiarios">
-                                            <i class="fa-solid fa-eye"></i>
-                                            <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                                        </button>
+                                            <button
+                                                type="button"
+                                                class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
+                                                data-field="beneficiarios"
+                                                data-label="Beneficiarios"
+                                                aria-label="Agregar comentario al campo Beneficiarios">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                            </button>
                                         <?php endif; ?>
                                     </div>
                                     <p id="beneficiarios-count" class="text-xs text-gray-500 mt-1 text-right">0 / 150 caracteres</p>
@@ -347,7 +371,10 @@
                                 <!-- Inversión -->
                                 <div>
                                     <label for="inversion" class="block mb-2 text-sm font-medium text-gray-700">
-                                        Inversión <span class="text-gray-500 text-xs">(máximo 200 caracteres)</span>
+                                        Inversión
+                                        <i class="fa-solid fa-circle-info text-blue-500 cursor-help ml-1 tooltip-trigger" 
+                                           data-tooltip="Presupuesto ejercido para cumplir con las acciones realizadas (señalar si hay coparticipación con otros entes)."></i>
+                                        <span class="text-gray-500 text-xs">(máximo 200 caracteres)</span>
                                     </label>
                                     <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                         <textarea
@@ -360,15 +387,15 @@
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese la descripción del informe"><?= esc($informeSeleccionado['inversion'] ?? '') ?></textarea>
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
-                                        <button
-                                            type="button"
-                                            class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
-                                            data-field="inversion"
-                                            data-label="Inversión"
-                                            aria-label="Agregar comentario al campo Inversión">
-                                            <i class="fa-solid fa-eye"></i>
-                                            <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                                        </button>
+                                            <button
+                                                type="button"
+                                                class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
+                                                data-field="inversion"
+                                                data-label="Inversión"
+                                                aria-label="Agregar comentario al campo Inversión">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                            </button>
                                         <?php endif; ?>
                                     </div>
                                     <p id="inversion-count" class="text-xs text-gray-500 mt-1 text-right">0 / 200 caracteres</p>
@@ -376,7 +403,10 @@
                                 <!-- Desarrollo del resultado -->
                                 <div>
                                     <label for="desarrollo_resultado" class="block mb-2 text-sm font-medium text-gray-700">
-                                        Desarrollo del resultado <span class="text-gray-500 text-xs">(máximo 3500 caracteres)</span>
+                                    Desarrollo del resultado
+                                        <i class="fa-solid fa-circle-info text-blue-500 cursor-help ml-1 tooltip-trigger" 
+                                           data-tooltip="En este campo se redactará el resultado, cuenta con un máximo de 5 mil caracteres y deberá atender los lineamientos de texto y redacción que se mencionan más adelante."></i>
+                                        <span class="text-gray-500 text-xs">(máximo 3500 caracteres)</span>
                                     </label>
                                     <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                         <textarea
@@ -389,15 +419,15 @@
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese la descripción del informe"><?= esc($informeSeleccionado['desarrollo_resultado'] ?? '') ?></textarea>
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
-                                        <button
-                                            type="button"
-                                            class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
-                                            data-field="desarrollo_resultado"
-                                            data-label="Desarrollo del resultado"
-                                            aria-label="Agregar comentario al campo Desarrollo del resultado">
-                                            <i class="fa-solid fa-eye"></i>
-                                            <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                                        </button>
+                                            <button
+                                                type="button"
+                                                class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
+                                                data-field="desarrollo_resultado"
+                                                data-label="Desarrollo del resultado"
+                                                aria-label="Agregar comentario al campo Desarrollo del resultado">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                            </button>
                                         <?php endif; ?>
                                     </div>
                                     <p id="desarrollo_resultado-count" class="text-xs text-gray-500 mt-1 text-right">0 / 3500 caracteres</p>
@@ -679,7 +709,10 @@
                                 <!-- Conclusión de la temática -->
                                 <div>
                                     <label for="conclusionTematica" class="block mb-2 text-sm font-medium text-gray-700">
-                                        Conclusión de la temática <span class="text-gray-500 text-xs">(máximo 1900 caracteres)</span>
+                                    Conclusión de la temática
+                                        <i class="fa-solid fa-circle-info text-blue-500 cursor-help ml-1 tooltip-trigger" 
+                                           data-tooltip="Es importante que en esta redacción se destaquen los avances más significativos del año, así como proporcionar recomendaciones futuras en la materia"></i>
+                                        <span class="text-gray-500 text-xs">(máximo 1900 caracteres)</span>
                                     </label>
                                     <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                         <textarea
@@ -692,15 +725,15 @@
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese la descripción del informe"><?= esc($informeSeleccionado['conclusion_tematica'] ?? '') ?></textarea>
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
-                                        <button
-                                            type="button"
-                                            class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
-                                            data-field="conclusionTematica"
-                                            data-label="Conclusión de la temática"
-                                            aria-label="Agregar comentario al campo Conclusión de la temática">
-                                            <i class="fa-solid fa-eye"></i>
-                                            <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                                        </button>
+                                            <button
+                                                type="button"
+                                                class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
+                                                data-field="conclusionTematica"
+                                                data-label="Conclusión de la temática"
+                                                aria-label="Agregar comentario al campo Conclusión de la temática">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                            </button>
                                         <?php endif; ?>
                                     </div>
                                     <p id="conclusionTematica-count" class="text-xs text-gray-500 mt-1 text-right">0 / 1900 caracteres</p>
@@ -708,7 +741,10 @@
                                 <!-- Logros destacados de la temática -->
                                 <div>
                                     <label for="logrosDestacados" class="block mb-2 text-sm font-medium text-gray-700">
-                                        Logros destacados de la temática <span class="text-gray-500 text-xs">(máximo 1900 caracteres)</span>
+                                    Logros destacados de la temática
+                                        <i class="fa-solid fa-circle-info text-blue-500 cursor-help ml-1 tooltip-trigger" 
+                                           data-tooltip="Finalmente, en esta sección se destacan los logros más relevantes de la temática desarrollada durante los últimos 2 años de Gobierno."></i>
+                                        <span class="text-gray-500 text-xs">(máximo 3500 caracteres)</span>
                                     </label>
                                     <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                         <textarea
@@ -721,15 +757,15 @@
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese la descripción del informe"><?= esc($informeSeleccionado['logros_destacados'] ?? '') ?></textarea>
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
-                                        <button
-                                            type="button"
-                                            class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
-                                            data-field="logrosDestacados"
-                                            data-label="Logros destacados de la temática"
-                                            aria-label="Agregar comentario al campo Logros destacados de la temática">
-                                            <i class="fa-solid fa-eye"></i>
-                                            <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                                        </button>
+                                            <button
+                                                type="button"
+                                                class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
+                                                data-field="logrosDestacados"
+                                                data-label="Logros destacados de la temática"
+                                                aria-label="Agregar comentario al campo Logros destacados de la temática">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                            </button>
                                         <?php endif; ?>
                                     </div>
                                     <p id="logrosDestacados-count" class="text-xs text-gray-500 mt-1 text-right">0 / 1900 caracteres</p>
@@ -1144,6 +1180,125 @@
 </script>
 
 
+
+<!-- Sistema de Tooltips Dinámicos -->
+<div id="custom-tooltip" class="fixed hidden z-[9999] px-3 py-2 text-xs text-white bg-gray-900 rounded-lg shadow-xl max-w-xs transition-opacity duration-200 pointer-events-none">
+    <div id="tooltip-content" class="leading-relaxed"></div>
+    <div class="tooltip-arrow absolute w-2 h-2 bg-gray-900 transform rotate-45"></div>
+</div>
+
+<style>
+    .tooltip-trigger {
+        position: relative;
+        transition: color 0.2s;
+    }
+    .tooltip-trigger:hover {
+        color: #2563eb;
+    }
+</style>
+
+<script>
+// Sistema de Tooltips Dinámico
+(function() {
+    const tooltip = document.getElementById('custom-tooltip');
+    const tooltipContent = document.getElementById('tooltip-content');
+    const tooltipArrow = tooltip.querySelector('.tooltip-arrow');
+    let currentTrigger = null;
+    
+    // Función para mostrar tooltip
+    function showTooltip(trigger, text) {
+        tooltipContent.textContent = text;
+        tooltip.classList.remove('hidden');
+        currentTrigger = trigger;
+        positionTooltip(trigger);
+    }
+    
+    // Función para posicionar el tooltip
+    function positionTooltip(trigger) {
+        const triggerRect = trigger.getBoundingClientRect();
+        const tooltipRect = tooltip.getBoundingClientRect();
+        const arrowSize = 8;
+        
+        // Calcular posición inicial (arriba del elemento)
+        let top = triggerRect.top - tooltipRect.height - arrowSize;
+        let left = triggerRect.left + (triggerRect.width / 2) - (tooltipRect.width / 2);
+        
+        // Ajustar si se sale por la izquierda
+        if (left < 10) {
+            left = 10;
+        }
+        
+        // Ajustar si se sale por la derecha
+        if (left + tooltipRect.width > window.innerWidth - 10) {
+            left = window.innerWidth - tooltipRect.width - 10;
+        }
+        
+        // Si no hay espacio arriba, mostrar abajo
+        if (top < 10) {
+            top = triggerRect.bottom + arrowSize;
+            tooltipArrow.style.top = '-4px';
+            tooltipArrow.style.bottom = 'auto';
+        } else {
+            tooltipArrow.style.bottom = '-4px';
+            tooltipArrow.style.top = 'auto';
+        }
+        
+        // Centrar la flecha respecto al trigger
+        const arrowLeft = triggerRect.left + (triggerRect.width / 2) - left - 4;
+        tooltipArrow.style.left = Math.max(8, Math.min(arrowLeft, tooltipRect.width - 16)) + 'px';
+        
+        tooltip.style.top = top + 'px';
+        tooltip.style.left = left + 'px';
+        tooltip.style.opacity = '1';
+    }
+    
+    // Función para ocultar tooltip
+    function hideTooltip() {
+        tooltip.style.opacity = '0';
+        setTimeout(() => {
+            tooltip.classList.add('hidden');
+            currentTrigger = null;
+        }, 200);
+    }
+    
+    // Event listeners para todos los triggers
+    document.addEventListener('mouseenter', function(e) {
+        if (e.target.classList.contains('tooltip-trigger')) {
+            const tooltipText = e.target.getAttribute('data-tooltip');
+            if (tooltipText) {
+                showTooltip(e.target, tooltipText);
+            }
+        }
+    }, true);
+    
+    document.addEventListener('mouseleave', function(e) {
+        if (e.target.classList.contains('tooltip-trigger')) {
+            hideTooltip();
+        }
+    }, true);
+    
+    // Reposicionar tooltip en scroll
+    let scrollTimeout;
+    window.addEventListener('scroll', function() {
+        if (currentTrigger) {
+            clearTimeout(scrollTimeout);
+            tooltip.style.opacity = '0.5';
+            scrollTimeout = setTimeout(() => {
+                if (currentTrigger) {
+                    positionTooltip(currentTrigger);
+                }
+            }, 50);
+        }
+    }, true);
+    
+    // Reposicionar tooltip en resize
+    window.addEventListener('resize', function() {
+        if (currentTrigger) {
+            positionTooltip(currentTrigger);
+        }
+    });
+})();
+</script>
 
 <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
 <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>

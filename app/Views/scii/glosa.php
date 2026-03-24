@@ -26,7 +26,7 @@
                                             Unidad Administrativa
                                         </label>
                                         <input
-                                            
+
                                             value="<?= esc($datos['nombre_unidad'] ?? '') ?>"
                                             readonly
                                             type="text"
@@ -79,7 +79,73 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div>
+                                        <label for="alineacionProgramasDerivados" class="block mb-2 text-sm font-medium text-gray-700">
+                                            Alineación con los programas derivados
+                                        </label>
+                                        <div class="relative">
+                                            <select
+                                                name="alineacionProgramasDerivados"
+                                                id="alineacionProgramasDerivados"
+                                                required
+                                                <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
+                                                class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
+                                                <option value="" disabled <?= empty($glosaSeleccionada['id_alineacion_programa_derivado']) ? 'selected' : '' ?>>Seleccione una opción</option>
+                                                <?php if ($datos['id_unidad'] == 1): ?>
+                                                    <?php foreach ($lineasAgua as $la): ?>
+                                                        <option value="<?= $la['id'] ?>" <?= (isset($glosaSeleccionada['id_alineacion_programa_derivado']) && $glosaSeleccionada['id_alineacion_programa_derivado'] == $la['id']) ? 'selected' : '' ?>>
+                                                            <?= esc($la['codigo']) ?> — <?= esc($la['descripcion']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
 
+                                                <?php elseif ($datos['id_unidad'] != 1): ?>
+                                                    <?php foreach ($lineasSocioambiental as $ls): ?>
+                                                        <option value="<?= $ls['id'] ?>" <?= (isset($glosaSeleccionada['id_alineacion_programa_derivado']) && $glosaSeleccionada['id_alineacion_programa_derivado'] == $ls['id']) ? 'selected' : '' ?>>
+                                                            <?= esc($ls['codigo']) ?> — <?= esc($ls['descripcion']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            </select>
+                                            <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                                <!-- Programas derivados, ODS -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <!-- Alineación con los ODS -->
+                                    <div>
+                                        <label for="alineacionODS" class="block mb-2 text-sm font-medium text-gray-700">
+                                            Alineación con los ODS
+                                        </label>
+                                        <div class="relative">
+                                            <select
+                                                name="alineacionODS"
+                                                id="alineacionODS"
+                                                required
+                                                <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
+                                                class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
+                                                <option value="" disabled <?= empty($glosaSeleccionada['id_alineacion_ods']) ? 'selected' : '' ?>>Seleccione una opción</option>
+                                                <?php foreach ($odsTemas as $ods): ?>
+                                                    <option value="<?= $ods['id_tema'] ?>" <?= (isset($glosaSeleccionada['id_alineacion_ods']) && $glosaSeleccionada['id_alineacion_ods'] == $ods['id_tema']) ? 'selected' : '' ?>>
+                                                        <?= $ods['codigo_meta'] ?> -
+                                                        <?= $ods['tema'] ?>
+                                                        (ODS <?= $ods['id_objetivo'] ?>: <?= $ods['objetivo'] ?>)
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <!-- Orden de Prioridad -->
                                     <div>
                                         <label for="ordenPrioridad" class="block mb-2 text-sm font-medium text-gray-700">
@@ -125,15 +191,15 @@
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese el tema de la glosa">
                                         <?php if (!empty($glosaSeleccionada['id_glosa_gobierno'])): ?>
-                                        <button
-                                            type="button"
-                                            class="comment-btn absolute right-3 top-1/2 -translate-y-1/2 text-xl text-gray-400 hover:text-green-600 transition"
-                                            data-field="tema"
-                                            data-label="Tema"
-                                            aria-label="Ver comentario correspondiente al campo Tema">
-                                            <i class="fa-solid fa-eye"></i>
-                                            <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                                        </button>
+                                            <button
+                                                type="button"
+                                                class="comment-btn absolute right-3 top-1/2 -translate-y-1/2 text-xl text-gray-400 hover:text-green-600 transition"
+                                                data-field="tema"
+                                                data-label="Tema"
+                                                aria-label="Ver comentario correspondiente al campo Tema">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                            </button>
                                         <?php endif; ?>
                                     </div>
                                     <p id="tema-count" class="text-xs text-gray-500 mt-1 text-right">0 / 100 caracteres</p>
@@ -155,15 +221,15 @@
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese la introducción al tema">
                                         <?php if (!empty($glosaSeleccionada['id_glosa_gobierno'])): ?>
-                                        <button
-                                            type="button"
-                                            class="comment-btn absolute right-3 top-1/2 -translate-y-1/2 text-xl text-gray-400 hover:text-green-600 transition"
-                                            data-field="introduccion"
-                                            data-label="Introducción"
-                                            aria-label="Ver comentario correspondiente al campo Introduccion">
-                                            <i class="fa-solid fa-eye"></i>
-                                            <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                                        <?php endif; ?>
+                                            <button
+                                                type="button"
+                                                class="comment-btn absolute right-3 top-1/2 -translate-y-1/2 text-xl text-gray-400 hover:text-green-600 transition"
+                                                data-field="introduccion"
+                                                data-label="Introducción"
+                                                aria-label="Ver comentario correspondiente al campo Introduccion">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                            <?php endif; ?>
                                     </div>
                                     <p id="introduccion-count" class="text-xs text-gray-500 mt-1 text-right">0 / 100 caracteres</p>
                                 </div>
@@ -184,15 +250,15 @@
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese la acción">
                                         <?php if (!empty($glosaSeleccionada['id_glosa_gobierno'])): ?>
-                                        <button
-                                            type="button"
-                                            class="comment-btn absolute right-3 top-1/2 -translate-y-1/2 text-xl text-gray-400 hover:text-green-600 transition"
-                                            data-field="accion"
-                                            data-label="Acción"
-                                            aria-label="Ver comentario correspondiente al campo Acción">
-                                            <i class="fa-solid fa-eye"></i>
-                                            <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                                        <?php endif; ?>
+                                            <button
+                                                type="button"
+                                                class="comment-btn absolute right-3 top-1/2 -translate-y-1/2 text-xl text-gray-400 hover:text-green-600 transition"
+                                                data-field="accion"
+                                                data-label="Acción"
+                                                aria-label="Ver comentario correspondiente al campo Acción">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                            <?php endif; ?>
                                     </div>
                                     <p id="accion-count" class="text-xs text-gray-500 mt-1 text-right">0 / 100 caracteres</p>
                                 </div>
@@ -212,84 +278,18 @@
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese el desarrollo del resultado"><?= esc($glosaSeleccionada['desarrollo'] ?? '') ?></textarea>
                                         <?php if (!empty($glosaSeleccionada['id_glosa_gobierno'])): ?>
-                                        <button
-                                            type="button"
-                                            class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
-                                            data-field="desarrollo"
-                                            data-label="Desarrollo del resultado"
-                                            aria-label="Agregar comentario al campo Desarrollo del resultado">
-                                            <i class="fa-solid fa-eye"></i>
-                                            <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                                        </button>
+                                            <button
+                                                type="button"
+                                                class="comment-btn absolute right-3 top-3 text-xl text-gray-400 hover:text-green-600 transition"
+                                                data-field="desarrollo"
+                                                data-label="Desarrollo del resultado"
+                                                aria-label="Agregar comentario al campo Desarrollo del resultado">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span class="comment-indicator hidden absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                            </button>
                                         <?php endif; ?>
                                     </div>
                                     <p id="desarrollo-count" class="text-xs text-gray-500 mt-1 text-right">0 / 3500 caracteres</p>
-                                </div>
-                                <!-- Programas derivados, ODS -->
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="alineacionProgramasDerivados" class="block mb-2 text-sm font-medium text-gray-700">
-                                            Alineación con los programas derivados
-                                        </label>
-                                        <div class="relative">
-                                            <select
-                                                name="alineacionProgramasDerivados"
-                                                id="alineacionProgramasDerivados"
-                                                required
-                                                <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
-                                                class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
-                                                <option value="" disabled <?= empty($glosaSeleccionada['id_alineacion_programa_derivado']) ? 'selected' : '' ?>>Seleccione una opción</option>
-                                                <?php if ($datos['id_unidad'] == 1): ?>
-                                                    <?php foreach ($lineasAgua as $la): ?>
-                                                        <option value="<?= $la['id'] ?>" <?= (isset($glosaSeleccionada['id_alineacion_programa_derivado']) && $glosaSeleccionada['id_alineacion_programa_derivado'] == $la['id']) ? 'selected' : '' ?>>
-                                                            <?= esc($la['codigo']) ?> — <?= esc($la['descripcion']) ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-
-                                                <?php elseif ($datos['id_unidad'] != 1): ?>
-                                                    <?php foreach ($lineasSocioambiental as $ls): ?>
-                                                            <option value="<?= $ls['id'] ?>" <?= (isset($glosaSeleccionada['id_alineacion_programa_derivado']) && $glosaSeleccionada['id_alineacion_programa_derivado'] == $ls['id']) ? 'selected' : '' ?>>
-                                                            <?= esc($ls['codigo']) ?> — <?= esc($ls['descripcion']) ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            </select>
-                                            <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
-                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Alineación con los ODS -->
-                                    <div>
-                                        <label for="alineacionODS" class="block mb-2 text-sm font-medium text-gray-700">
-                                            Alineación con los ODS
-                                        </label>
-                                        <div class="relative">
-                                            <select
-                                                name="alineacionODS"
-                                                id="alineacionODS"
-                                                required
-                                                <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
-                                                class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
-                                                <option value="" disabled <?= empty($glosaSeleccionada['id_alineacion_ods']) ? 'selected' : '' ?>>Seleccione una opción</option>
-                                                <?php foreach ($odsTemas as $ods): ?>
-                                                    <option value="<?= $ods['id_tema'] ?>" <?= (isset($glosaSeleccionada['id_alineacion_ods']) && $glosaSeleccionada['id_alineacion_ods'] == $ods['id_tema']) ? 'selected' : '' ?>>
-                                                        <?= $ods['codigo_meta'] ?> -
-                                                        <?= $ods['tema'] ?>
-                                                        (ODS <?= $ods['id_objetivo'] ?>: <?= $ods['objetivo'] ?>)
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                            <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
-                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                                 <!-- Archivos complementarios -->
                                 <div style="border: solid 1px #d1d5db; border-radius: 10px; padding: 10px;">
@@ -658,7 +658,7 @@
         setupCharacterCounter('introduccion', 'introduccion-count', 100);
         setupCharacterCounter('accion', 'accion-count', 100);
         setupCharacterCounter('desarrollo', 'desarrollo-count', 3500);
-        
+
         // Actualizar contadores iniciales para valores pre-cargados
         const fieldsToUpdate = [
             'tema', 'introduccion', 'accion', 'desarrollo'
@@ -672,156 +672,6 @@
             }
         });
     });
-
-    // // Función para mostrar los archivos seleccionados
-    // function updateFileNames(input) {
-    //     const inputId = input.id;
-    //     const fileListId = 'fileList' + inputId.charAt(0).toUpperCase() + inputId.slice(1);
-    //     const fileList = document.getElementById(fileListId);
-
-    //     if (!fileList) return;
-
-    //     fileList.innerHTML = '';
-
-    //     if (input.files.length > 0) {
-    //         fileList.classList.remove('hidden');
-
-    //         Array.from(input.files).forEach((file, index) => {
-    //             const fileItem = document.createElement('div');
-    //             fileItem.className = 'flex items-center justify-between p-2 bg-gray-50 rounded text-xs';
-    //             fileItem.innerHTML = `
-    //                 <span class="truncate flex-1 text-gray-700">
-    //                     <i class="fa-solid fa-file mr-1 text-green-600"></i>
-    //                     ${file.name}
-    //                 </span>
-    //                 <span class="text-gray-500 ml-2">${(file.size / 1024).toFixed(1)} KB</span>
-    //             `;
-    //             fileList.appendChild(fileItem);
-    //         });
-    //     } else {
-    //         fileList.classList.add('hidden');
-    //     }
-    // }
-
-    // // Variables globales para el modal
-    // let archivoActual = {
-    //     url: '',
-    //     nombre: ''
-    // };
-
-    // // Función para ver archivo en modal
-    // function verArchivo(ruta, nombre) {
-    //     const modal = document.getElementById('modalArchivo');
-    //     const titulo = document.getElementById('modalTitulo');
-    //     const contenido = document.getElementById('modalContenido');
-
-    //     // Normalizar la ruta reemplazando backslashes por forward slashes
-    //     const rutaNormalizada = ruta.replace(/\\/g, '/');
-    //     archivoActual = {
-    //         url: '<?= base_url() ?>/' + rutaNormalizada,
-    //         nombre: nombre
-    //     };
-
-    //     titulo.textContent = nombre;
-    //     modal.classList.remove('hidden');
-
-    //     const extension = nombre.split('.').pop().toLowerCase();
-
-    //     // Determinar el tipo de visualización según la extensión
-    //     if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg'].includes(extension)) {
-    //         contenido.innerHTML = `<img src="${archivoActual.url}" alt="${nombre}" class="max-w-full h-auto rounded-lg shadow-lg">`;
-    //     } else if (extension === 'pdf') {
-    //         contenido.innerHTML = `<iframe src="${archivoActual.url}" class="w-full h-96 border-0 rounded-lg"></iframe>`;
-    //     } else if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(extension)) {
-    //         contenido.innerHTML = `
-    //             <div class="text-center py-8">
-    //                 <i class="fa-solid fa-file-${extension.includes('doc') ? 'word' : extension.includes('xls') ? 'excel' : 'powerpoint'} text-6xl text-blue-500 mb-4"></i>
-    //                 <p class="text-gray-700 font-medium mb-2">${nombre}</p>
-    //                 <p class="text-gray-500 text-sm mb-4">Este tipo de archivo no se puede previsualizar en el navegador</p>
-    //                 <button onclick="descargarArchivoModal()" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
-    //                     <i class="fa-solid fa-download mr-2"></i>Descargar archivo
-    //                 </button>
-    //             </div>`;
-    //     } else if (['zip', 'rar', '7z'].includes(extension)) {
-    //         contenido.innerHTML = `
-    //             <div class="text-center py-8">
-    //                 <i class="fa-solid fa-file-zipper text-6xl text-yellow-500 mb-4"></i>
-    //                 <p class="text-gray-700 font-medium mb-2">${nombre}</p>
-    //                 <p class="text-gray-500 text-sm mb-4">Archivo comprimido</p>
-    //                 <button onclick="descargarArchivoModal()" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
-    //                     <i class="fa-solid fa-download mr-2"></i>Descargar archivo
-    //                 </button>
-    //             </div>`;
-    //     } else {
-    //         contenido.innerHTML = `
-    //             <div class="text-center py-8">
-    //                 <i class="fa-solid fa-file text-6xl text-gray-400 mb-4"></i>
-    //                 <p class="text-gray-700 font-medium mb-2">${nombre}</p>
-    //                 <p class="text-gray-500 text-sm mb-4">No se puede previsualizar este tipo de archivo</p>
-    //                 <button onclick="descargarArchivoModal()" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
-    //                     <i class="fa-solid fa-download mr-2"></i>Descargar archivo
-    //                 </button>
-    //             </div>`;
-    //     }
-    // }
-
-    // // Función para cerrar el modal
-    // function cerrarModal() {
-    //     const modal = document.getElementById('modalArchivo');
-    //     modal.classList.add('hidden');
-    //     archivoActual = {
-    //         url: '',
-    //         nombre: ''
-    //     };
-    // }
-
-    // // Cerrar modal al hacer clic fuera de él
-    // document.getElementById('modalArchivo').addEventListener('click', function(e) {
-    //     if (e.target === this) {
-    //         cerrarModal();
-    //     }
-    // });
-
-    // // Función para descargar archivo desde el modal
-    // function descargarArchivoModal() {
-    //     if (archivoActual.url) {
-    //         descargarArchivo(archivoActual.url, archivoActual.nombre);
-    //     }
-    // }
-
-    // // Función para descargar un archivo individual
-    // function descargarArchivo(url, nombre) {
-    //     const link = document.createElement('a');
-    //     link.href = url;
-    //     link.download = nombre;
-    //     link.target = '_blank';
-    //     document.body.appendChild(link);
-    //     link.click();
-    //     document.body.removeChild(link);
-    // }
-
-    // // Función para descargar todos los archivos
-    // function descargarTodosArchivos() {
-    //     const archivos = <?= json_encode($archivos ?? [], JSON_UNESCAPED_SLASHES) ?>;
-
-    //     if (archivos.length === 0) {
-    //         alert('No hay archivos para descargar');
-    //         return;
-    //     }
-
-    //     // Mostrar confirmación
-    //     if (confirm(`¿Desea descargar todos los archivos (${archivos.length} archivos)?`)) {
-    //         // Descargar cada archivo con un pequeño delay para evitar bloqueos del navegador
-    //         archivos.forEach((archivo, index) => {
-    //             setTimeout(() => {
-    //                 // Normalizar la ruta
-    //                 const ruta = archivo.ruta_archivo.replace(/\\/g, '/');
-    //                 const url = '<?= base_url() ?>/' + ruta;
-    //                 descargarArchivo(url, archivo.nombre_archivo);
-    //             }, index * 300); // 300ms de delay entre cada descarga
-    //         });
-    //     }
-    // }
 
     // Funcionalidad del botón "Nueva Glosa" en el sidebar
     document.addEventListener('DOMContentLoaded', function() {
@@ -848,7 +698,7 @@
             'accion',
             'desarrollo',
             'alineacionProgramasDerivados',
-            'alineacionODS',            
+            'alineacionODS',
         ];
 
         let isValid = true;
@@ -891,7 +741,7 @@
 
     // Almacén temporal de comentarios cargados
     const comments = {};
-    
+
     // Verificar que los elementos existan antes de agregar event listeners
     if (modal && modalTitle && modalFieldLabel && commentText && saveBtn && cancelBtn) {
         document.querySelectorAll('.comment-btn').forEach(btn => {

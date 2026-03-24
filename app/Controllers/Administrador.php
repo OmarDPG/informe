@@ -2613,7 +2613,7 @@ class Administrador extends BaseController
         /* return $this->setResponseFormat('json')->respond($response); */
         return json_encode($response);
     }
-
+// ---------------------------------------------------------------------------------------------------------------------
     // Comienza el codigo concerniente a la evidencia de informe de gobierno
     public function informe()
     {
@@ -3185,45 +3185,7 @@ class Administrador extends BaseController
             return redirect()->to(base_url('administrador/detalle/' . $id_informe))->with('mensaje', 'Notificación enviada a ' . $nombre);
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
     // Comienza el codigo concerniente a la evidencia de glosa
     public function glosa()
     {
@@ -3861,7 +3823,6 @@ class Administrador extends BaseController
         $fileSize = filesize($rutaFisica);
         log_message('info', "Descarga iniciada - Usuario: {$this->session->id_usuario}, Archivo: {$id_archivo}, Nombre: {$archivo['nombre_original']}, Tamaño: {$fileSize} bytes");
 
-        // CRÍTICO: Aumentar límites de PHP para archivos grandes
         @ini_set('memory_limit', '512M');
         @ini_set('max_execution_time', '300');
         @ini_set('output_buffering', 'Off');
@@ -3956,7 +3917,6 @@ class Administrador extends BaseController
         $fileSize = filesize($rutaFisica);
         log_message('info', "Descarga glosa iniciada - Usuario: {$this->session->id_usuario}, Archivo: {$id_archivo}, Nombre: {$archivo['nombre_original']}, Tamaño: {$fileSize} bytes");
 
-        // CRÍTICO: Aumentar límites de PHP para archivos grandes
         @ini_set('memory_limit', '512M');
         @ini_set('max_execution_time', '300');
         @ini_set('output_buffering', 'Off');
