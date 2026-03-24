@@ -1746,7 +1746,7 @@ class Scii extends BaseController
                 $this->limpiarArchivos($archivosGuardados);
                 throw new \Exception('La transacción de base de datos falló');
             }
-            //Agregar correo de confirmacion de envio de informe.
+            // Agregar correo de confirmacion de envio de informe.
             $email = \Config\Services::email();
             $email->setTo($this->session->correo);
             $email->setSubject('Captura de resultados institucionales para Glosa de Informe de Gobierno | SMADSOT');

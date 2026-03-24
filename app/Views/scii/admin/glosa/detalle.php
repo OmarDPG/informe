@@ -935,7 +935,6 @@
 
                 modalTitle.textContent = 'Comentario';
                 modalFieldLabel.textContent = `Campo: ${btn.dataset.label}`;
-                commentText.value = comments[currentField] || '';
                 const comentario = comments[currentField] || '';
                 if (comentario) {
                     comentarioAnteriorContainer.classList.remove('hidden');

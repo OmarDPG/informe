@@ -505,7 +505,7 @@
                                         <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
                                         type="submit"
                                         class="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                                        Registrar Glosa
+                                        <?= !empty($glosaSeleccionado['id_glosa_gobierno']) ? 'Actualizar Glosa' : 'Registrar Glosa' ?>
                                     </button>
                                     <button
                                         <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
