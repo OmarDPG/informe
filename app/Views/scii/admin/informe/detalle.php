@@ -818,7 +818,7 @@
         </div>
 
         <!-- Footer del Modal -->
-        <div class="flex items-center justify-end gap-3 p-4 border-t border-gray-200">
+        <div class="flex items-center justify-end gap-3 p-4 border-t border-gray-200" style="gap:10px">
             <button
                 id="btnDescargar"
                 onclick="descargarArchivoModal()"

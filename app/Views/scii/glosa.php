@@ -519,12 +519,12 @@
                                         class="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                                         <?= !empty($glosaSeleccionada['id_glosa_gobierno']) ? 'Actualizar Glosa' : 'Registrar Glosa' ?>
                                     </button>
-                                    <button
+                                    <!-- <button
                                         <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
                                         type="reset"
                                         class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-6 rounded-lg transition duration-200 shadow-sm hover:shadow-md">
                                         Limpiar Formulario
-                                    </button>
+                                    </button> -->
                                     <button
                                         type="button"
                                         onclick="window.location.href='<?php echo base_url(); ?>/scii/glosa';"
