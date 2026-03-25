@@ -1016,6 +1016,10 @@
 
     // ID del informe actual
     const idInforme = <?= $informeSeleccionado['id_informe'] ?? 0 ?>;
+    
+    // Estado del informe actual
+    const estadoInforme = '<?= $informeSeleccionado['estado'] ?? '' ?>';
+    const puedeEditarComentarios = estadoInforme === 'observado';
 
     // Almacén temporal de comentarios cargados
     const comments = {};
@@ -1030,6 +1034,21 @@
                 modalTitle.textContent = 'Comentario';
                 modalFieldLabel.textContent = `Campo: ${btn.dataset.label}`;
                 commentText.value = comments[currentField] || '';
+                
+                // Deshabilitar controles si el informe no está en estado observado
+                if (!puedeEditarComentarios) {
+                    commentText.disabled = true;
+                    commentText.placeholder = 'Los comentarios solo pueden editarse cuando el informe está en estado "observado"';
+                    commentText.classList.add('bg-gray-100', 'cursor-not-allowed');
+                    saveBtn.disabled = true;
+                    saveBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    commentText.disabled = false;
+                    commentText.placeholder = 'Escribe tu comentario aquí...';
+                    commentText.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                    saveBtn.disabled = false;
+                    saveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
 
                 openModal();
             });
@@ -1170,6 +1189,14 @@
                 alertDiv.style.opacity = '0';
                 setTimeout(() => alertDiv.remove(), 300);
             }, 3000);
+        }
+
+        // Deshabilitar visualmente los botones de comentarios si no se pueden editar
+        if (!puedeEditarComentarios) {
+            document.querySelectorAll('.comment-btn').forEach(btn => {
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                btn.title = 'Los comentarios solo pueden editarse cuando el informe está en estado "observado"';
+            });
         }
 
         // Cargar comentarios existentes al iniciar

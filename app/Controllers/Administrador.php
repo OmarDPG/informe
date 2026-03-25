@@ -3708,7 +3708,7 @@ class Administrador extends BaseController
         // Cambiar estado de la glosa a "revisado"
         $this->glosasGobierno
             ->where('id_glosa_gobierno', $id_glosa_gobierno)
-            ->set(['estado' => 'revisado'])
+            ->set(['estado' => 'observado'])
             ->update();
 
         // Enviar correo

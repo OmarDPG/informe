@@ -18,7 +18,7 @@
                         <!-- Form Container -->
                         <div class="max-w-4xl mx-auto">
                             <form method="POST" class="space-y-6" action="<?php echo base_url(); ?>/Scii/registrarGlosaGobierno" enctype="multipart/form-data">
-                                <input type="hidden" name="glosa_id" id="glosa_id" value="<?= esc($glosaSeleccionado['id_glosa_gobierno'] ?? '') ?>">
+                                <input type="hidden" name="glosa_id" id="glosa_id" value="<?= esc($glosaSeleccionada['id_glosa_gobierno'] ?? '') ?>">
                                 <!-- Unidad Administrativa y Fecha de Corte -->
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
@@ -750,6 +750,10 @@
 
     // ID de la glosa actual
     const idGlosa = <?= $glosaSeleccionada['id_glosa_gobierno'] ?? 0 ?>;
+    
+    // Estado de la glosa actual
+    const estadoGlosa = '<?= $glosaSeleccionada['estado'] ?? '' ?>';
+    const puedeEditarComentarios = estadoGlosa === 'observado';
 
     // Almacén temporal de comentarios cargados
     const comments = {};
@@ -772,6 +776,21 @@
                 } else {
                     comentarioAnteriorContainer.classList.add('hidden');
                     commentText.value = '';
+                }
+                
+                // Deshabilitar controles si la glosa no está en estado observado
+                if (!puedeEditarComentarios) {
+                    commentText.disabled = true;
+                    commentText.placeholder = 'Los comentarios solo pueden editarse cuando la glosa está en estado "observado"';
+                    commentText.classList.add('bg-gray-100', 'cursor-not-allowed');
+                    saveBtn.disabled = true;
+                    saveBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    commentText.disabled = false;
+                    commentText.placeholder = 'Escribe tu comentario aquí...';
+                    commentText.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                    saveBtn.disabled = false;
+                    saveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                 }
 
                 openModal();
@@ -913,6 +932,14 @@
                 alertDiv.style.opacity = '0';
                 setTimeout(() => alertDiv.remove(), 300);
             }, 3000);
+        }
+
+        // Deshabilitar visualmente los botones de comentarios si no se pueden editar
+        if (!puedeEditarComentarios) {
+            document.querySelectorAll('.comment-btn').forEach(btn => {
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                btn.title = 'Los comentarios solo pueden editarse cuando la glosa está en estado "observado"';
+            });
         }
 
         // Cargar comentarios existentes al iniciar

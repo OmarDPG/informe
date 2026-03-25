@@ -1461,16 +1461,25 @@ class Scii extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos']);
         }
 
-        // Validar que el informe existe y está en estado "observado"
+        // Validar que el informe existe
         $informe = $this->informesGobierno->find($id_informe);
         if (!$informe) {
             return $this->response->setJSON(['success' => false, 'message' => 'Informe no encontrado']);
         }
 
+        // Validar que el informe está en estado "observado" para poder editar comentarios
         if ($informe['estado'] !== 'observado') {
+            $mensaje = 'Los comentarios solo pueden ser editados cuando el informe está en estado "observado".';
+            
+            if ($informe['estado'] === 'enviado') {
+                $mensaje = 'El informe ya ha sido enviado. No se pueden editar comentarios.';
+            } elseif ($informe['estado'] === 'aprobado') {
+                $mensaje = 'El informe ya ha sido aprobado. No se pueden editar comentarios.';
+            }
+            
             return $this->response->setJSON([
                 'success' => false, 
-                'message' => 'Aun no es posible agregar comentarios a este infome"'
+                'message' => $mensaje
             ]);
         }
 
@@ -1648,7 +1657,7 @@ class Scii extends BaseController
 
         // 9. Renderizar vistas
         echo view('scii/headerscii', $datos);
-        echo view('scii/glosa');
+        echo view('scii/glosa', $datos);
         echo view('scii/footerscii');
     }
 
@@ -1660,11 +1669,11 @@ class Scii extends BaseController
         }
 
         // Detectar si es creación o actualización
-        $glosaId = $this->request->getPost('id_glosa_gobierno');
+        $glosaId = trim($this->request->getPost('glosa_id'));
 
         if (!empty($glosaId) && is_numeric($glosaId)) {
             // ACTUALIZACIÓN
-            return $this->actualizarGlosa($glosaId);
+            return $this->actualizarGlosa((int)$glosaId);
         } else {
             // CREACIÓN
             return $this->crearGlosa();
@@ -1841,25 +1850,54 @@ class Scii extends BaseController
                 throw new \Exception('Error al actualizar la glosa: ' . json_encode($this->glosasGobierno->errors()));
             }
 
-            // Gestión de archivos: eliminar archivos existentes
-            $archivosExistentes = $this->glosaArchivos
-                ->where('id_glosa_gobierno', $id_glosa_gobierno)
-                ->findAll();
+            // Gestión de archivos: identificar tipos de archivos que se están actualizando
+            $tiposMap = [
+                'mapas' => 'mapa',
+                'graficas' => 'grafico',
+                'cuadros' => 'cuadro',
+                'esquemas' => 'esquema',
+                'fotografias' => 'fotografia',
+                'resultados' => 'resultados'
+            ];
 
-            foreach ($archivosExistentes as $archivo) {
-                // Construir la ruta física del archivo desde la ruta relativa
-                $rutaFisica = WRITEPATH . $archivo['ruta_archivo'];
-
-                if (file_exists($rutaFisica)) {
-                    if (unlink($rutaFisica)) {
-                        $archivosEliminados[] = $rutaFisica;
-                    } else {
-                        log_message('warning', "No se pudo eliminar el archivo: {$rutaFisica}");
+            $tiposActualizados = [];
+            foreach ($tiposMap as $tipoInput => $tipoEnum) {
+                // Verificar si hay archivos nuevos para este tipo
+                if (isset($_FILES[$tipoInput]) && is_array($_FILES[$tipoInput]['name'])) {
+                    // Verificar que al menos un archivo sea válido
+                    foreach ($_FILES[$tipoInput]['error'] as $error) {
+                        if ($error === UPLOAD_ERR_OK) {
+                            $tiposActualizados[] = $tipoEnum;
+                            break;
+                        }
                     }
                 }
+            }
 
-                // Eliminar registro en BD
-                $this->glosaArchivos->delete($archivo['id_archivo']);
+            // Solo eliminar archivos de los tipos que se están actualizando
+            if (!empty($tiposActualizados)) {
+                $archivosExistentes = $this->glosaArchivos
+                    ->where('id_glosa_gobierno', $id_glosa_gobierno)
+                    ->whereIn('tipo_archivo', $tiposActualizados)
+                    ->findAll();
+
+                foreach ($archivosExistentes as $archivo) {
+                    // Construir la ruta física del archivo desde la ruta relativa
+                    $rutaFisica = WRITEPATH . $archivo['ruta_archivo'];
+
+                    if (file_exists($rutaFisica)) {
+                        if (unlink($rutaFisica)) {
+                            $archivosEliminados[] = $rutaFisica;
+                        } else {
+                            log_message('warning', "No se pudo eliminar el archivo: {$rutaFisica}");
+                        }
+                    }
+
+                    // Eliminar registro en BD
+                    $this->glosaArchivos->delete($archivo['id_archivo']);
+                }
+
+                log_message('info', "Eliminados archivos de tipos: " . implode(', ', $tiposActualizados));
             }
 
             // Subir nuevos archivos
@@ -1874,8 +1912,14 @@ class Scii extends BaseController
 
             log_message('info', "Glosa #{$id_glosa_gobierno} actualizada exitosamente por usuario #{$id_usuario}");
 
+            // Mensaje de éxito informativo
+            $mensaje = 'Glosa actualizada correctamente';
+            if (!empty($tiposActualizados)) {
+                $mensaje .= ' con ' . count($archivosGuardados) . ' archivo(s) actualizado(s)';
+            }
+
             return redirect()->to("/Scii/glosa/{$id_glosa_gobierno}")
-                ->with('success', 'Glosa actualizada correctamente con ' . count($archivosGuardados) . ' archivo(s)');
+                ->with('success', $mensaje);
 
         } catch (\Exception $e) {
             // Rollback
@@ -2198,6 +2242,28 @@ class Scii extends BaseController
         // Validar datos requeridos
         if (empty($id_glosa_gobierno) || empty($campo_referencia)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos']);
+        }
+
+        // Validar que la glosa existe
+        $glosa = $this->glosasGobierno->find($id_glosa_gobierno);
+        if (!$glosa) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Glosa no encontrada']);
+        }
+
+        // Validar que la glosa está en estado "observado" para poder editar comentarios
+        if ($glosa['estado'] !== 'observado') {
+            $mensaje = 'Los comentarios solo pueden ser editados cuando la glosa está en estado "observado".';
+            
+            if ($glosa['estado'] === 'enviado') {
+                $mensaje = 'La glosa ya ha sido enviada. No se pueden editar comentarios.';
+            } elseif ($glosa['estado'] === 'aprobado') {
+                $mensaje = 'La glosa ya ha sido aprobada. No se pueden editar comentarios.';
+            }
+            
+            return $this->response->setJSON([
+                'success' => false, 
+                'message' => $mensaje
+            ]);
         }
 
         // Verificar si ya existe un comentario para este campo y este usuario
