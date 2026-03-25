@@ -217,7 +217,7 @@
                 <i class="fa-solid fa-times text-2xl"></i>
             </button>
         </div>
-        <div id="modalContent" class="p-6">
+        <div id="modalContent" class="p-6" style="max-height: 600px;">
             <!-- El contenido se cargará dinámicamente -->
         </div>
     </div>

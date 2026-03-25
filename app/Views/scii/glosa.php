@@ -177,7 +177,10 @@
                                 <!-- Tema -->
                                 <div>
                                     <label for="tema" class="block mb-2 text-sm font-medium text-gray-700">
-                                        Tema <span class="text-gray-500 text-xs">(máximo 100 caracteres)</span>
+                                        Tema
+                                        <i class="fa-solid fa-circle-info text-blue-500 cursor-help ml-1 tooltip-trigger" 
+                                           data-tooltip="Tiene por finalidad organizar y agrupar la información por tema, por lo que varios resultados podrán corresponder al mismo."></i>
+                                        <span class="text-gray-500 text-xs">(máximo 100 caracteres)</span>
                                     </label>
                                     <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                         <input
@@ -207,7 +210,10 @@
                                 <!-- Introducción al tema -->
                                 <div>
                                     <label for="introduccion" class="block mb-2 text-sm font-medium text-gray-700">
-                                        Introducción al tema <span class="text-gray-500 text-xs">(máximo 100 caracteres)</span>
+                                        Introducción al tema
+                                        <i class="fa-solid fa-circle-info text-blue-500 cursor-help ml-1 tooltip-trigger" 
+                                           data-tooltip="Refiere a incluir la descripción general de la introducción al tema y su objetivo."></i>
+                                        <span class="text-gray-500 text-xs">(máximo 100 caracteres)</span>
                                     </label>
                                     <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                         <input
@@ -236,7 +242,10 @@
                                 <!-- Acción -->
                                 <div>
                                     <label for="accion" class="block mb-2 text-sm font-medium text-gray-700">
-                                        Acción <span class="text-gray-500 text-xs">(máximo 100 caracteres)</span>
+                                        Acción
+                                        <i class="fa-solid fa-circle-info text-blue-500 cursor-help ml-1 tooltip-trigger" 
+                                           data-tooltip="Nombre de la acción."></i>
+                                        <span class="text-gray-500 text-xs">(máximo 100 caracteres)</span>
                                     </label>
                                     <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                         <input
@@ -265,7 +274,10 @@
                                 <!-- Desarrollo del resultado -->
                                 <div>
                                     <label for="desarrollo" class="block mb-2 text-sm font-medium text-gray-700">
-                                        Desarrollo del resultado <span class="text-gray-500 text-xs">(máximo 3500 caracteres)</span>
+                                        Desarrollo del resultado
+                                        <i class="fa-solid fa-circle-info text-blue-500 cursor-help ml-1 tooltip-trigger" 
+                                           data-tooltip="En este campo se redactará el resultado; Contexto + Acción + Impacto + Territorio + Beneficiarios + Inversión. Nota: La Redacción del texto debe ser diferente al del informe de gobierno y glosas anteriores"></i>
+                                        <span class="text-gray-500 text-xs">(máximo 3500 caracteres)</span>
                                     </label>
                                     <div class="relative" style="display:grid; grid-template-columns: 95% 5%; gap: 0.5rem;">
                                         <textarea
@@ -505,7 +517,7 @@
                                         <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
                                         type="submit"
                                         class="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                                        <?= !empty($glosaSeleccionado['id_glosa_gobierno']) ? 'Actualizar Glosa' : 'Registrar Glosa' ?>
+                                        <?= !empty($glosaSeleccionada['id_glosa_gobierno']) ? 'Actualizar Glosa' : 'Registrar Glosa' ?>
                                     </button>
                                     <button
                                         <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
@@ -910,7 +922,124 @@
     }
 </script>
 
+<!-- Sistema de Tooltips Dinámicos -->
+<div id="custom-tooltip" class="fixed hidden z-[9999] px-3 py-2 text-xs text-white bg-gray-900 rounded-lg shadow-xl max-w-xs transition-opacity duration-200 pointer-events-none">
+    <div id="tooltip-content" class="leading-relaxed"></div>
+    <div class="tooltip-arrow absolute w-2 h-2 bg-gray-900 transform rotate-45"></div>
+</div>
 
+<style>
+    .tooltip-trigger {
+        position: relative;
+        transition: color 0.2s;
+    }
+    .tooltip-trigger:hover {
+        color: #2563eb;
+    }
+</style>
+
+<script>
+// Sistema de Tooltips Dinámico
+(function() {
+    const tooltip = document.getElementById('custom-tooltip');
+    const tooltipContent = document.getElementById('tooltip-content');
+    const tooltipArrow = tooltip.querySelector('.tooltip-arrow');
+    let currentTrigger = null;
+    
+    // Función para mostrar tooltip
+    function showTooltip(trigger, text) {
+        tooltipContent.textContent = text;
+        tooltip.classList.remove('hidden');
+        currentTrigger = trigger;
+        positionTooltip(trigger);
+    }
+    
+    // Función para posicionar el tooltip
+    function positionTooltip(trigger) {
+        const triggerRect = trigger.getBoundingClientRect();
+        const tooltipRect = tooltip.getBoundingClientRect();
+        const arrowSize = 8;
+        
+        // Calcular posición inicial (arriba del elemento)
+        let top = triggerRect.top - tooltipRect.height - arrowSize;
+        let left = triggerRect.left + (triggerRect.width / 2) - (tooltipRect.width / 2);
+        
+        // Ajustar si se sale por la izquierda
+        if (left < 10) {
+            left = 10;
+        }
+        
+        // Ajustar si se sale por la derecha
+        if (left + tooltipRect.width > window.innerWidth - 10) {
+            left = window.innerWidth - tooltipRect.width - 10;
+        }
+        
+        // Si no hay espacio arriba, mostrar abajo
+        if (top < 10) {
+            top = triggerRect.bottom + arrowSize;
+            tooltipArrow.style.top = '-4px';
+            tooltipArrow.style.bottom = 'auto';
+        } else {
+            tooltipArrow.style.bottom = '-4px';
+            tooltipArrow.style.top = 'auto';
+        }
+        
+        // Centrar la flecha respecto al trigger
+        const arrowLeft = triggerRect.left + (triggerRect.width / 2) - left - 4;
+        tooltipArrow.style.left = Math.max(8, Math.min(arrowLeft, tooltipRect.width - 16)) + 'px';
+        
+        tooltip.style.top = top + 'px';
+        tooltip.style.left = left + 'px';
+        tooltip.style.opacity = '1';
+    }
+    
+    // Función para ocultar tooltip
+    function hideTooltip() {
+        tooltip.style.opacity = '0';
+        setTimeout(() => {
+            tooltip.classList.add('hidden');
+            currentTrigger = null;
+        }, 200);
+    }
+    
+    // Event listeners para todos los triggers
+    document.addEventListener('mouseenter', function(e) {
+        if (e.target.classList.contains('tooltip-trigger')) {
+            const tooltipText = e.target.getAttribute('data-tooltip');
+            if (tooltipText) {
+                showTooltip(e.target, tooltipText);
+            }
+        }
+    }, true);
+    
+    document.addEventListener('mouseleave', function(e) {
+        if (e.target.classList.contains('tooltip-trigger')) {
+            hideTooltip();
+        }
+    }, true);
+    
+    // Reposicionar tooltip en scroll
+    let scrollTimeout;
+    window.addEventListener('scroll', function() {
+        if (currentTrigger) {
+            clearTimeout(scrollTimeout);
+            tooltip.style.opacity = '0.5';
+            scrollTimeout = setTimeout(() => {
+                if (currentTrigger) {
+                    positionTooltip(currentTrigger);
+                }
+            }, 50);
+        }
+    }, true);
+    
+    // Reposicionar tooltip en resize
+    window.addEventListener('resize', function() {
+        if (currentTrigger) {
+            positionTooltip(currentTrigger);
+        }
+    });
+})();
+</script>
 
 <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
 <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
