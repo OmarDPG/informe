@@ -41,7 +41,7 @@
                                         </label>
                                         <input
                                             <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'readonly' : '' ?>
-                                            value="<?= esc($glosaSeleccionada['fecha_corte'] ?? (date('Y') . '-12-31')) ?>"
+                                            value="<?= esc($glosaSeleccionada['fecha_corte'] ?? '') ?>"
                                             type="date"
                                             id="fecha_corte"
                                             name="fecha_corte"
