@@ -1206,8 +1206,10 @@ class Scii extends BaseController
 
                             'application/zip',
                             'application/x-zip-compressed',
+                            'application/x-zip',
                             'application/vnd.rar',
-                            'application/x-rar-compressed',
+                            'application/x-rar',
+                            'application/x-rar-compressed',                            
 
                             'application/vnd.ms-excel',
                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -1224,8 +1226,11 @@ class Scii extends BaseController
                         // Obtener información del archivo directamente de $_FILES
                         $clientName = $_FILES[$tipoInput]['name'][$i];
                         $tmpName = $_FILES[$tipoInput]['tmp_name'][$i];
-                        $fileMimeType = $_FILES[$tipoInput]['type'][$i];
+                        // $fileMimeType = $_FILES[$tipoInput]['type'][$i];
                         $fileSize = $_FILES[$tipoInput]['size'][$i];
+                        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                        $fileMimeType = finfo_file($finfo, $tmpName);
+                        finfo_close($finfo);
 
                         if (!in_array($fileMimeType, $allowedTypes)) {
                             throw new \Exception("Tipo de archivo no permitido: {$clientName} (tipo: {$fileMimeType})");
@@ -1982,8 +1987,10 @@ class Scii extends BaseController
 
                             'application/zip',
                             'application/x-zip-compressed',
+                            'application/x-zip',
                             'application/vnd.rar',
-                            'application/x-rar-compressed',
+                            'application/x-rar',
+                            'application/x-rar-compressed',                            
 
                             'application/vnd.ms-excel',
                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -2000,8 +2007,11 @@ class Scii extends BaseController
                         // Obtener información del archivo desde $_FILES
                         $clientName = $_FILES[$tipoInput]['name'][$i];
                         $tmpName = $_FILES[$tipoInput]['tmp_name'][$i];
-                        $fileMimeType = $_FILES[$tipoInput]['type'][$i];
+                        // $fileMimeType = $_FILES[$tipoInput]['type'][$i];
                         $fileSize = $_FILES[$tipoInput]['size'][$i];
+                        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                        $fileMimeType = finfo_file($finfo, $tmpName);
+                        finfo_close($finfo);
 
                         if (!in_array($fileMimeType, $allowedTypes)) {
                             throw new \Exception("Tipo de archivo no permitido: {$clientName} (tipo: {$fileMimeType})");
