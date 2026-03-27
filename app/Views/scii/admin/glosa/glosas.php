@@ -464,11 +464,11 @@
                     <p class="text-sm text-gray-600 mt-1">Completados</p>
                 </div>
                 <div class="bg-yellow-50 rounded-lg p-4 text-center">
-                    <p class="text-3xl font-bold text-yellow-600">${glosas.filter(g => g.estado === 'enviado').length}</p>
+                    <p class="text-3xl font-bold text-yellow-600">${glosas.filter(g => g.estado === 'observado').length}</p>
                     <p class="text-sm text-gray-600 mt-1">Pendientes</p>
                 </div>
                 <div class="bg-blue-50 rounded-lg p-4 text-center">
-                    <p class="text-3xl font-bold text-blue-600">${glosas.filter(g => g.estado === 'revisado').length}</p>
+                    <p class="text-3xl font-bold text-blue-600">${glosas.filter(g => g.estado === 'enviado').length}</p>
                     <p class="text-sm text-gray-600 mt-1">En Revisión</p>
                 </div>
             </div>
