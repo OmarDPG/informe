@@ -608,7 +608,7 @@ CREATE TABLE IF NOT EXISTS `periodos_anuales` (
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id_periodo_anual`),
   UNIQUE KEY `uq_periodo_anual` (`anio`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `etapas` (
   `id_etapa` int NOT NULL AUTO_INCREMENT,
@@ -622,7 +622,7 @@ CREATE TABLE IF NOT EXISTS `etapas` (
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id_etapa`),
   UNIQUE KEY `uq_etapa_anual` (`id_periodo_anual`,`numero_etapa`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `glosa_gestion` (
   `id_glosa` int NOT NULL AUTO_INCREMENT,
@@ -699,7 +699,7 @@ CREATE TABLE IF NOT EXISTS `glosa_comentarios` (
   KEY `idx_usuario` (`id_usuario`),
   KEY `idx_campo` (`campo_referencia`),
   CONSTRAINT `fk_glosa_comentario_glosa` FOREIGN KEY (`id_glosa_gobierno`) REFERENCES `glosas_gobierno` (`id_glosa_gobierno`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `informes_gobierno` (
   `id_informe` int NOT NULL AUTO_INCREMENT,
@@ -774,7 +774,7 @@ CREATE TABLE IF NOT EXISTS `informe_comentarios` (
   KEY `idx_usuario` (`id_usuario`),
   KEY `idx_campo` (`campo_referencia`),
   CONSTRAINT `informe_comentarios_ibfk_1` FOREIGN KEY (`id_informe`) REFERENCES `informes_gobierno` (`id_informe`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- =========================================
 -- MODIFICACIONES A TABLA USUARIOS
