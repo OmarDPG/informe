@@ -12,8 +12,8 @@ writable/uploads/*
 public/files/
 !writable/.htaccess
 # /writable/*
-app/Config/Database.php
-app/Config/Email.php
+# app/Config/Database.php
+# app/Config/Email.php
 
 *.sql
 !migracion_completa.sql
