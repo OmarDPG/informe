@@ -936,10 +936,34 @@ class Scii extends BaseController
             $informesGobierno = new InformesGobiernoModel();
             $informeArchivos = new InformeArchivosModel();
 
+            // Validar y obtener valores obligatorios
+            $alineacionODS = $this->request->getPost('alineacionODS');
+            $alineacionProgramaDerivado = $this->request->getPost('alineacionProgramasDerivados');
+
+            // Validar que los campos obligatorios no estén vacíos
+            if (empty($alineacionODS)) {
+                throw new \Exception('El campo "Alineación ODS" es obligatorio');
+            }
+
+            if (empty($alineacionProgramaDerivado)) {
+                throw new \Exception('El campo "Alineación Programas Derivados" es obligatorio');
+            }
+
+            // Validar que las claves foráneas existan
+            $odsExiste = $this->odsTemas->where('id_tema', (int)$alineacionODS)->first();
+            if (!$odsExiste) {
+                throw new \Exception('El ODS seleccionado (ID: ' . $alineacionODS . ') no existe en el catálogo');
+            }
+
+            $programaExiste = $this->lineasAccionInforme->where('id', (int)$alineacionProgramaDerivado)->first();
+            if (!$programaExiste) {
+                throw new \Exception('El programa derivado seleccionado (ID: ' . $alineacionProgramaDerivado . ') no existe en el catálogo');
+            }
+
             $dataInforme = [
                 'fecha_corte' => $this->request->getPost('fecha_corte'),
-                'id_alineacion_ped' => $this->request->getPost('alineacionPED'),
-                'orden_prioridad' => $this->request->getPost('ordenPrioridad'),
+                'id_alineacion_ped' => (int)$this->request->getPost('alineacionPED'),
+                'orden_prioridad' => (int)$this->request->getPost('ordenPrioridad'),
                 'tema' => $this->request->getPost('tema'),
                 'subtema' => $this->request->getPost('subtema'),
                 'descripcion_resultado' => $this->request->getPost('descripcion'),
@@ -950,8 +974,8 @@ class Scii extends BaseController
                 'beneficiarios' => $this->request->getPost('beneficiarios'),
                 'inversion' => $this->request->getPost('inversion'),
                 'desarrollo_resultado' => $this->request->getPost('desarrollo_resultado'),
-                'id_alineacion_programa_derivado' => $this->request->getPost('alineacionProgramasDerivados'),
-                'id_alineacion_ods' => $this->request->getPost('alineacionODS'),
+                'id_alineacion_programa_derivado' => (int)$alineacionProgramaDerivado,
+                'id_alineacion_ods' => (int)$alineacionODS,
                 'conclusion_tematica' => $this->request->getPost('conclusionTematica'),
                 'logros_destacados' => $this->request->getPost('logrosDestacados'),
                 'id_usuario' => $id_usuario,
@@ -1046,11 +1070,35 @@ class Scii extends BaseController
                 throw new \Exception('Solo se pueden editar informes en estado "observado". Estado actual: ' . $informeExistente['estado']);
             }
 
-            // 4. PREPARAR DATOS PARA ACTUALIZACIÓN
+            // 4. VALIDAR Y OBTENER VALORES OBLIGATORIOS
+            $alineacionODS = $this->request->getPost('alineacionODS');
+            $alineacionProgramaDerivado = $this->request->getPost('alineacionProgramasDerivados');
+
+            // Validar que los campos obligatorios no estén vacíos
+            if (empty($alineacionODS)) {
+                throw new \Exception('El campo "Alineación ODS" es obligatorio');
+            }
+
+            if (empty($alineacionProgramaDerivado)) {
+                throw new \Exception('El campo "Alineación Programas Derivados" es obligatorio');
+            }
+
+            // Validar que las claves foráneas existan
+            $odsExiste = $this->odsTemas->where('id_tema', (int)$alineacionODS)->first();
+            if (!$odsExiste) {
+                throw new \Exception('El ODS seleccionado (ID: ' . $alineacionODS . ') no existe en el catálogo');
+            }
+
+            $programaExiste = $this->lineasAccionInforme->where('id', (int)$alineacionProgramaDerivado)->first();
+            if (!$programaExiste) {
+                throw new \Exception('El programa derivado seleccionado (ID: ' . $alineacionProgramaDerivado . ') no existe en el catálogo');
+            }
+
+            // 5. PREPARAR DATOS PARA ACTUALIZACIÓN
             $dataInforme = [
                 'fecha_corte' => $this->request->getPost('fecha_corte'),
-                'id_alineacion_ped' => $this->request->getPost('alineacionPED'),
-                'orden_prioridad' => $this->request->getPost('ordenPrioridad'),
+                'id_alineacion_ped' => (int)$this->request->getPost('alineacionPED'),
+                'orden_prioridad' => (int)$this->request->getPost('ordenPrioridad'),
                 'tema' => $this->request->getPost('tema'),
                 'subtema' => $this->request->getPost('subtema'),
                 'descripcion_resultado' => $this->request->getPost('descripcion'),
@@ -1061,8 +1109,8 @@ class Scii extends BaseController
                 'beneficiarios' => $this->request->getPost('beneficiarios'),
                 'inversion' => $this->request->getPost('inversion'),
                 'desarrollo_resultado' => $this->request->getPost('desarrollo_resultado'),
-                'id_alineacion_programa_derivado' => $this->request->getPost('alineacionProgramasDerivados'),
-                'id_alineacion_ods' => $this->request->getPost('alineacionODS'),
+                'id_alineacion_programa_derivado' => (int)$alineacionProgramaDerivado,
+                'id_alineacion_ods' => (int)$alineacionODS,
                 'conclusion_tematica' => $this->request->getPost('conclusionTematica'),
                 'logros_destacados' => $this->request->getPost('logrosDestacados'),
                 'estado' => 'enviado' // Mantiene el estado observado después de editar

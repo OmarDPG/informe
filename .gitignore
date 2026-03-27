@@ -16,3 +16,4 @@ app/Config/Database.php
 app/Config/Email.php
 
 *.sql
+!migracion_completa.sql

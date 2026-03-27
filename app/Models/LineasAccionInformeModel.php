@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class LineasAccionInformeModel extends Model
 {
-    protected $table      = 'lineas_accion_infrome';
+    protected $table      = 'lineas_accion_informe';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
 
