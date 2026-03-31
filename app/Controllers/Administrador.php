@@ -3965,4 +3965,589 @@ class Administrador extends BaseController
         // Terminar la ejecución
         exit();
     }
+
+    /**
+     * Descargar informe en formato Word para edición
+     */
+    public function descargarInforme($id_informe)
+    {
+        // Validar sesión y permisos
+        if (!isset($this->session->id_usuario)) {
+            return redirect()->to(base_url())->with('error', 'No autorizado');
+        }
+
+        if ($this->session->adm == '0') {
+            return redirect()->to(base_url())->with('error', 'Acceso denegado');
+        }
+
+        $db = \Config\Database::connect();
+
+        // Obtener el informe con datos relacionados
+        $builder = $db->table('informes_gobierno');
+        $builder->select('
+            informes_gobierno.*,
+            usuarios.nombre_s, 
+            usuarios.apellido_p, 
+            usuarios.apellido_m,
+            unidades.descripcion as unidad_descripcion,
+            unidades.determinante,
+            etapas.numero_etapa,
+            periodos_anuales.anio,
+            lineas_accion.descripcion as alineacion_ped_descripcion,
+            lineas_accion.codigo as alineacion_ped_codigo,
+            lineas_accion_informe.descripcion as programa_derivado_descripcion,
+            lineas_accion_informe.codigo as programa_derivado_codigo,
+            ods_temas.tema as ods_descripcion
+        ');
+        $builder->join('usuarios', 'usuarios.id_usuario = informes_gobierno.id_usuario', 'left');
+        $builder->join('unidades', 'unidades.id_unidad = informes_gobierno.id_unidad', 'left');
+        $builder->join('etapas', 'etapas.id_etapa = informes_gobierno.id_etapa', 'left');
+        $builder->join('periodos_anuales', 'periodos_anuales.id_periodo_anual = informes_gobierno.id_periodo_anual', 'left');
+        $builder->join('lineas_accion', 'lineas_accion.id = informes_gobierno.id_alineacion_ped', 'left');
+        $builder->join('lineas_accion_informe', 'lineas_accion_informe.id = informes_gobierno.id_alineacion_programa_derivado', 'left');
+        $builder->join('ods_temas', 'ods_temas.id_tema = informes_gobierno.id_alineacion_ods', 'left');
+        $builder->where('informes_gobierno.id_informe', $id_informe);
+        
+        $queryResult = $builder->get();
+        $informe = $queryResult->getRowArray();
+
+        if (!$informe) {
+            log_message('error', "Informe ID {$id_informe} no encontrado");
+            return redirect()->back()->with('error', 'Informe no encontrado');
+        }
+
+        try {
+            // Crear el documento Word usando PHPWord
+            $phpWord = new \PhpOffice\PhpWord\PhpWord();
+            
+            // Configuración del documento
+            $phpWord->setDefaultFontName('Arial');
+            $phpWord->setDefaultFontSize(11);
+
+            // Crear una sección
+            $section = $phpWord->addSection([
+                'marginLeft' => 1800,
+                'marginRight' => 1800,
+                'marginTop' => 1440,
+                'marginBottom' => 1440,
+            ]);
+
+            // Estilos
+            $titleStyle = [
+                'name' => 'Arial',
+                'size' => 16,
+                'bold' => true,
+                'color' => '1F4E78'
+            ];
+            
+            $headingStyle = [
+                'name' => 'Arial',
+                'size' => 14,
+                'bold' => true,
+                'color' => '2E75B5'
+            ];
+            
+            $subheadingStyle = [
+                'name' => 'Arial',
+                'size' => 12,
+                'bold' => true,
+                'color' => '404040'
+            ];
+            
+            $normalStyle = [
+                'name' => 'Arial',
+                'size' => 11,
+                'color' => '000000'
+            ];
+
+            $labelStyle = [
+                'name' => 'Arial',
+                'size' => 11,
+                'bold' => true,
+                'color' => '404040'
+            ];
+
+            // Título del documento
+            $section->addText(
+                'INFORME DE GOBIERNO',
+                $titleStyle,
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER, 'spaceAfter' => 240]
+            );
+
+            // Separador
+            $section->addTextBreak(1);
+
+            // Información General
+            $section->addText('INFORMACIÓN GENERAL', $headingStyle, ['spaceAfter' => 120]);
+            
+            $table = $section->addTable([
+                'borderSize' => 6,
+                'borderColor' => 'CCCCCC',
+                'width' => 100 * 50,
+                'unit' => \PhpOffice\PhpWord\SimpleType\TblWidth::PERCENT
+            ]);
+
+            // Unidad
+            $table->addRow();
+            $table->addCell(3000, ['bgColor' => 'F2F2F2'])->addText('Unidad:', $labelStyle);
+            $table->addCell(6000)->addText($informe['unidad_descripcion'] ?? 'N/A', $normalStyle);
+
+            // Responsable
+            $nombreCompleto = trim(
+                ($informe['nombre_s'] ?? '') . ' ' . 
+                ($informe['apellido_p'] ?? '') . ' ' . 
+                ($informe['apellido_m'] ?? '')
+            );
+            $table->addRow();
+            $table->addCell(3000, ['bgColor' => 'F2F2F2'])->addText('Responsable:', $labelStyle);
+            $table->addCell(6000)->addText($nombreCompleto ?: 'N/A', $normalStyle);
+
+            $section->addTextBreak(1);
+
+            // Contenido del Informe
+            $section->addText('CONTENIDO DEL INFORME', $headingStyle, ['spaceAfter' => 120]);
+
+            // Tema
+            if (!empty($informe['tema'])) {
+                $section->addText('Tema:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($informe['tema'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Subtema
+            if (!empty($informe['subtema'])) {
+                $section->addText('Subtema:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($informe['subtema'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Orden de prioridad
+            if (!empty($informe['orden_prioridad'])) {
+                $section->addText('Orden de prioridad:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($informe['orden_prioridad'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Descripción del resultado
+            if (!empty($informe['descripcion_resultado'])) {
+                $section->addText('Descripción del Resultado:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($informe['descripcion_resultado'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Contexto
+            if (!empty($informe['contexto'])) {
+                $section->addText('Contexto:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($informe['contexto'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Acción
+            if (!empty($informe['accion'])) {
+                $section->addText('Acción:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($informe['accion'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Impacto
+            if (!empty($informe['impacto'])) {
+                $section->addText('Impacto:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($informe['impacto'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Territorio
+            if (!empty($informe['territorio'])) {
+                $section->addText('Territorio:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($informe['territorio'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Beneficiarios
+            if (!empty($informe['beneficiarios'])) {
+                $section->addText('Beneficiarios:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($informe['beneficiarios'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Inversión
+            if (!empty($informe['inversion'])) {
+                $section->addText('Inversión:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($informe['inversion'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Desarrollo del resultado
+            if (!empty($informe['desarrollo_resultado'])) {
+                $section->addText('Desarrollo del Resultado:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($informe['desarrollo_resultado'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Conclusión temática
+            if (!empty($informe['conclusion_tematica'])) {
+                $section->addText('Conclusión Temática:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($informe['conclusion_tematica'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Logros destacados
+            if (!empty($informe['logros_destacados'])) {
+                $section->addText('Logros Destacados:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($informe['logros_destacados'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Sección de Alineaciones
+            $section->addTextBreak(1);
+            $section->addText('ALINEACIONES', $headingStyle, ['spaceAfter' => 120]);
+
+            // Alineación con el PED
+            if (!empty($informe['alineacion_ped_descripcion'])) {
+                $section->addText('Alineación con el PED:', $subheadingStyle, ['spaceAfter' => 60]);
+                $alineacionPED = ($informe['alineacion_ped_codigo'] ?? '') . ' — ' . ($informe['alineacion_ped_descripcion'] ?? '');
+                $section->addText(trim($alineacionPED, ' — '), $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Alineación con Programas Derivados
+            if (!empty($informe['programa_derivado_descripcion'])) {
+                $section->addText('Alineación con Programas Derivados:', $subheadingStyle, ['spaceAfter' => 60]);
+                $programaDerivado = ($informe['programa_derivado_codigo'] ?? '') . ' — ' . ($informe['programa_derivado_descripcion'] ?? '');
+                $section->addText(trim($programaDerivado, ' — '), $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Alineación con los ODS
+            if (!empty($informe['ods_descripcion'])) {
+                $section->addText('Alineación con los ODS:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($informe['ods_descripcion'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Pie de página con información de generación
+            $footer = $section->addFooter();
+            $footer->addText(
+                // 'Documento generado el ' . date('d/m/Y H:i') . ' - Sistema de Control Interno Institucional | SMADSOT',
+                'Sistema de Control Interno Institucional | SMADSOT | Informe de Gobierno',
+                ['size' => 8, 'color' => '666666'],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+
+            // Generar nombre del archivo
+            $nombreArchivo = 'Informe_' . 
+                ($informe['determinante'] ?? 'SIN_DETERMINANTE') . '_' .
+                ($informe['anio'] ?? date('Y')) . '_' .
+                'Etapa' . ($informe['numero_etapa'] ?? 'N') . '_' .
+                date('YmdHis') . '.docx';
+
+            // Limpiar el nombre de archivo de caracteres especiales
+            $nombreArchivo = preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $nombreArchivo);
+
+            // Guardar temporalmente el archivo
+            $tempFile = WRITEPATH . 'uploads/temp_' . uniqid() . '.docx';
+            
+            // Crear el directorio si no existe
+            $directorioTemp = dirname($tempFile);
+            if (!is_dir($directorioTemp)) {
+                mkdir($directorioTemp, 0755, true);
+            }
+
+            // Guardar el documento
+            $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
+            $objWriter->save($tempFile);
+
+            // Verificar que el archivo se creó correctamente
+            if (!file_exists($tempFile)) {
+                log_message('error', "No se pudo crear el archivo temporal: {$tempFile}");
+                return redirect()->back()->with('error', 'Error al generar el documento');
+            }
+
+            $fileSize = filesize($tempFile);
+            
+            log_message('info', "Descarga de informe Word iniciada - Usuario: {$this->session->id_usuario}, Informe: {$id_informe}, Tamaño: {$fileSize} bytes");
+
+            // Configurar PHP para descarga
+            @ini_set('memory_limit', '512M');
+            @ini_set('max_execution_time', '300');
+            
+            // Limpiar cualquier buffer de salida
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+
+            // Establecer headers para descarga
+            header_remove();
+            header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+            header('Content-Disposition: attachment; filename="' . $nombreArchivo . '"');
+            header('Content-Length: ' . $fileSize);
+            header('Cache-Control: no-cache, must-revalidate, max-age=0');
+            header('Pragma: no-cache');
+            header('Expires: 0');
+
+            // Enviar el archivo
+            readfile($tempFile);
+
+            // Eliminar el archivo temporal
+            @unlink($tempFile);
+
+            log_message('info', "Descarga de informe Word completada - Informe: {$id_informe}");
+
+            exit();
+
+        } catch (\Exception $e) {
+            log_message('error', "Error al generar documento Word: " . $e->getMessage());
+            log_message('error', "Stack trace: " . $e->getTraceAsString());
+            return redirect()->back()->with('error', 'Error al generar el documento: ' . $e->getMessage());
+        }
+    }
+    /**
+     * Descargar glosa en formato Word para edición
+     */
+    public function descargarGlosa($id_glosa_gobierno)
+    {
+        // Validar sesión y permisos
+        if (!isset($this->session->id_usuario)) {
+            return redirect()->to(base_url())->with('error', 'No autorizado');
+        }
+
+        if ($this->session->adm == '0') {
+            return redirect()->to(base_url())->with('error', 'Acceso denegado');
+        }
+
+        $db = \Config\Database::connect();
+
+        // Obtener la glosa con datos relacionados
+        $builder = $db->table('glosas_gobierno');
+        $builder->select('
+            glosas_gobierno.*,
+            usuarios.nombre_s, 
+            usuarios.apellido_p, 
+            usuarios.apellido_m,
+            unidades.descripcion as unidad_descripcion,
+            unidades.determinante,
+            lineas_accion.descripcion as alineacion_ped_descripcion,
+            lineas_accion.codigo as alineacion_ped_codigo,
+            lineas_accion_informe.descripcion as programa_derivado_descripcion,
+            lineas_accion_informe.codigo as programa_derivado_codigo,
+            ods_temas.tema as ods_descripcion
+        ');
+        $builder->join('usuarios', 'usuarios.id_usuario = glosas_gobierno.id_usuario', 'left');
+        $builder->join('unidades', 'unidades.id_unidad = glosas_gobierno.id_unidad', 'left');
+        $builder->join('lineas_accion', 'lineas_accion.id = glosas_gobierno.id_alineacion_ped', 'left');
+        $builder->join('lineas_accion_informe', 'lineas_accion_informe.id = glosas_gobierno.id_alineacion_programa_derivado', 'left');
+        $builder->join('ods_temas', 'ods_temas.id_tema = glosas_gobierno.id_alineacion_ods', 'left');
+        $builder->where('glosas_gobierno.id_glosa_gobierno', $id_glosa_gobierno);
+        
+        $queryResult = $builder->get();
+        $glosa = $queryResult->getRowArray();
+
+        if (!$glosa) {
+            log_message('error', "Glosa ID {$id_glosa_gobierno} no encontrada");
+            return redirect()->back()->with('error', 'Glosa no encontrada');
+        }
+
+        try {
+            // Crear el documento Word usando PHPWord
+            $phpWord = new \PhpOffice\PhpWord\PhpWord();
+            
+            // Configuración del documento
+            $phpWord->setDefaultFontName('Arial');
+            $phpWord->setDefaultFontSize(11);
+
+            // Crear una sección
+            $section = $phpWord->addSection([
+                'marginLeft' => 1800,
+                'marginRight' => 1800,
+                'marginTop' => 1440,
+                'marginBottom' => 1440,
+            ]);
+
+            // Estilos
+            $titleStyle = [
+                'name' => 'Arial',
+                'size' => 16,
+                'bold' => true,
+                'color' => '1F4E78'
+            ];
+            
+            $headingStyle = [
+                'name' => 'Arial',
+                'size' => 14,
+                'bold' => true,
+                'color' => '2E75B5'
+            ];
+            
+            $subheadingStyle = [
+                'name' => 'Arial',
+                'size' => 12,
+                'bold' => true,
+                'color' => '404040'
+            ];
+            
+            $normalStyle = [
+                'name' => 'Arial',
+                'size' => 11,
+                'color' => '000000'
+            ];
+
+            $labelStyle = [
+                'name' => 'Arial',
+                'size' => 11,
+                'bold' => true,
+                'color' => '404040'
+            ];
+
+            // Título del documento
+            $section->addText(
+                'GLOSA DEL INFORME DE GOBIERNO',
+                $titleStyle,
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER, 'spaceAfter' => 240]
+            );
+
+            // Separador
+            $section->addTextBreak(1);
+
+            // Información General
+            $section->addText('INFORMACIÓN GENERAL', $headingStyle, ['spaceAfter' => 120]);
+            
+            $table = $section->addTable([
+                'borderSize' => 6,
+                'borderColor' => 'CCCCCC',
+                'width' => 100 * 50,
+                'unit' => \PhpOffice\PhpWord\SimpleType\TblWidth::PERCENT
+            ]);
+
+            // Unidad
+            $table->addRow();
+            $table->addCell(3000, ['bgColor' => 'F2F2F2'])->addText('Unidad:', $labelStyle);
+            $table->addCell(6000)->addText($glosa['unidad_descripcion'] ?? 'N/A', $normalStyle);
+
+
+            // Responsable
+            $nombreCompleto = trim(
+                ($glosa['nombre_s'] ?? '') . ' ' . 
+                ($glosa['apellido_p'] ?? '') . ' ' . 
+                ($glosa['apellido_m'] ?? '')
+            );
+            $table->addRow();
+            $table->addCell(3000, ['bgColor' => 'F2F2F2'])->addText('Responsable:', $labelStyle);
+            $table->addCell(6000)->addText($nombreCompleto ?: 'N/A', $normalStyle);
+
+            $section->addTextBreak(1);
+
+            // Contenido de la Glosa
+            $section->addText('CONTENIDO DE LA GLOSA', $headingStyle, ['spaceAfter' => 120]);
+
+            // Tema
+            if (!empty($glosa['tema'])) {
+                $section->addText('Tema:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($glosa['tema'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Orden de prioridad
+            if (!empty($glosa['orden_prioridad'])) {
+                $section->addText('Orden de prioridad:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($glosa['orden_prioridad'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Introducción
+            if (!empty($glosa['introduccion'])) {
+                $section->addText('Introducción:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($glosa['introduccion'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Acción
+            if (!empty($glosa['accion'])) {
+                $section->addText('Acción:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($glosa['accion'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Desarrollo
+            if (!empty($glosa['desarrollo'])) {
+                $section->addText('Desarrollo:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($glosa['desarrollo'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Sección de Alineaciones
+            $section->addTextBreak(1);
+            $section->addText('ALINEACIONES', $headingStyle, ['spaceAfter' => 120]);
+
+            // Alineación con el PED
+            if (!empty($glosa['alineacion_ped_descripcion'])) {
+                $section->addText('Alineación con el PED:', $subheadingStyle, ['spaceAfter' => 60]);
+                $alineacionPED = ($glosa['alineacion_ped_codigo'] ?? '') . ' — ' . ($glosa['alineacion_ped_descripcion'] ?? '');
+                $section->addText(trim($alineacionPED, ' — '), $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Alineación con Programas Derivados
+            if (!empty($glosa['programa_derivado_descripcion'])) {
+                $section->addText('Alineación con Programas Derivados:', $subheadingStyle, ['spaceAfter' => 60]);
+                $programaDerivado = ($glosa['programa_derivado_codigo'] ?? '') . ' — ' . ($glosa['programa_derivado_descripcion'] ?? '');
+                $section->addText(trim($programaDerivado, ' — '), $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Alineación con los ODS
+            if (!empty($glosa['ods_descripcion'])) {
+                $section->addText('Alineación con los ODS:', $subheadingStyle, ['spaceAfter' => 60]);
+                $section->addText($glosa['ods_descripcion'], $normalStyle, ['spaceAfter' => 120]);
+            }
+
+            // Pie de página con información de generación
+            $footer = $section->addFooter();
+            $footer->addText(
+                'Sistema de Control Interno Institucional | SMADSOT | Glosa del Informe de Gobierno',
+                ['size' => 8, 'color' => '666666'],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+
+            // Generar nombre del archivo
+            $nombreArchivo = 'Glosa_' . 
+                ($glosa['determinante'] ?? 'SIN_DETERMINANTE') . '_' .
+                date('YmdHis') . '.docx';
+
+            // Limpiar el nombre de archivo de caracteres especiales
+            $nombreArchivo = preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $nombreArchivo);
+
+            // Guardar temporalmente el archivo
+            $tempFile = WRITEPATH . 'uploads/temp_' . uniqid() . '.docx';
+            
+            // Crear el directorio si no existe
+            $directorioTemp = dirname($tempFile);
+            if (!is_dir($directorioTemp)) {
+                mkdir($directorioTemp, 0755, true);
+            }
+
+            // Guardar el documento
+            $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
+            $objWriter->save($tempFile);
+
+            // Verificar que el archivo se creó correctamente
+            if (!file_exists($tempFile)) {
+                log_message('error', "No se pudo crear el archivo temporal: {$tempFile}");
+                return redirect()->back()->with('error', 'Error al generar el documento');
+            }
+
+            $fileSize = filesize($tempFile);
+            
+            log_message('info', "Descarga de glosa Word iniciada - Usuario: {$this->session->id_usuario}, Glosa: {$id_glosa_gobierno}, Tamaño: {$fileSize} bytes");
+
+            // Configurar PHP para descarga
+            @ini_set('memory_limit', '512M');
+            @ini_set('max_execution_time', '300');
+            
+            // Limpiar cualquier buffer de salida
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+
+            // Establecer headers para descarga
+            header_remove();
+            header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+            header('Content-Disposition: attachment; filename="' . $nombreArchivo . '"');
+            header('Content-Length: ' . $fileSize);
+            header('Cache-Control: no-cache, must-revalidate, max-age=0');
+            header('Pragma: no-cache');
+            header('Expires: 0');
+
+            // Enviar el archivo
+            readfile($tempFile);
+
+            // Eliminar el archivo temporal
+            @unlink($tempFile);
+
+            log_message('info', "Descarga de glosa Word completada - Glosa: {$id_glosa_gobierno}");
+
+            exit();
+
+        } catch (\Exception $e) {
+            log_message('error', "Error al generar documento Word de glosa: " . $e->getMessage());
+            log_message('error', "Stack trace: " . $e->getTraceAsString());
+            return redirect()->back()->with('error', 'Error al generar el documento: ' . $e->getMessage());
+        }
+    }
 }

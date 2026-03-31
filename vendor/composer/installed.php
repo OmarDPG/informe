@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'codeigniter4/framework',
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
-        'reference' => null,
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'reference' => '01533cbd1e36e2f94efa8194bb4d04e87a399c7b',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -20,9 +20,9 @@
             'dev_requirement' => true,
         ),
         'codeigniter4/framework' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
-            'reference' => null,
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'reference' => '01533cbd1e36e2f94efa8194bb4d04e87a399c7b',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -136,6 +136,12 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'laminas/laminas-zendframework-bridge' => array(
+            'dev_requirement' => false,
+            'replaced' => array(
+                0 => '*',
+            ),
+        ),
         'maennchen/zipstream-php' => array(
             'pretty_version' => '2.2.6',
             'version' => '2.2.6.0',
@@ -232,6 +238,15 @@
             'reference' => '3a5a818d7d3e4b5bd2e56fb9de44dbded6eae07f',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phpoffice/phpspreadsheet',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'phpoffice/phpword' => array(
+            'pretty_version' => '0.18.0',
+            'version' => '0.18.0.0',
+            'reference' => '1bd7cd62381051db6d6c7174d3c95a3ada48bc0f',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../phpoffice/phpword',
             'aliases' => array(),
             'dev_requirement' => false,
         ),

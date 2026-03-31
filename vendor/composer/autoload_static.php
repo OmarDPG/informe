@@ -58,6 +58,7 @@ class ComposerStaticInit33abe172fcc6a95546ced314147e7819
             'Psr\\Cache\\' => 10,
             'Predis\\' => 7,
             'PhpParser\\' => 10,
+            'PhpOffice\\PhpWord\\' => 18,
             'PhpOffice\\PhpSpreadsheet\\' => 25,
             'PhpCsFixer\\' => 11,
         ),
@@ -184,8 +185,8 @@ class ComposerStaticInit33abe172fcc6a95546ced314147e7819
         ),
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-message/src',
-            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
         'Psr\\Http\\Client\\' => 
         array (
@@ -210,6 +211,10 @@ class ComposerStaticInit33abe172fcc6a95546ced314147e7819
         'PhpParser\\' => 
         array (
             0 => __DIR__ . '/..' . '/nikic/php-parser/lib/PhpParser',
+        ),
+        'PhpOffice\\PhpWord\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpoffice/phpword/src/PhpWord',
         ),
         'PhpOffice\\PhpSpreadsheet\\' => 
         array (
