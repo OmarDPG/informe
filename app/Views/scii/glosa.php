@@ -568,16 +568,22 @@
 
                     <?php if (!empty($glosas)): ?>
                         <?php foreach ($glosas as $glo): ?>
-
-                            <?php
-                            $estadoClases = match ($glo['estado']) {
-                                'borrador' => 'bg-yellow-100 text-yellow-700',
-                                'enviado'  => 'bg-blue-100 text-blue-700',
-                                'aprobado' => 'bg-green-100 text-green-700',
-                                default    => 'bg-gray-100 text-gray-700',
-                            };
-                            ?>
-
+                        <?php
+                            switch ($inf['estado']) {
+                                case 'borrador':
+                                    $estadoClases = 'bg-yellow-100 text-yellow-700';
+                                    break;
+                                case 'enviado':
+                                    $estadoClases = 'bg-blue-100 text-blue-700';
+                                    break;
+                                case 'aprobado':
+                                    $estadoClases = 'bg-green-100 text-green-700';
+                                    break;
+                                default:
+                                    $estadoClases = 'bg-gray-100 text-gray-700';
+                                    break;
+                            }
+                        ?>
                             <a href="<?= base_url('scii/glosa/' . $glo['id_glosa_gobierno']) ?>"
                                 class="glosa-item block p-3 border border-gray-200 rounded-lg hover:border-green-400 hover:shadow-md transition-all bg-white group">
 
