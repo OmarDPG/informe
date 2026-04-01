@@ -426,7 +426,9 @@
             filtered = filtered.filter(unidad => {
                 const glosas = glosasData.filter(glo => {
                     let match = glo.id_unidad === unidad.id_unidad;
-                    if (year) match = match && glo.anio == year;
+                    const aux = glo.nombre_glosa?.match(/\b(20\d{2})\b/);
+                    const anio = aux ? aux[1] : '';
+                    if (year) match = match && anio == year;
                     return match;
                 });
                 return glosas.length > 0;
