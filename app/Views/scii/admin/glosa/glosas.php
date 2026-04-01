@@ -508,7 +508,7 @@
                                     `}
                                 </div>
 
-                                <button onclick="descargarGlosa(${idUnidad}, '${anio}')"
+                                <button onclick="descargarGlosa(${glosa.id_glosa_gobierno})"
                                         class="ml-4 text-emerald-600 hover:text-emerald-800">
                                     <i class="fa-solid fa-download text-xl"></i>
                                 </button>
@@ -525,9 +525,9 @@
     }
 
     // Descargar glosa
-    function descargarGlosa(idUnidad, anio) {
+    function descargarGlosa(idGlosa) {
         // Implementar la lógica de descarga real
-        window.location.href = `<?php echo base_url(); ?>/administrador/glosa/descargar/${idUnidad}/${anio}`;
+        window.location.href = `<?php echo base_url(); ?>/administrador/glosa/descargar/${idGlosa}`;
     }
 
     // Cerrar modal

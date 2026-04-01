@@ -504,7 +504,7 @@
                                     </p>
                                 ` : '<p class="text-sm text-gray-500 italic">Sin fecha de entrega</p>'}
                             </div>
-                            <button onclick="descargarInforme(${idUnidad}, ${informe.anio}, ${informe.etapa})"
+                            <button onclick="descargarInforme(${informe.id_informe})"
                                     class="ml-4 text-emerald-600 hover:text-emerald-800">
                                 <i class="fa-solid fa-download text-xl"></i>
                             </button>
@@ -520,9 +520,11 @@
     }
 
     // Descargar informe
-    function descargarInforme(idUnidad, anio, etapa) {
+    // function descargarInforme(idUnidad, anio, etapa) {
+    function descargarInforme(idInforme) {
         // Implementar la lógica de descarga real
-        window.location.href = `<?php echo base_url(); ?>/administrador/informe/descargar/${idUnidad}/${anio}/${etapa}`;
+        // window.location.href = `<?php echo base_url(); ?>/administrador/informe/descargar/${idUnidad}/${anio}/${etapa}`;
+        window.location.href = `<?php echo base_url(); ?>/administrador/informe/descargar/${idInforme}`;
     }
 
     // Cerrar modal

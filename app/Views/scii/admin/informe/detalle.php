@@ -747,12 +747,20 @@
                                     <?php foreach ($informesUnidad as $inf): ?>
 
                                         <?php
-                                        $estadoClases = match ($inf['estado']) {
-                                            'borrador' => 'bg-yellow-100 text-yellow-700',
-                                            'enviado'  => 'bg-blue-100 text-blue-700',
-                                            'aprobado' => 'bg-green-100 text-green-700',
-                                            default    => 'bg-gray-100 text-gray-700',
-                                        };
+                                        switch ($inf['estado']) {
+                                            case 'borrador':
+                                                $estadoClases = 'bg-yellow-100 text-yellow-700';
+                                                break;
+                                            case 'enviado':
+                                                $estadoClases = 'bg-blue-100 text-blue-700';
+                                                break;
+                                            case 'aprobado':
+                                                $estadoClases = 'bg-green-100 text-green-700';
+                                                break;
+                                            default:
+                                                $estadoClases = 'bg-gray-100 text-gray-700';
+                                                break;
+                                        }
                                         ?>
 
                                         <a href="<?= base_url('administrador/detalle/' . $inf['id_informe']) ?>"

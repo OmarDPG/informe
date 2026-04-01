@@ -38,6 +38,8 @@ $routes->setAutoRoute(true);
 // route since we don't have to scan directories.
 $routes->get('/', 'Inicio::index');
 // $routes->get('administrador/informe', 'Administrador\Informe::index');
+$routes->get('administrador/informe/descargar/(:num)', 'Administrador::descargarInforme/$1');
+$routes->get('administrador/glosa/descargar/(:num)', 'Administrador::descargarGlosa/$1');
 
 
 /*
