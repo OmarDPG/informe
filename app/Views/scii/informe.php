@@ -17,6 +17,28 @@
                         </div>
                         <!-- Form Container -->
                         <div class="max-w-4xl mx-auto">
+                            <?php if (session()->getFlashdata('error')): ?>
+                                <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                                    <div class="flex items-center">
+                                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <strong class="font-bold">Error: </strong>
+                                        <span class="ml-1"><?= session()->getFlashdata('error') ?></span>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                            <?php if (session()->getFlashdata('success')): ?>
+                                <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                                    <div class="flex items-center">
+                                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <strong class="font-bold">Éxito: </strong>
+                                        <span class="ml-1"><?= session()->getFlashdata('success') ?></span>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                             <form method="POST" class="space-y-6" action="<?php echo base_url(); ?>/Scii/registrarInformeGobierno" enctype="multipart/form-data">
                                 <input type="hidden" name="informe_id" id="informe_id" value="<?= esc($informeSeleccionado['id_informe'] ?? '') ?>">
                                 <!-- Unidad Administrativa y Fecha de Corte -->
@@ -41,7 +63,7 @@
                                         </label>
                                         <input
                                             <?= (!empty($informeSeleccionado['estado']) && $informeSeleccionado['estado'] !== 'observado') ? 'readonly' : '' ?>
-                                            value="<?= esc($informeSeleccionado['fecha_corte'] ?? '') ?>"
+                                            value="<?= old('fecha_corte', $informeSeleccionado['fecha_corte'] ?? '') ?>"
                                             type="date"
                                             id="fecha_corte"
                                             name="fecha_corte"
@@ -64,9 +86,9 @@
                                                 required
                                                 <?= (!empty($informeSeleccionado['estado']) && $informeSeleccionado['estado'] !== 'observado') ? 'disabled' : '' ?>
                                                 class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
-                                                <option value="" disabled <?= empty($informeSeleccionado['id_alineacion_ped']) ? 'selected' : '' ?>>Seleccione una opción</option>
+                                                <option value="" disabled <?= empty(old('alineacionPED', $informeSeleccionado['id_alineacion_ped'] ?? '')) ? 'selected' : '' ?>>Seleccione una opción</option>
                                                 <?php foreach ($lineas as $l): ?>
-                                                    <option value="<?= $l['id'] ?>" <?= (isset($informeSeleccionado['id_alineacion_ped']) && $informeSeleccionado['id_alineacion_ped'] == $l['id']) ? 'selected' : '' ?>>
+                                                    <option value="<?= $l['id'] ?>" <?= (old('alineacionPED', $informeSeleccionado['id_alineacion_ped'] ?? '') == $l['id']) ? 'selected' : '' ?>>
                                                         <?= esc($l['codigo']) ?> —
                                                         <?= esc($l['descripcion']) ?>
                                                     </option>
@@ -92,10 +114,10 @@
                                                 required
                                                 <?= (!empty($informeSeleccionado['estado']) && $informeSeleccionado['estado'] !== 'observado') ? 'disabled' : '' ?>
                                                 class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
-                                                <option value="" disabled <?= empty($informeSeleccionado['orden_prioridad']) ? 'selected' : '' ?>>Seleccione una opción</option>
+                                                <option value="" disabled <?= empty(old('ordenPrioridad', $informeSeleccionado['orden_prioridad'] ?? '')) ? 'selected' : '' ?>>Seleccione una opción</option>
                                                 <?php for ($i = 1; $i <= 10; $i++): ?>
                                                     <option value="<?= $i ?>"
-                                                        <?= (isset($informeSeleccionado['orden_prioridad']) && (int)$informeSeleccionado['orden_prioridad'] === $i) ? 'selected' : '' ?>>
+                                                        <?= (old('ordenPrioridad', $informeSeleccionado['orden_prioridad'] ?? '') == $i) ? 'selected' : '' ?>>
                                                         <?= $i ?>
                                                     </option>
                                                 <?php endfor; ?>
@@ -125,7 +147,7 @@
                                             name="tema"
                                             maxlength="100"
                                             required
-                                            value="<?= esc($informeSeleccionado['tema'] ?? '') ?>"
+                                            value="<?= old('tema', $informeSeleccionado['tema'] ?? '') ?>"
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese el tema del informe">
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
@@ -158,7 +180,7 @@
                                             name="subtema"
                                             maxlength="100"
                                             required
-                                            value="<?= esc($informeSeleccionado['subtema'] ?? '') ?>"
+                                            value="<?= old('subtema', $informeSeleccionado['subtema'] ?? '') ?>"
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese el subtema del informe">
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
@@ -190,7 +212,7 @@
                                             name="descripcion"
                                             maxlength="100"
                                             required
-                                            value="<?= esc($informeSeleccionado['descripcion_resultado'] ?? '') ?>"
+                                            value="<?= old('descripcion', $informeSeleccionado['descripcion_resultado'] ?? '') ?>"
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese la descripción del informe">
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
@@ -223,7 +245,7 @@
                                             rows="5"
                                             required
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200 resize-none"
-                                            placeholder="Ingrese el contexto del informe"><?= esc($informeSeleccionado['contexto'] ?? '') ?></textarea>
+                                            placeholder="Ingrese el contexto del informe"><?= old('contexto', $informeSeleccionado['contexto'] ?? '') ?></textarea>
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
                                             <button
                                                 type="button"
@@ -254,7 +276,7 @@
                                             name="accion"
                                             maxlength="100"
                                             required
-                                            value="<?= esc($informeSeleccionado['accion'] ?? '') ?>"
+                                            value="<?= old('accion', $informeSeleccionado['accion'] ?? '') ?>"
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese la descripción del informe">
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
@@ -288,7 +310,7 @@
                                             rows="3"
                                             required
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
-                                            placeholder="Ingrese la descripción del informe"><?= esc($informeSeleccionado['impacto'] ?? '') ?></textarea>
+                                            placeholder="Ingrese la descripción del informe"><?= old('impacto', $informeSeleccionado['impacto'] ?? '') ?></textarea>
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
                                             <button
                                                 type="button"
@@ -320,7 +342,7 @@
                                             rows="3"
                                             required
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
-                                            placeholder="Ingrese la descripción del informe"><?= esc($informeSeleccionado['territorio'] ?? '') ?></textarea>
+                                            placeholder="Ingrese la descripción del informe"><?= old('territorio', $informeSeleccionado['territorio'] ?? '') ?></textarea>
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
                                             <button
                                                 type="button"
@@ -353,7 +375,7 @@
                                             required
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese la descripción del informe"
-                                            value="<?= esc($informeSeleccionado['beneficiarios'] ?? '') ?>">
+                                            value="<?= old('beneficiarios', $informeSeleccionado['beneficiarios'] ?? '') ?>">
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
                                             <button
                                                 type="button"
@@ -385,7 +407,7 @@
                                             rows="3"
                                             required
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
-                                            placeholder="Ingrese la descripción del informe"><?= esc($informeSeleccionado['inversion'] ?? '') ?></textarea>
+                                            placeholder="Ingrese la descripción del informe"><?= old('inversion', $informeSeleccionado['inversion'] ?? '') ?></textarea>
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
                                             <button
                                                 type="button"
@@ -417,7 +439,7 @@
                                             required
                                             rows="18"
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
-                                            placeholder="Ingrese la descripción del informe"><?= esc($informeSeleccionado['desarrollo_resultado'] ?? '') ?></textarea>
+                                            placeholder="Ingrese la descripción del informe"><?= old('desarrollo_resultado', $informeSeleccionado['desarrollo_resultado'] ?? '') ?></textarea>
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
                                             <button
                                                 type="button"
@@ -445,17 +467,17 @@
                                                 required
                                                 <?= (!empty($informeSeleccionado['estado']) && $informeSeleccionado['estado'] !== 'observado') ? 'disabled' : '' ?>
                                                 class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
-                                                <option value="" disabled <?= empty($informeSeleccionado['id_alineacion_programa_derivado']) ? 'selected' : '' ?>>Seleccione una opción</option>
+                                                <option value="" disabled <?= empty(old('alineacionProgramasDerivados', $informeSeleccionado['id_alineacion_programa_derivado'] ?? '')) ? 'selected' : '' ?>>Seleccione una opción</option>
                                                 <?php if ($datos['id_unidad'] == 1): ?>
                                                     <?php foreach ($lineasAgua as $la): ?>
-                                                        <option value="<?= $la['id'] ?>" <?= (isset($informeSeleccionado['id_alineacion_programa_derivado']) && $informeSeleccionado['id_alineacion_programa_derivado'] == $la['id']) ? 'selected' : '' ?>>
+                                                        <option value="<?= $la['id'] ?>" <?= (old('alineacionProgramasDerivados', $informeSeleccionado['id_alineacion_programa_derivado'] ?? '') == $la['id']) ? 'selected' : '' ?>>
                                                             <?= esc($la['codigo']) ?> — <?= esc($la['descripcion']) ?>
                                                         </option>
                                                     <?php endforeach; ?>
 
                                                 <?php elseif ($datos['id_unidad'] != 1): ?>
                                                     <?php foreach ($lineasSocioambiental as $ls): ?>
-                                                        <option value="<?= $ls['id'] ?>" <?= (isset($informeSeleccionado['id_alineacion_programa_derivado']) && $informeSeleccionado['id_alineacion_programa_derivado'] == $ls['id']) ? 'selected' : '' ?>>
+                                                        <option value="<?= $ls['id'] ?>" <?= (old('alineacionProgramasDerivados', $informeSeleccionado['id_alineacion_programa_derivado'] ?? '') == $ls['id']) ? 'selected' : '' ?>>
                                                             <?= esc($ls['codigo']) ?> — <?= esc($ls['descripcion']) ?>
                                                         </option>
                                                     <?php endforeach; ?>
@@ -481,9 +503,9 @@
                                                 required
                                                 <?= (!empty($informeSeleccionado['estado']) && $informeSeleccionado['estado'] !== 'observado') ? 'disabled' : '' ?>
                                                 class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
-                                                <option value="" disabled <?= empty($informeSeleccionado['id_alineacion_ods']) ? 'selected' : '' ?>>Seleccione una opción</option>
+                                                <option value="" disabled <?= empty(old('alineacionODS', $informeSeleccionado['id_alineacion_ods'] ?? '')) ? 'selected' : '' ?>>Seleccione una opción</option>
                                                 <?php foreach ($odsTemas as $ods): ?>
-                                                    <option value="<?= $ods['id_tema'] ?>" <?= (isset($informeSeleccionado['id_alineacion_ods']) && $informeSeleccionado['id_alineacion_ods'] == $ods['id_tema']) ? 'selected' : '' ?>>
+                                                    <option value="<?= $ods['id_tema'] ?>" <?= (old('alineacionODS', $informeSeleccionado['id_alineacion_ods'] ?? '') == $ods['id_tema']) ? 'selected' : '' ?>>
                                                         <?= $ods['codigo_meta'] ?> -
                                                         <?= $ods['tema'] ?>
                                                         (ODS <?= $ods['id_objetivo'] ?>: <?= $ods['objetivo'] ?>)
@@ -517,7 +539,7 @@
                                                     id="mapas"
                                                     name="mapas[]"
                                                     multiple
-                                                    accept=".xls,.xlsx"
+                                                    accept=".xls,.xlsx,.zip"
                                                     class="hidden"
                                                     onchange="updateFileNames(this)">
                                                 <label
@@ -532,7 +554,7 @@
                                                                 Seleccionar archivos
                                                             </span>
                                                         </div>
-                                                        <p class="text-xs text-gray-500 mt-1">Excel hasta 10MB</p>
+                                                        <p class="text-xs text-gray-500 mt-1">Excel hasta 30MB</p>
                                                     </div>
                                                 </label>
                                             </div>
@@ -550,7 +572,7 @@
                                                     id="graficas"
                                                     name="graficas[]"
                                                     multiple
-                                                    accept=".xls,.xlsx"
+                                                    accept=".xls,.xlsx,.zip"
                                                     class="hidden"
                                                     onchange="updateFileNames(this)">
                                                 <label
@@ -565,7 +587,7 @@
                                                                 Seleccionar archivos
                                                             </span>
                                                         </div>
-                                                        <p class="text-xs text-gray-500 mt-1">Excel hasta 10MB</p>
+                                                        <p class="text-xs text-gray-500 mt-1">Excel hasta 30MB</p>
                                                     </div>
                                                 </label>
                                             </div>
@@ -583,7 +605,7 @@
                                                     id="cuadros"
                                                     name="cuadros[]"
                                                     multiple
-                                                    accept=".xls,.xlsx"
+                                                    accept=".xls,.xlsx,.zip"
                                                     class="hidden"
                                                     onchange="updateFileNames(this)">
                                                 <label
@@ -598,7 +620,7 @@
                                                                 Seleccionar archivos
                                                             </span>
                                                         </div>
-                                                        <p class="text-xs text-gray-500 mt-1">Excel hasta 10MB</p>
+                                                        <p class="text-xs text-gray-500 mt-1">Excel hasta 30MB</p>
                                                     </div>
                                                 </label>
                                             </div>
@@ -616,7 +638,7 @@
                                                     id="esquemas"
                                                     name="esquemas[]"
                                                     multiple
-                                                    accept=".ppt,.pptx"
+                                                    accept=".ppt,.pptx,.zip"
                                                     class="hidden"
                                                     onchange="updateFileNames(this)">
                                                 <label
@@ -631,7 +653,7 @@
                                                                 Seleccionar archivos
                                                             </span>
                                                         </div>
-                                                        <p class="text-xs text-gray-500 mt-1">PowerPoint hasta 10MB</p>
+                                                        <p class="text-xs text-gray-500 mt-1">PowerPoint hasta 30MB</p>
                                                     </div>
                                                 </label>
                                             </div>
@@ -664,7 +686,7 @@
                                                                 Seleccionar archivos
                                                             </span>
                                                         </div>
-                                                        <p class="text-xs text-gray-500 mt-1">ZIP o RAR hasta 10MB</p>
+                                                        <p class="text-xs text-gray-500 mt-1">ZIP o RAR hasta 30MB</p>
                                                     </div>
                                                 </label>
                                             </div>
@@ -682,7 +704,7 @@
                                                     id="resultados"
                                                     name="resultados[]"
                                                     multiple
-                                                    accept=".doc,.docx"
+                                                    accept=".doc,.docx,.zip"
                                                     class="hidden"
                                                     onchange="updateFileNames(this)">
                                                 <label
@@ -697,7 +719,7 @@
                                                                 Seleccionar archivos
                                                             </span>
                                                         </div>
-                                                        <p class="text-xs text-gray-500 mt-1">Word hasta 10MB</p>
+                                                        <p class="text-xs text-gray-500 mt-1">Word hasta 30MB</p>
                                                     </div>
                                                 </label>
                                             </div>
@@ -723,7 +745,7 @@
                                             rows="5"
                                             required
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
-                                            placeholder="Ingrese la descripción del informe"><?= esc($informeSeleccionado['conclusion_tematica'] ?? '') ?></textarea>
+                                            placeholder="Ingrese la descripción del informe"><?= old('conclusionTematica', $informeSeleccionado['conclusion_tematica'] ?? '') ?></textarea>
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
                                             <button
                                                 type="button"
@@ -755,7 +777,7 @@
                                             required
                                             rows="5"
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
-                                            placeholder="Ingrese la descripción del informe"><?= esc($informeSeleccionado['logros_destacados'] ?? '') ?></textarea>
+                                            placeholder="Ingrese la descripción del informe"><?= old('logrosDestacados', $informeSeleccionado['logros_destacados'] ?? '') ?></textarea>
                                         <?php if (!empty($informeSeleccionado['id_informe'])): ?>
                                             <button
                                                 type="button"

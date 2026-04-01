@@ -1269,7 +1269,7 @@ class Scii extends BaseController
                             'application/vnd.openxmlformats-officedocument.presentationml.presentation',
                         ];
 
-                        $maxSize = 10 * 1024 * 1024; // 10MB
+                        $maxSize = 30 * 1024 * 1024; // 30MB
 
                         // Obtener información del archivo directamente de $_FILES
                         $clientName = $_FILES[$tipoInput]['name'][$i];
@@ -2050,7 +2050,7 @@ class Scii extends BaseController
                             'application/vnd.openxmlformats-officedocument.presentationml.presentation',
                         ];
 
-                        $maxSize = 10 * 1024 * 1024; // 10MB
+                        $maxSize = 30 * 1024 * 1024; // 30MB
 
                         // Obtener información del archivo desde $_FILES
                         $clientName = $_FILES[$tipoInput]['name'][$i];

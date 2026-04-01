@@ -17,6 +17,28 @@
                         </div>
                         <!-- Form Container -->
                         <div class="max-w-4xl mx-auto">
+                            <?php if (session()->getFlashdata('error')): ?>
+                                <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                                    <div class="flex items-center">
+                                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <strong class="font-bold">Error: </strong>
+                                        <span class="ml-1"><?= session()->getFlashdata('error') ?></span>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                            <?php if (session()->getFlashdata('success')): ?>
+                                <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                                    <div class="flex items-center">
+                                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <strong class="font-bold">Éxito: </strong>
+                                        <span class="ml-1"><?= session()->getFlashdata('success') ?></span>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                             <form method="POST" class="space-y-6" action="<?php echo base_url(); ?>/Scii/registrarGlosaGobierno" enctype="multipart/form-data">
                                 <input type="hidden" name="glosa_id" id="glosa_id" value="<?= esc($glosaSeleccionada['id_glosa_gobierno'] ?? '') ?>">
                                 <!-- Unidad Administrativa y Fecha de Corte -->
@@ -41,7 +63,7 @@
                                         </label>
                                         <input
                                             <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'readonly' : '' ?>
-                                            value="<?= esc($glosaSeleccionada['fecha_corte'] ?? '') ?>"
+                                            value="<?= old('fecha_corte', $glosaSeleccionada['fecha_corte'] ?? '') ?>"
                                             type="date"
                                             id="fecha_corte"
                                             name="fecha_corte"
@@ -64,9 +86,9 @@
                                                 required
                                                 <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
                                                 class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
-                                                <option value="" disabled <?= empty($glosaSeleccionada['id_alineacion_ped']) ? 'selected' : '' ?>>Seleccione una opción</option>
+                                                <option value="" disabled <?= empty(old('alineacionPED', $glosaSeleccionada['id_alineacion_ped'] ?? '')) ? 'selected' : '' ?>>Seleccione una opción</option>
                                                 <?php foreach ($lineas as $l): ?>
-                                                    <option value="<?= $l['id'] ?>" <?= (isset($glosaSeleccionada['id_alineacion_ped']) && $glosaSeleccionada['id_alineacion_ped'] == $l['id']) ? 'selected' : '' ?>>
+                                                    <option value="<?= $l['id'] ?>" <?= (old('alineacionPED', $glosaSeleccionada['id_alineacion_ped'] ?? '') == $l['id']) ? 'selected' : '' ?>>
                                                         <?= esc($l['codigo']) ?> —
                                                         <?= esc($l['descripcion']) ?>
                                                     </option>
@@ -90,17 +112,17 @@
                                                 required
                                                 <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
                                                 class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
-                                                <option value="" disabled <?= empty($glosaSeleccionada['id_alineacion_programa_derivado']) ? 'selected' : '' ?>>Seleccione una opción</option>
+                                                <option value="" disabled <?= empty(old('alineacionProgramasDerivados', $glosaSeleccionada['id_alineacion_programa_derivado'] ?? '')) ? 'selected' : '' ?>>Seleccione una opción</option>
                                                 <?php if ($datos['id_unidad'] == 1): ?>
                                                     <?php foreach ($lineasAgua as $la): ?>
-                                                        <option value="<?= $la['id'] ?>" <?= (isset($glosaSeleccionada['id_alineacion_programa_derivado']) && $glosaSeleccionada['id_alineacion_programa_derivado'] == $la['id']) ? 'selected' : '' ?>>
+                                                        <option value="<?= $la['id'] ?>" <?= (old('alineacionProgramasDerivados', $glosaSeleccionada['id_alineacion_programa_derivado'] ?? '') == $la['id']) ? 'selected' : '' ?>>
                                                             <?= esc($la['codigo']) ?> — <?= esc($la['descripcion']) ?>
                                                         </option>
                                                     <?php endforeach; ?>
 
                                                 <?php elseif ($datos['id_unidad'] != 1): ?>
                                                     <?php foreach ($lineasSocioambiental as $ls): ?>
-                                                        <option value="<?= $ls['id'] ?>" <?= (isset($glosaSeleccionada['id_alineacion_programa_derivado']) && $glosaSeleccionada['id_alineacion_programa_derivado'] == $ls['id']) ? 'selected' : '' ?>>
+                                                        <option value="<?= $ls['id'] ?>" <?= (old('alineacionProgramasDerivados', $glosaSeleccionada['id_alineacion_programa_derivado'] ?? '') == $ls['id']) ? 'selected' : '' ?>>
                                                             <?= esc($ls['codigo']) ?> — <?= esc($ls['descripcion']) ?>
                                                         </option>
                                                     <?php endforeach; ?>
@@ -130,9 +152,9 @@
                                                 required
                                                 <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
                                                 class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
-                                                <option value="" disabled <?= empty($glosaSeleccionada['id_alineacion_ods']) ? 'selected' : '' ?>>Seleccione una opción</option>
+                                                <option value="" disabled <?= empty(old('alineacionODS', $glosaSeleccionada['id_alineacion_ods'] ?? '')) ? 'selected' : '' ?>>Seleccione una opción</option>
                                                 <?php foreach ($odsTemas as $ods): ?>
-                                                    <option value="<?= $ods['id_tema'] ?>" <?= (isset($glosaSeleccionada['id_alineacion_ods']) && $glosaSeleccionada['id_alineacion_ods'] == $ods['id_tema']) ? 'selected' : '' ?>>
+                                                    <option value="<?= $ods['id_tema'] ?>" <?= (old('alineacionODS', $glosaSeleccionada['id_alineacion_ods'] ?? '') == $ods['id_tema']) ? 'selected' : '' ?>>
                                                         <?= $ods['codigo_meta'] ?> -
                                                         <?= $ods['tema'] ?>
                                                         (ODS <?= $ods['id_objetivo'] ?>: <?= $ods['objetivo'] ?>)
@@ -158,10 +180,10 @@
                                                 required
                                                 <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
                                                 class="block w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition duration-200">
-                                                <option value="" disabled <?= empty($glosaSeleccionada['orden_prioridad']) ? 'selected' : '' ?>>Seleccione una opción</option>
+                                                <option value="" disabled <?= empty(old('ordenPrioridad', $glosaSeleccionada['orden_prioridad'] ?? '')) ? 'selected' : '' ?>>Seleccione una opción</option>
                                                 <?php for ($i = 1; $i <= 10; $i++): ?>
                                                     <option value="<?= $i ?>"
-                                                        <?= (isset($glosaSeleccionada['orden_prioridad']) && (int)$glosaSeleccionada['orden_prioridad'] === $i) ? 'selected' : '' ?>>
+                                                        <?= (old('ordenPrioridad', $glosaSeleccionada['orden_prioridad'] ?? '') == $i) ? 'selected' : '' ?>>
                                                         <?= $i ?>
                                                     </option>
                                                 <?php endfor; ?>
@@ -190,7 +212,7 @@
                                             name="tema"
                                             maxlength="100"
                                             required
-                                            value="<?= esc($glosaSeleccionada['tema'] ?? '') ?>"
+                                            value="<?= old('tema', $glosaSeleccionada['tema'] ?? '') ?>"
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese el tema de la glosa">
                                         <?php if (!empty($glosaSeleccionada['id_glosa_gobierno'])): ?>
@@ -223,7 +245,7 @@
                                             name="introduccion"
                                             maxlength="100"
                                             required
-                                            value="<?= esc($glosaSeleccionada['introduccion'] ?? '') ?>"
+                                            value="<?= old('introduccion', $glosaSeleccionada['introduccion'] ?? '') ?>"
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese la introducción al tema">
                                         <?php if (!empty($glosaSeleccionada['id_glosa_gobierno'])): ?>
@@ -255,7 +277,7 @@
                                             name="accion"
                                             maxlength="100"
                                             required
-                                            value="<?= esc($glosaSeleccionada['accion'] ?? '') ?>"
+                                            value="<?= old('accion', $glosaSeleccionada['accion'] ?? '') ?>"
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
                                             placeholder="Ingrese la acción">
                                         <?php if (!empty($glosaSeleccionada['id_glosa_gobierno'])): ?>
@@ -288,7 +310,7 @@
                                             required
                                             rows="18"
                                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 block w-full p-3 transition duration-200"
-                                            placeholder="Ingrese el desarrollo del resultado"><?= esc($glosaSeleccionada['desarrollo'] ?? '') ?></textarea>
+                                            placeholder="Ingrese el desarrollo del resultado"><?= old('desarrollo', $glosaSeleccionada['desarrollo'] ?? '') ?></textarea>
                                         <?php if (!empty($glosaSeleccionada['id_glosa_gobierno'])): ?>
                                             <button
                                                 type="button"
@@ -322,7 +344,7 @@
                                                     id="mapas"
                                                     name="mapas[]"
                                                     multiple
-                                                    accept=".xls,.xlsx"
+                                                    accept=".xls,.xlsx,.zip"
                                                     class="hidden"
                                                     onchange="updateFileNames(this)">
                                                 <label
@@ -337,7 +359,7 @@
                                                                 Seleccionar archivos
                                                             </span>
                                                         </div>
-                                                        <p class="text-xs text-gray-500 mt-1">Excel hasta 10MB</p>
+                                                        <p class="text-xs text-gray-500 mt-1">Excel hasta 30MB</p>
                                                     </div>
                                                 </label>
                                             </div>
@@ -355,7 +377,7 @@
                                                     id="graficas"
                                                     name="graficas[]"
                                                     multiple
-                                                    accept=".xls,.xlsx"
+                                                    accept=".xls,.xlsx,.zip"
                                                     class="hidden"
                                                     onchange="updateFileNames(this)">
                                                 <label
@@ -370,7 +392,7 @@
                                                                 Seleccionar archivos
                                                             </span>
                                                         </div>
-                                                        <p class="text-xs text-gray-500 mt-1">Excel hasta 10MB</p>
+                                                        <p class="text-xs text-gray-500 mt-1">Excel hasta 30MB</p>
                                                     </div>
                                                 </label>
                                             </div>
@@ -388,7 +410,7 @@
                                                     id="cuadros"
                                                     name="cuadros[]"
                                                     multiple
-                                                    accept=".xls,.xlsx"
+                                                    accept=".xls,.xlsx,.zip"
                                                     class="hidden"
                                                     onchange="updateFileNames(this)">
                                                 <label
@@ -403,7 +425,7 @@
                                                                 Seleccionar archivos
                                                             </span>
                                                         </div>
-                                                        <p class="text-xs text-gray-500 mt-1">Excel hasta 10MB</p>
+                                                        <p class="text-xs text-gray-500 mt-1">Excel hasta 30MB</p>
                                                     </div>
                                                 </label>
                                             </div>
@@ -421,7 +443,7 @@
                                                     id="esquemas"
                                                     name="esquemas[]"
                                                     multiple
-                                                    accept=".ppt,.pptx"
+                                                    accept=".ppt,.pptx,.zip"
                                                     class="hidden"
                                                     onchange="updateFileNames(this)">
                                                 <label
@@ -436,7 +458,7 @@
                                                                 Seleccionar archivos
                                                             </span>
                                                         </div>
-                                                        <p class="text-xs text-gray-500 mt-1">PowerPoint hasta 10MB</p>
+                                                        <p class="text-xs text-gray-500 mt-1">PowerPoint hasta 30MB</p>
                                                     </div>
                                                 </label>
                                             </div>
@@ -469,7 +491,7 @@
                                                                 Seleccionar archivos
                                                             </span>
                                                         </div>
-                                                        <p class="text-xs text-gray-500 mt-1">ZIP o RAR hasta 10MB</p>
+                                                        <p class="text-xs text-gray-500 mt-1">ZIP o RAR hasta 30MB</p>
                                                     </div>
                                                 </label>
                                             </div>
@@ -487,7 +509,7 @@
                                                     id="resultados"
                                                     name="resultados[]"
                                                     multiple
-                                                    accept=".doc,.docx"
+                                                    accept=".doc,.docx,.zip"
                                                     class="hidden"
                                                     onchange="updateFileNames(this)">
                                                 <label
@@ -502,7 +524,7 @@
                                                                 Seleccionar archivos
                                                             </span>
                                                         </div>
-                                                        <p class="text-xs text-gray-500 mt-1">Word hasta 10MB</p>
+                                                        <p class="text-xs text-gray-500 mt-1">Word hasta 30MB</p>
                                                     </div>
                                                 </label>
                                             </div>
