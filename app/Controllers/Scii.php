@@ -1809,17 +1809,17 @@ class Scii extends BaseController
                 throw new \Exception('La transacción de base de datos falló');
             }
             // Agregar correo de confirmacion de envio de informe.
-            $email = \Config\Services::email();
-            $email->setTo($this->session->correo);
-            $email->setSubject('Captura de resultados institucionales para Glosa de Informe de Gobierno | SMADSOT');
-            $email->setMessage('Estimado/a enlace, por este medio se informa la que <strong>Dirección de Planeación y Geomática ha recibido la información capturada de resultados institucionales</strong> de su Unidad Administrativa en el módulo de “Glosa del Informe de Gobierno” del Sistema de Control Interno Institucional de la Secretaría de Medio Ambiente, Desarrollo Sustentable y Ordenamiento Territorial.
-            <br><br>
-            <u>Te solicitamos estar pendiente de tu correo electrónico institucional durante el proceso de revisión</u> por parte del Departamento de Planeación y Evaluación, en caso de que se requiera el apoyo para solventar observaciones y/o comentarios..
-                            <br><br>
-                            Sin otro particular, se agradece la atención prestada.');
-            if (! $email->send(false)) {
-                echo $email->printDebugger(['headers', 'subject', 'body']);
-            }
+            // $email = \Config\Services::email();
+            // $email->setTo($this->session->correo);
+            // $email->setSubject('Captura de resultados institucionales para Glosa de Informe de Gobierno | SMADSOT');
+            // $email->setMessage('Estimado/a enlace, por este medio se informa la que <strong>Dirección de Planeación y Geomática ha recibido la información capturada de resultados institucionales</strong> de su Unidad Administrativa en el módulo de “Glosa del Informe de Gobierno” del Sistema de Control Interno Institucional de la Secretaría de Medio Ambiente, Desarrollo Sustentable y Ordenamiento Territorial.
+            // <br><br>
+            // <u>Te solicitamos estar pendiente de tu correo electrónico institucional durante el proceso de revisión</u> por parte del Departamento de Planeación y Evaluación, en caso de que se requiera el apoyo para solventar observaciones y/o comentarios..
+            //                 <br><br>
+            //                 Sin otro particular, se agradece la atención prestada.');
+            // if (! $email->send(false)) {
+            //     echo $email->printDebugger(['headers', 'subject', 'body']);
+            // }
             return redirect()->to('/Scii/glosa')
                 ->with('success', 'Glosa registrada correctamente con ' . count($archivosGuardados) . ' archivo(s)');
 

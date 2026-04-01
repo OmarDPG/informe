@@ -569,7 +569,7 @@
                     <?php if (!empty($glosas)): ?>
                         <?php foreach ($glosas as $glo): ?>
                         <?php
-                            switch ($inf['estado']) {
+                            switch ($glo['estado']) {
                                 case 'borrador':
                                     $estadoClases = 'bg-yellow-100 text-yellow-700';
                                     break;
