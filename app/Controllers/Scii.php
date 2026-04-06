@@ -1543,6 +1543,20 @@ class Scii extends BaseController
             ->where('id_usuario', $this->session->id_usuario)
             ->first();
 
+        $usuario = $this->usuarios
+            ->where('id_usuario', $this->session->id_usuario)
+            ->first();
+
+        $nombreAutor = 'Usuario';
+        if ($usuario) {
+            // Puedes ajustar el formato como quieras
+            $nombreAutor = trim(
+                ($usuario['nombre_s'] ?? '') . ' ' .
+                ($usuario['apellido_p'] ?? '') . ' ' .
+                ($usuario['apellido_m'] ?? '')
+            );
+        }
+
         try {
             if ($comentarioExistente) {
                 // Actualizar comentario existente
@@ -1556,8 +1570,9 @@ class Scii extends BaseController
                     ]);
                 } else {
                     // Actualizar
+                    $comentarioFinal = $nombreAutor . ': ' . trim($comentario);
                     $this->informeComentarios->update($comentarioExistente['id_comentario'], [
-                        'comentario' => $comentario,
+                        'comentario' => $comentarioFinal,
                         'tipo' => $tipo,
                         'updated_at' => date('Y-m-d H:i:s')
                     ]);
@@ -1571,11 +1586,12 @@ class Scii extends BaseController
             } else {
                 // Crear nuevo comentario solo si hay texto
                 if (!empty($comentario)) {
+                    $comentarioFinal = $nombreAutor . ': ' . trim($comentario);
                     $id_comentario = $this->informeComentarios->insert([
                         'id_informe' => $id_informe,
                         'id_usuario' => $this->session->id_usuario,
                         'campo_referencia' => $campo_referencia,
-                        'comentario' => $comentario,
+                        'comentario' => $comentarioFinal,
                         'tipo' => $tipo,
                         'estado' => 'activo',
                         'created_at' => date('Y-m-d H:i:s')

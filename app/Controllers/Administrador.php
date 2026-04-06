@@ -2999,8 +2999,9 @@ class Administrador extends BaseController
                     ]);
                 } else {
                     // Actualizar
+                    $comentarioFinal = 'Admin: ' . trim($comentario);
                     $this->informeComentarios->update($comentarioExistente['id_comentario'], [
-                        'comentario' => $comentario,
+                        'comentario' => $comentarioFinal,
                         'tipo' => $tipo,
                         'updated_at' => date('Y-m-d H:i:s')
                     ]);
@@ -3014,11 +3015,12 @@ class Administrador extends BaseController
             } else {
                 // Crear nuevo comentario solo si hay texto
                 if (!empty($comentario)) {
+                    $comentarioFinal = 'Admin: ' . trim($comentario);
                     $id_comentario = $this->informeComentarios->insert([
                         'id_informe' => $id_informe,
                         'id_usuario' => $this->session->id_usuario,
                         'campo_referencia' => $campo_referencia,
-                        'comentario' => $comentario,
+                        'comentario' => $comentarioFinal,
                         'tipo' => $tipo,
                         'estado' => 'activo',
                         'created_at' => date('Y-m-d H:i:s')

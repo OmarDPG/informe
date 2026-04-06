@@ -895,6 +895,15 @@
 
         <p class="text-sm text-gray-600 mb-3" id="modalFieldLabel"></p>
 
+        <div id="comentarioAnteriorContainer" class="mb-3 hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+                Observación:
+            </label>
+            <div id="comentarioAnterior"
+                class="bg-gray-100 border border-gray-200 p-3 rounded text-sm text-gray-800">
+            </div>
+        </div>
+
         <textarea
             id="commentText"
             rows="4"
@@ -1039,6 +1048,8 @@
     const commentText = document.getElementById('commentText');
     const saveBtn = document.getElementById('saveComment');
     const cancelBtn = document.getElementById('cancelComment');
+    const comentarioAnteriorContainer = document.getElementById('comentarioAnteriorContainer');
+    const comentarioAnterior = document.getElementById('comentarioAnterior');
 
     let currentField = null;
     let currentButton = null;
@@ -1062,7 +1073,15 @@
 
                 modalTitle.textContent = 'Comentario';
                 modalFieldLabel.textContent = `Campo: ${btn.dataset.label}`;
-                commentText.value = comments[currentField] || '';
+                const comentario = comments[currentField] || '';
+                if (comentario) {
+                    comentarioAnteriorContainer.classList.remove('hidden');
+                    comentarioAnterior.textContent = comentario;
+                    commentText.value = '';
+                } else {
+                    comentarioAnteriorContainer.classList.add('hidden');
+                    commentText.value = '';
+                }
                 
                 // Deshabilitar controles si el informe no está en estado observado
                 if (!puedeEditarComentarios) {
