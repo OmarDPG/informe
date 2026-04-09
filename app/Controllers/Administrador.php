@@ -30,20 +30,6 @@ use App\Models\LineasAccionModel;
 use App\Models\ObjetivosModel;
 use App\Models\TematicasModel;
 
-// use App\Models\ProgramaSectorialAguaModel;
-// use App\Models\EjesAguaModel;
-// use App\Models\EstrategiasAguaModel;
-// use App\Models\LineasAccionAguaModel;
-// use App\Models\ObjetivosAguaModel;
-// use App\Models\TematicasAguaModel;
-
-// use App\Models\ProgramaSectorialSocioambientalModel;
-// use App\Models\EjesSocioambientalModel;
-// use App\Models\EstrategiasSocioambientalModel;
-// use App\Models\LineasAccionSocioambientalModel;
-// use App\Models\ObjetivosSocioambientalModel;
-// use App\Models\TematicasSocioambientalModel;
-
 use App\Models\ProgramaSectorialInformeModel;
 use App\Models\EjesInformeModel;
 use App\Models\EstrategiasInformeModel;
@@ -66,8 +52,6 @@ class Administrador extends BaseController
         $reglasCargaBas, $reglasCargaPTCI, $reglasCargaPTAR, $reglasCargaCE, $glosa,
         $periodosAnuales, $etapas, $glosaGestion, $glosaArchivos, $glosaComentarios, $glosasGobierno, $informesGobierno, $informeArchivos, $informeComentarios,
         $ejes, $estrategias, $lineasAccion, $objetivos, $tematicas,
-        // $programaSectorialSocioambiental, $ejesSocioambiental, $estrategiasSocioambiental, $lineasAccionSocioambiental, $objetivosSocioambiental, $tematicasSocioambiental,
-        // $programaSectorialAgua, $ejesAgua, $estrategiasAgua, $lineasAccionAgua, $objetivosAgua, $tematicasAgua,
         $programaSectorialInforme, $ejesInforme, $estrategiasInforme, $lineasAccionInforme, $objetivosInforme, $tematicasInforme,
         $odsMetas, $odsObjetivos, $odsTemas;
     public function __construct()
@@ -95,18 +79,6 @@ class Administrador extends BaseController
         $this->lineasAccion = new LineasAccionModel();
         $this->objetivos = new ObjetivosModel();
         $this->tematicas = new TematicasModel();
-        // $this->ejesAgua = new EjesAguaModel();
-        // $this->estrategiasAgua = new EstrategiasAguaModel();
-        // $this->lineasAccionAgua = new LineasAccionAguaModel();
-        // $this->objetivosAgua = new ObjetivosAguaModel();
-        // $this->tematicasAgua = new TematicasAguaModel();
-        // $this->programaSectorialAgua = new ProgramaSectorialAguaModel();
-        // $this->ejesSocioambiental = new EjesSocioambientalModel();
-        // $this->estrategiasSocioambiental = new EstrategiasSocioambientalModel();
-        // $this->lineasAccionSocioambiental = new LineasAccionSocioambientalModel();
-        // $this->objetivosSocioambiental = new ObjetivosSocioambientalModel();
-        // $this->tematicasSocioambiental = new TematicasSocioambientalModel();
-        // $this->programaSectorialSocioambiental = new ProgramaSectorialSocioambientalModel();
         $this->ejesInforme = new EjesInformeModel();
         $this->estrategiasInforme = new EstrategiasInformeModel();
         $this->lineasAccionInforme = new LineasAccionInformeModel();
@@ -3634,17 +3606,6 @@ class Administrador extends BaseController
         }
 
         $db = \Config\Database::connect();
-        // $builder = $db->table('glosa_comentarios');
-        // $builder->select('glosa_comentarios.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m');
-        // $builder->join('usuarios', 'usuarios.id_usuario = glosa_comentarios.id_usuario', 'left');
-        // $builder->where('glosa_comentarios.id_glosa_gobierno', $id_glosa_gobierno);
-
-        // if ($campo_referencia) {
-        //     $builder->where('glosa_comentarios.campo_referencia', $campo_referencia);
-        // }
-
-        // $builder->orderBy('glosa_comentarios.created_at', 'DESC');
-        // $comentarios = $builder->get()->getResultArray();
         $sql = "
             SELECT gc.*, u.nombre_s, u.apellido_p, u.apellido_m
             FROM glosa_comentarios gc
