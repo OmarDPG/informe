@@ -853,35 +853,35 @@ class Scii extends BaseController
                 ->where('id_informe', $id_informe)
                 ->where('id_periodo_anual', $idPeriodoActivo)
                 ->first();
-            $queryResult = $builder->get();
-            $informe = $queryResult->getRowArray();
-            $archivos = [];
-            if ($informe) {
-                $archivosBuilder = $db->table('informe_archivos');
-                $archivosBuilder->where('id_informe', $informe['id_informe']);
-                $archivosBuilder->orderBy('created_at', 'DESC');
-                $archivosResult = $archivosBuilder->get();
-                $archivos = $archivosResult->getResultArray();
-            }
-            // Obtener comentarios relacionados (si existen en la base de datos)
-            $comentarios = [];
-            if ($informe) {
-                $comentariosBuilder = $db->table('informe_comentarios');
-                $comentariosBuilder->select('informe_comentarios.*');
-                // $comentariosBuilder->join('usuarios', 'usuarios.id_usuario = informe_comentarios.id_usuario', 'left');
-                $comentariosBuilder->where('id_informe', $id_informe);
-                $comentariosBuilder->orderBy('created_at', 'DESC');
-                $comentariosResult = $comentariosBuilder->get();
-                $comentarios = $comentariosResult->getResultArray();
-            }
+            
             if (!$informesGobierno) {
                 return redirect()->to(base_url('scii/informe/'))
                     ->with('mensaje', 'Informe no encontrado.');
             }
+            
             if ($informesGobierno['id_unidad'] != $usuario['id_unidad']) {
                 return redirect()->to(base_url('scii/informe/'))
                     ->with('mensaje', 'No tienes permiso para ver este informe.');
             }
+            
+            // Obtener archivos del informe
+            $archivos = [];
+            $archivosBuilder = $db->table('informe_archivos');
+            $archivosBuilder->where('id_informe', $id_informe);
+            $archivosBuilder->orderBy('created_at', 'DESC');
+            $archivosResult = $archivosBuilder->get();
+            $archivos = $archivosResult->getResultArray();
+            
+            // Obtener comentarios relacionados
+            $comentarios = [];
+            $comentariosBuilder = $db->table('informe_comentarios');
+            $comentariosBuilder->select('informe_comentarios.*');
+            // $comentariosBuilder->join('usuarios', 'usuarios.id_usuario = informe_comentarios.id_usuario', 'left');
+            $comentariosBuilder->where('id_informe', $id_informe);
+            $comentariosBuilder->orderBy('created_at', 'DESC');
+            $comentariosResult = $comentariosBuilder->get();
+            $comentarios = $comentariosResult->getResultArray();
+            
             $datos['informeSeleccionado'] = $informesGobierno;
         }
         $datos = [
