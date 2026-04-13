@@ -3044,12 +3044,12 @@ class Administrador extends BaseController
             $builder->join('usuarios', 'usuarios.id_usuario = informe_comentarios.id_usuario', 'left');
             $builder->where('informe_comentarios.id_informe', $id_informe);
             $builder->where('informe_comentarios.campo_referencia', $campo_referencia);
-            $builder->orderBy('informe_comentarios.created_at', 'DESC');
+            $builder->orderBy('informe_comentarios.updated_at', 'DESC');
             $comentarios = $builder->get()->getResultArray();
         } else {
             // Si no se especifica campo, obtener el último comentario de cada campo
             $subquery = $db->table('informe_comentarios')
-                ->select('campo_referencia, MAX(created_at) as max_created_at')
+                ->select('campo_referencia, MAX(updated_at) as max_updated_at')
                 ->where('id_informe', $id_informe)
                 ->groupBy('campo_referencia')
                 ->getCompiledSelect();
@@ -3058,10 +3058,10 @@ class Administrador extends BaseController
             $builder->select('ic.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m');
             $builder->join('usuarios', 'usuarios.id_usuario = ic.id_usuario', 'left');
             $builder->join("($subquery) as latest", 
-                'ic.campo_referencia = latest.campo_referencia AND ic.created_at = latest.max_created_at', 
+                'ic.campo_referencia = latest.campo_referencia AND ic.updated_at = latest.max_updated_at', 
                 'inner');
             $builder->where('ic.id_informe', $id_informe);
-            $builder->orderBy('ic.created_at', 'DESC');
+            $builder->orderBy('ic.updated_at', 'DESC');
             $comentarios = $builder->get()->getResultArray();
         }
 
