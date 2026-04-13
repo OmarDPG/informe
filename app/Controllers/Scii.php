@@ -1297,25 +1297,10 @@ class Scii extends BaseController
                         $rutaRelativa = "uploads/informes/$informeId/$tipoInput/";
                         $rutaAbsoluta = WRITEPATH . $rutaRelativa;
 
-                        // Crear directorio si no existe
-                        if (!is_dir($rutaAbsoluta)) {
-                            if (!mkdir($rutaAbsoluta, 0755, true)) {
-                                throw new \Exception("No se pudo crear el directorio: $rutaAbsoluta");
-                            }
-                        }
-                        // Mover archivo manualmente usando move_uploaded_file
-                        $rutaCompletaAbsoluta = $rutaAbsoluta . $newName;
-                        $rutaCompletaRelativa = $rutaRelativa . $newName;
+                        // Preparar datos para BD PRIMERO (antes de mover archivo físico)
+                        $rutaCompletaAbsoluta = WRITEPATH . "uploads/informes/$informeId/$tipoInput/" . $newName;
+                        $rutaCompletaRelativa = "uploads/informes/$informeId/$tipoInput/" . $newName;
                         
-                        if (!move_uploaded_file($tmpName, $rutaCompletaAbsoluta)) {
-                            throw new \Exception("Error al mover el archivo: {$nombreOriginal}");
-                        }
-
-                        // Verificar que el archivo se movió correctamente
-                        if (!file_exists($rutaCompletaAbsoluta)) {
-                            throw new \Exception("El archivo no existe después de moverlo: $rutaCompletaAbsoluta");
-                        }
-                        // Guardar registro en BD con ruta relativa
                         $archivoData = [
                             'id_informe' => $informeId,
                             'tipo_archivo' => $tipoEnum,
@@ -1329,13 +1314,40 @@ class Scii extends BaseController
                             'estado' => 'activo'
                         ];
 
+                        // PASO 1: Insertar en BD primero
                         $archivoInsertResult = $this->informeArchivos->insert($archivoData);
 
                         if ($archivoInsertResult === false) {
                             throw new \Exception("Error al registrar archivo en BD: {$nombreOriginal} - " . json_encode($this->informeArchivos->errors()));
                         }
 
-                        // Guardar referencia para limpieza en caso de error (usar ruta absoluta)
+                        $idArchivoInsertado = $this->informeArchivos->getInsertID();
+
+                        // PASO 2: Ahora sí, crear directorio y mover archivo físico
+                        $rutaAbsoluta = WRITEPATH . "uploads/informes/$informeId/$tipoInput/";
+                        
+                        if (!is_dir($rutaAbsoluta)) {
+                            if (!mkdir($rutaAbsoluta, 0755, true)) {
+                                // Si falla crear directorio, eliminar registro de BD
+                                $this->informeArchivos->delete($idArchivoInsertado);
+                                throw new \Exception("No se pudo crear el directorio: $rutaAbsoluta");
+                            }
+                        }
+                        
+                        if (!move_uploaded_file($tmpName, $rutaCompletaAbsoluta)) {
+                            // Si falla mover archivo, eliminar registro de BD
+                            $this->informeArchivos->delete($idArchivoInsertado);
+                            throw new \Exception("Error al mover el archivo: {$nombreOriginal}");
+                        }
+
+                        // Verificar que el archivo se movió correctamente
+                        if (!file_exists($rutaCompletaAbsoluta)) {
+                            // Si el archivo no existe, eliminar registro de BD
+                            $this->informeArchivos->delete($idArchivoInsertado);
+                            throw new \Exception("El archivo no existe después de moverlo: $rutaCompletaAbsoluta");
+                        }
+
+                        // Guardar referencia para limpieza en caso de error posterior
                         $archivosGuardados[] = $rutaCompletaAbsoluta;
                     }
                 }
@@ -2090,31 +2102,11 @@ class Scii extends BaseController
                         $tamanioKB = round($fileSize / 1024, 2);
                         $newName = uniqid() . '_' . bin2hex(random_bytes(10)) . '.' . $extension;
 
-                        // Definir ruta relativa y absoluta
-                        $rutaRelativa = "uploads/glosas/$glosaId/$tipoInput/";
-                        $rutaAbsoluta = WRITEPATH . $rutaRelativa;
-
-                        // Crear directorio si no existe
-                        if (!is_dir($rutaAbsoluta)) {
-                            if (!mkdir($rutaAbsoluta, 0755, true)) {
-                                throw new \Exception("No se pudo crear el directorio: {$rutaAbsoluta}");
-                            }
-                        }
-
-                        // Mover archivo
-                        $rutaCompletaAbsoluta = $rutaAbsoluta . $newName;
-                        $rutaCompletaRelativa = $rutaRelativa . $newName;
-
-                        if (!move_uploaded_file($tmpName, $rutaCompletaAbsoluta)) {
-                            throw new \Exception("Error al mover el archivo: {$nombreOriginal}");
-                        }
-
-                        // Verificar que se movió
-                        if (!file_exists($rutaCompletaAbsoluta)) {
-                            throw new \Exception("El archivo no existe después de moverlo: {$rutaCompletaAbsoluta}");
-                        }
-
-                        // Guardar registro en BD con ruta relativa
+                        // Preparar rutas
+                        $rutaCompletaAbsoluta = WRITEPATH . "uploads/glosas/$glosaId/$tipoInput/" . $newName;
+                        $rutaCompletaRelativa = "uploads/glosas/$glosaId/$tipoInput/" . $newName;
+                        
+                        // Preparar datos para BD
                         $archivoData = [
                             'id_glosa_gobierno' => $glosaId,
                             'tipo_archivo' => $tipoEnum,
@@ -2128,14 +2120,40 @@ class Scii extends BaseController
                             'estado' => 'activo'
                         ];
 
+                        // PASO 1: Insertar en BD primero
                         $archivoInsertResult = $this->glosaArchivos->insert($archivoData);
 
                         if ($archivoInsertResult === false) {
-                            throw new \Exception(
-                                "Error al registrar archivo en BD: {$nombreOriginal} - " . json_encode($this->glosaArchivos->errors()));
+                            throw new \Exception("Error al registrar archivo en BD: {$nombreOriginal} - " . json_encode($this->glosaArchivos->errors()));
                         }
 
-                        // Guardar referencia física para limpieza en caso de error (usar ruta absoluta)
+                        $idArchivoInsertado = $this->glosaArchivos->getInsertID();
+
+                        // PASO 2: Ahora sí, crear directorio y mover archivo físico
+                        $rutaAbsoluta = WRITEPATH . "uploads/glosas/$glosaId/$tipoInput/";
+
+                        if (!is_dir($rutaAbsoluta)) {
+                            if (!mkdir($rutaAbsoluta, 0755, true)) {
+                                // Si falla crear directorio, eliminar registro de BD
+                                $this->glosaArchivos->delete($idArchivoInsertado);
+                                throw new \Exception("No se pudo crear el directorio: {$rutaAbsoluta}");
+                            }
+                        }
+
+                        if (!move_uploaded_file($tmpName, $rutaCompletaAbsoluta)) {
+                            // Si falla mover archivo, eliminar registro de BD
+                            $this->glosaArchivos->delete($idArchivoInsertado);
+                            throw new \Exception("Error al mover el archivo: {$nombreOriginal}");
+                        }
+
+                        // Verificar que se movió
+                        if (!file_exists($rutaCompletaAbsoluta)) {
+                            // Si el archivo no existe, eliminar registro de BD
+                            $this->glosaArchivos->delete($idArchivoInsertado);
+                            throw new \Exception("El archivo no existe después de moverlo: {$rutaCompletaAbsoluta}");
+                        }
+
+                        // Guardar referencia física para limpieza en caso de error posterior
                         $archivosGuardados[] = $rutaCompletaAbsoluta;
                     }
                 }
