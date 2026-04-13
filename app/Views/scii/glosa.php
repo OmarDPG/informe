@@ -576,6 +576,9 @@
                                 case 'enviado':
                                     $estadoClases = 'bg-blue-100 text-blue-700';
                                     break;
+                                case 'observado':
+                                    $estadoClases = 'bg-orange-100 text-orange-700';
+                                    break;
                                 case 'aprobado':
                                     $estadoClases = 'bg-green-100 text-green-700';
                                     break;
