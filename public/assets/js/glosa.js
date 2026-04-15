@@ -1,3 +1,59 @@
+// Función para eliminar archivos existentes
+function eliminarArchivoExistente(idArchivo, botonElemento) {
+    if (!confirm('¿Está seguro de que desea eliminar este archivo? Esta acción no se puede deshacer.')) {
+        return;
+    }
+
+    // Deshabilitar el botón mientras se procesa
+    const botonOriginal = botonElemento.innerHTML;
+    botonElemento.disabled = true;
+    botonElemento.innerHTML = '<svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+
+    // Construir la URL correctamente usando BASE_URL
+    const baseUrl = typeof BASE_URL !== 'undefined' ? BASE_URL : '';
+    const url = `${baseUrl}/scii/eliminarArchivoGlosa/${idArchivo}`;
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('La respuesta del servidor no es JSON válido');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Encontrar el contenedor del archivo y eliminarlo con animación
+            const archivoElemento = botonElemento.closest('.flex.items-center.justify-between');
+            if (archivoElemento) {
+                archivoElemento.style.transition = 'opacity 0.3s ease-out';
+                archivoElemento.style.opacity = '0';
+                setTimeout(() => {
+                    archivoElemento.remove();
+                }, 300);
+            }
+
+            // Mostrar mensaje de éxito
+            alert(data.message || 'Archivo eliminado correctamente');
+        } else {
+            throw new Error(data.message || 'Error al eliminar el archivo');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al eliminar el archivo: ' + error.message);
+        // Restaurar el botón
+        botonElemento.disabled = false;
+        botonElemento.innerHTML = botonOriginal;
+    });
+}
+
 // Función para obtener el contenedor de lista según el input
 function getFileListForInput(input) {
     if (!input || !input.id) {

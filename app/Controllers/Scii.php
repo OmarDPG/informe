@@ -1425,6 +1425,104 @@ class Scii extends BaseController
             'comentarios' => $comentarios
         ]);
     }
+    
+    /**
+     * Eliminar archivo de informe
+     */
+    public function eliminarArchivoInforme($idArchivo = null)
+    {
+        // Asegurar que la respuesta sea JSON
+        $this->response->setContentType('application/json');
+        
+        // Validar sesión
+        if (!isset($this->session->id_usuario)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Sesión no válida'
+            ]);
+        }
+        
+        // Validar que tenga permisos para acceder al informe
+        $usuario = $this->usuarios->where([
+            'id_usuario'  => $this->session->id_usuario,
+            'loadinforme' => 1,
+            'informe'     => 1
+        ])->first();
+        
+        if (!$usuario) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'No tienes acceso a esta sección'
+            ]);
+        }
+        
+        // Validar ID de archivo
+        if (empty($idArchivo) || !is_numeric($idArchivo)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'ID de archivo no válido'
+            ]);
+        }
+        
+        try {
+            // Obtener información del archivo
+            $archivo = $this->informeArchivos
+                ->where('id_archivo', $idArchivo)
+                ->first();
+            
+            if (!$archivo) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Archivo no encontrado'
+                ]);
+            }
+            
+            // Verificar que el archivo pertenece a un informe de la unidad del usuario
+            $informe = $this->informesGobierno
+                ->where('id_informe', $archivo['id_informe'])
+                ->where('id_unidad', $usuario['id_unidad'])
+                ->first();
+            
+            if (!$informe) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'No tienes permiso para eliminar este archivo'
+                ]);
+            }
+            
+            // Verificar que el informe esté en un estado que permita edición
+            if (!empty($informe['estado']) && $informe['estado'] !== 'observado' && $informe['estado'] !== null) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'El informe no permite eliminar archivos en su estado actual'
+                ]);
+            }
+            
+            // Eliminar el archivo físico
+            $rutaArchivo = WRITEPATH . $archivo['ruta_archivo'];
+            if (file_exists($rutaArchivo)) {
+                if (!@unlink($rutaArchivo)) {
+                    log_message('warning', "No se pudo eliminar el archivo físico: $rutaArchivo");
+                }
+            }
+            
+            // Eliminar el registro de la base de datos
+            $this->informeArchivos->delete($idArchivo);
+            
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Archivo eliminado exitosamente'
+            ]);
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Error al eliminar archivo: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al eliminar el archivo: ' . $e->getMessage()
+            ]);
+        }
+    }
+    
     public function getInformes()
     {
         // Validar sesión
@@ -2193,17 +2291,6 @@ class Scii extends BaseController
         }
 
         $db = \Config\Database::connect();
-        // $builder = $db->table('glosa_comentarios');
-        // $builder->select('glosa_comentarios.*, usuarios.nombre_s, usuarios.apellido_p, usuarios.apellido_m');
-        // $builder->join('usuarios', 'usuarios.id_usuario = glosa_comentarios.id_usuario', 'left');
-        // $builder->where('glosa_comentarios.id_glosa_gobierno', $id_glosa_gobierno);
-
-        // if (!empty($campo_referencia)) {
-        //     $builder->where('glosa_comentarios.campo_referencia', $campo_referencia);
-        // }
-
-        // $builder->orderBy('glosa_comentarios.created_at', 'DESC');
-        // $comentarios = $builder->get()->getResultArray();
         $sql = "
             SELECT gc.*, u.nombre_s, u.apellido_p, u.apellido_m
             FROM glosa_comentarios gc
@@ -2442,4 +2529,186 @@ class Scii extends BaseController
         }
     }
 
+    public function eliminarArchivoGlosa($idArchivo)
+    {
+        // Validar sesión
+        if (!isset($this->session->id_usuario)) {
+            return $this->response
+                ->setContentType('application/json')
+                ->setJSON(['success' => false, 'message' => 'Sesión no válida']);
+        }
+
+        // Validar permisos para glosa
+        $usuario = $this->usuarios->where([
+            'id_usuario' => $this->session->id_usuario,
+            'loadglosa' => 1,
+            'glosa' => 1
+        ])->first();
+
+        if (!$usuario) {
+            return $this->response
+                ->setContentType('application/json')
+                ->setJSON(['success' => false, 'message' => 'No tienes permiso para esta acción']);
+        }
+
+        try {
+            // Buscar el archivo en la base de datos
+            $archivo = $this->glosaArchivos->find($idArchivo);
+
+            if (!$archivo) {
+                return $this->response
+                    ->setContentType('application/json')
+                    ->setJSON(['success' => false, 'message' => 'Archivo no encontrado']);
+            }
+
+            // Buscar la glosa asociada
+            $glosa = $this->glosasGobierno->find($archivo['id_glosa_gobierno']);
+
+            if (!$glosa) {
+                return $this->response
+                    ->setContentType('application/json')
+                    ->setJSON(['success' => false, 'message' => 'Glosa no encontrada']);
+            }
+
+            // Verificar que la glosa pertenece a la unidad del usuario
+            if ($glosa['id_unidad'] != $usuario['id_unidad']) {
+                return $this->response
+                    ->setContentType('application/json')
+                    ->setJSON(['success' => false, 'message' => 'No tienes permiso para eliminar este archivo']);
+            }
+
+            // Verificar que la glosa esté en estado 'observado' o sin estado (permitir eliminación)
+            if (!empty($glosa['estado']) && $glosa['estado'] !== 'observado') {
+                return $this->response
+                    ->setContentType('application/json')
+                    ->setJSON(['success' => false, 'message' => 'Solo se pueden eliminar archivos de glosas en estado "observado"']);
+            }
+
+            // Construir ruta física del archivo
+            $rutaRelativa = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $archivo['ruta_archivo']);
+            $rutaFisica = WRITEPATH . $rutaRelativa;
+
+            // Intentar eliminar el archivo físico
+            if (file_exists($rutaFisica)) {
+                if (!unlink($rutaFisica)) {
+                    log_message('warning', "No se pudo eliminar el archivo físico: {$rutaFisica}");
+                }
+            }
+
+            // Eliminar registro de la base de datos
+            $this->glosaArchivos->delete($idArchivo);
+
+            return $this->response
+                ->setContentType('application/json')
+                ->setJSON([
+                    'success' => true,
+                    'message' => 'Archivo eliminado correctamente'
+                ]);
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error al eliminar archivo de glosa: ' . $e->getMessage());
+            return $this->response
+                ->setContentType('application/json')
+                ->setJSON([
+                    'success' => false,
+                    'message' => 'Error al eliminar el archivo: ' . $e->getMessage()
+                ]);
+        }
+    }
+
+
+
+    public function descargarArchivoInforme($id_archivo)
+    {
+        if (!isset($this->session->id_usuario)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Sesión no válida']);
+        }
+        // // Validar sesión y permisos
+        // if (!isset($this->session->id_usuario)) {
+        //     return redirect()->to(base_url())->with('error', 'No autorizado');
+        // }
+
+        // if ($this->session->adm == '0') {
+        //     return redirect()->to(base_url())->with('error', 'Acceso denegado');
+        // }
+
+        // Buscar el archivo en la base de datos
+        $archivo = $this->informeArchivos->find($id_archivo);
+
+        if (!$archivo) {
+            log_message('error', "Archivo ID {$id_archivo} no encontrado en BD");
+            return redirect()->back()->with('error', 'Archivo no encontrado en base de datos');
+        }
+
+        // Construir la ruta física del archivo (normalizar para Windows)
+        $rutaRelativa = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $archivo['ruta_archivo']);
+        $rutaFisica = WRITEPATH . $rutaRelativa;
+
+        // Verificar que el archivo existe físicamente
+        if (!file_exists($rutaFisica)) {
+            log_message('error', "Archivo no encontrado en disco: {$rutaFisica}");
+            log_message('error', "WRITEPATH: " . WRITEPATH);
+            log_message('error', "Ruta BD: " . $archivo['ruta_archivo']);
+            log_message('error', "Ruta normalizada: " . $rutaRelativa);
+            return redirect()->back()->with('error', 'Archivo no encontrado en servidor');
+        }
+
+        // Verificar que el archivo es legible
+        if (!is_readable($rutaFisica)) {
+            log_message('error', "Archivo no legible: {$rutaFisica}");
+            return redirect()->back()->with('error', 'Archivo no legible');
+        }
+
+        // Registrar descarga
+        $fileSize = filesize($rutaFisica);
+        log_message('info', "Descarga iniciada - Usuario: {$this->session->id_usuario}, Archivo: {$id_archivo}, Nombre: {$archivo['nombre_original']}, Tamaño: {$fileSize} bytes");
+
+        @ini_set('memory_limit', '512M');
+        @ini_set('max_execution_time', '300');
+        @ini_set('output_buffering', 'Off');
+        @ini_set('zlib.output_compression', 'Off');
+        @ini_set('implicit_flush', '1');
+
+        // Limpiar TODOS los niveles de output buffering
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        // Deshabilitar compresión de Apache
+        if (function_exists('apache_setenv')) {
+            @apache_setenv('no-gzip', '1');
+        }
+
+        // Limpiar cualquier salida previa
+        if (ob_get_length()) {
+            ob_clean();
+        }
+
+        // Establecer headers HTTP
+        header_remove(); // Limpiar todos los headers previos
+        header('Content-Type: ' . ($archivo['mime_type'] ?? 'application/octet-stream'));
+        header('Content-Disposition: attachment; filename="' . $archivo['nombre_original'] . '"');
+        header('Content-Length: ' . $fileSize);
+        header('Content-Transfer-Encoding: binary');
+        header('Accept-Ranges: none');
+        header('Cache-Control: no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        header('Connection: close');
+
+        // Usar readfile() que es la forma más eficiente y directa
+        set_time_limit(0);
+
+        $bytesEnviados = @readfile($rutaFisica);
+
+        if ($bytesEnviados === false) {
+            log_message('error', "readfile() falló para: {$rutaFisica}");
+            exit('Error al leer el archivo');
+        }
+
+        log_message('info', "Descarga completada - Bytes enviados: {$bytesEnviados} de {$fileSize} esperados");
+
+        // Terminar la ejecución
+        exit();
+    }
 }

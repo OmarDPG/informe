@@ -41,6 +41,14 @@ $routes->get('/', 'Inicio::index');
 $routes->get('administrador/informe/descargar/(:num)', 'Administrador::descargarInforme/$1');
 $routes->get('administrador/glosa/descargar/(:num)', 'Administrador::descargarGlosa/$1');
 
+// Rutas para eliminar archivos de informe (POST)
+$routes->post('scii/eliminarArchivoInforme/(:num)', 'Scii::eliminarArchivoInforme/$1');
+$routes->post('Scii/eliminarArchivoInforme/(:num)', 'Scii::eliminarArchivoInforme/$1');
+
+// Rutas para eliminar archivos de glosa (POST)
+$routes->post('scii/eliminarArchivoGlosa/(:num)', 'Scii::eliminarArchivoGlosa/$1');
+$routes->post('Scii/eliminarArchivoGlosa/(:num)', 'Scii::eliminarArchivoGlosa/$1');
+
 
 /*
  * --------------------------------------------------------------------

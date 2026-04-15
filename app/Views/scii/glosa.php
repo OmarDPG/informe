@@ -331,12 +331,67 @@
                                         Archivos complementarios:
                                     </label>
 
+                                    <?php
+                                    // Agrupar archivos por tipo
+                                    $archivosPorTipo = [
+                                        'mapa' => [],
+                                        'grafico' => [],
+                                        'cuadro' => [],
+                                        'esquema' => [],
+                                        'fotografia' => [],
+                                        'resultados' => []
+                                    ];
+                                    
+                                    if (!empty($archivosGlosa) && is_array($archivosGlosa)) {
+                                        foreach ($archivosGlosa as $archivo) {
+                                            $tipo = $archivo['tipo_archivo'] ?? '';
+                                            if (isset($archivosPorTipo[$tipo])) {
+                                                $archivosPorTipo[$tipo][] = $archivo;
+                                            }
+                                        }
+                                    }
+                                    ?>
+
                                     <!-- Archivos Adjuntos -->
                                     <div class="grid grid-cols-6" style="gap:10px;" id="inputsFiles">
                                         <div>
                                             <label for="mapas" class="block mb-2 text-sm font-medium text-gray-700" style="text-align: center;">
                                                 Mapas <span class="text-gray-500 text-xs">(Excel)</span>
                                             </label>
+                                            
+                                            <?php if (!empty($archivosPorTipo['mapa'])): ?>
+                                                <div class="mb-3 space-y-2">
+                                                    <?php foreach ($archivosPorTipo['mapa'] as $archivo): ?>
+                                                        <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                                                            <div class="flex items-center space-x-2 flex-1 min-w-0">
+                                                                <svg class="h-5 w-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                                                </svg>
+                                                                <span class="text-xs text-gray-700 truncate" title="<?= esc($archivo['nombre_original']) ?>">
+                                                                    <?= esc($archivo['nombre_original']) ?>
+                                                                </span>
+                                                            </div>
+                                                            <div class="flex items-center space-x-1 ml-2">
+                                                                <a href="<?= base_url('administrador/descargarArchivoGlosa/' . $archivo['id_archivo']) ?>" 
+                                                                   class="text-green-600 hover:text-green-700" title="Descargar">
+                                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                                                    </svg>
+                                                                </a>
+                                                                <?php if (empty($glosaSeleccionada['estado']) || $glosaSeleccionada['estado'] === 'observado'): ?>
+                                                                    <button type="button" onclick="eliminarArchivoExistente(<?= $archivo['id_archivo'] ?>, this)" 
+                                                                            class="text-red-600 hover:text-red-700" title="Eliminar">
+                                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                                        </svg>
+                                                                    </button>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                            
                                             <div class="relative">
                                                 <input
                                                     <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
@@ -370,6 +425,40 @@
                                             <label for="graficas" class="block mb-2 text-sm font-medium text-gray-700" style="text-align: center;">
                                                 Graficas <span class="text-gray-500 text-xs">(Excel)</span>
                                             </label>
+                                            
+                                            <?php if (!empty($archivosPorTipo['grafico'])): ?>
+                                                <div class="mb-3 space-y-2">
+                                                    <?php foreach ($archivosPorTipo['grafico'] as $archivo): ?>
+                                                        <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                                                            <div class="flex items-center space-x-2 flex-1 min-w-0">
+                                                                <svg class="h-5 w-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                                                </svg>
+                                                                <span class="text-xs text-gray-700 truncate" title="<?= esc($archivo['nombre_original']) ?>">
+                                                                    <?= esc($archivo['nombre_original']) ?>
+                                                                </span>
+                                                            </div>
+                                                            <div class="flex items-center space-x-1 ml-2">
+                                                                <a href="<?= base_url('administrador/descargarArchivoGlosa/' . $archivo['id_archivo']) ?>" 
+                                                                   class="text-green-600 hover:text-green-700" title="Descargar">
+                                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                                                    </svg>
+                                                                </a>
+                                                                <?php if (empty($glosaSeleccionada['estado']) || $glosaSeleccionada['estado'] === 'observado'): ?>
+                                                                    <button type="button" onclick="eliminarArchivoExistente(<?= $archivo['id_archivo'] ?>, this)" 
+                                                                            class="text-red-600 hover:text-red-700" title="Eliminar">
+                                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                                        </svg>
+                                                                    </button>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                            
                                             <div class="relative">
                                                 <input
                                                     <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
@@ -403,6 +492,40 @@
                                             <label for="cuadros" class="block mb-2 text-sm font-medium text-gray-700" style="text-align: center;">
                                                 Cuadros <span class="text-gray-500 text-xs">(Excel)</span>
                                             </label>
+                                            
+                                            <?php if (!empty($archivosPorTipo['cuadro'])): ?>
+                                                <div class="mb-3 space-y-2">
+                                                    <?php foreach ($archivosPorTipo['cuadro'] as $archivo): ?>
+                                                        <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                                                            <div class="flex items-center space-x-2 flex-1 min-w-0">
+                                                                <svg class="h-5 w-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                                                </svg>
+                                                                <span class="text-xs text-gray-700 truncate" title="<?= esc($archivo['nombre_original']) ?>">
+                                                                    <?= esc($archivo['nombre_original']) ?>
+                                                                </span>
+                                                            </div>
+                                                            <div class="flex items-center space-x-1 ml-2">
+                                                                <a href="<?= base_url('administrador/descargarArchivoGlosa/' . $archivo['id_archivo']) ?>" 
+                                                                   class="text-green-600 hover:text-green-700" title="Descargar">
+                                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                                                    </svg>
+                                                                </a>
+                                                                <?php if (empty($glosaSeleccionada['estado']) || $glosaSeleccionada['estado'] === 'observado'): ?>
+                                                                    <button type="button" onclick="eliminarArchivoExistente(<?= $archivo['id_archivo'] ?>, this)" 
+                                                                            class="text-red-600 hover:text-red-700" title="Eliminar">
+                                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                                        </svg>
+                                                                    </button>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                            
                                             <div class="relative">
                                                 <input
                                                     <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
@@ -436,6 +559,40 @@
                                             <label for="esquemas" class="block mb-2 text-sm font-medium text-gray-700" style="text-align: center;">
                                                 Esquemas <span class="text-gray-500 text-xs">(PowerPoint)</span>
                                             </label>
+                                            
+                                            <?php if (!empty($archivosPorTipo['esquema'])): ?>
+                                                <div class="mb-3 space-y-2">
+                                                    <?php foreach ($archivosPorTipo['esquema'] as $archivo): ?>
+                                                        <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                                                            <div class="flex items-center space-x-2 flex-1 min-w-0">
+                                                                <svg class="h-5 w-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                                                </svg>
+                                                                <span class="text-xs text-gray-700 truncate" title="<?= esc($archivo['nombre_original']) ?>">
+                                                                    <?= esc($archivo['nombre_original']) ?>
+                                                                </span>
+                                                            </div>
+                                                            <div class="flex items-center space-x-1 ml-2">
+                                                                <a href="<?= base_url('administrador/descargarArchivoGlosa/' . $archivo['id_archivo']) ?>" 
+                                                                   class="text-green-600 hover:text-green-700" title="Descargar">
+                                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                                                    </svg>
+                                                                </a>
+                                                                <?php if (empty($glosaSeleccionada['estado']) || $glosaSeleccionada['estado'] === 'observado'): ?>
+                                                                    <button type="button" onclick="eliminarArchivoExistente(<?= $archivo['id_archivo'] ?>, this)" 
+                                                                            class="text-red-600 hover:text-red-700" title="Eliminar">
+                                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                                        </svg>
+                                                                    </button>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                            
                                             <div class="relative">
                                                 <input
                                                     <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
@@ -469,6 +626,40 @@
                                             <label for="fotografias" class="block mb-2 text-sm font-medium text-gray-700" style="text-align: center;">
                                                 Fotografias <span class="text-gray-500 text-xs">(ZIP, RAR)</span>
                                             </label>
+                                            
+                                            <?php if (!empty($archivosPorTipo['fotografia'])): ?>
+                                                <div class="mb-3 space-y-2">
+                                                    <?php foreach ($archivosPorTipo['fotografia'] as $archivo): ?>
+                                                        <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                                                            <div class="flex items-center space-x-2 flex-1 min-w-0">
+                                                                <svg class="h-5 w-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                                                </svg>
+                                                                <span class="text-xs text-gray-700 truncate" title="<?= esc($archivo['nombre_original']) ?>">
+                                                                    <?= esc($archivo['nombre_original']) ?>
+                                                                </span>
+                                                            </div>
+                                                            <div class="flex items-center space-x-1 ml-2">
+                                                                <a href="<?= base_url('administrador/descargarArchivoGlosa/' . $archivo['id_archivo']) ?>" 
+                                                                   class="text-green-600 hover:text-green-700" title="Descargar">
+                                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                                                    </svg>
+                                                                </a>
+                                                                <?php if (empty($glosaSeleccionada['estado']) || $glosaSeleccionada['estado'] === 'observado'): ?>
+                                                                    <button type="button" onclick="eliminarArchivoExistente(<?= $archivo['id_archivo'] ?>, this)" 
+                                                                            class="text-red-600 hover:text-red-700" title="Eliminar">
+                                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                                        </svg>
+                                                                    </button>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                            
                                             <div class="relative">
                                                 <input
                                                     <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
@@ -502,6 +693,40 @@
                                             <label for="resultados" class="block mb-2 text-sm font-medium text-gray-700" style="text-align: center;">
                                                 Resultados <span class="text-gray-500 text-xs">(Word)</span>
                                             </label>
+                                            
+                                            <?php if (!empty($archivosPorTipo['resultados'])): ?>
+                                                <div class="mb-3 space-y-2">
+                                                    <?php foreach ($archivosPorTipo['resultados'] as $archivo): ?>
+                                                        <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                                                            <div class="flex items-center space-x-2 flex-1 min-w-0">
+                                                                <svg class="h-5 w-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                                                </svg>
+                                                                <span class="text-xs text-gray-700 truncate" title="<?= esc($archivo['nombre_original']) ?>">
+                                                                    <?= esc($archivo['nombre_original']) ?>
+                                                                </span>
+                                                            </div>
+                                                            <div class="flex items-center space-x-1 ml-2">
+                                                                <a href="<?= base_url('administrador/descargarArchivoGlosa/' . $archivo['id_archivo']) ?>" 
+                                                                   class="text-green-600 hover:text-green-700" title="Descargar">
+                                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                                                    </svg>
+                                                                </a>
+                                                                <?php if (empty($glosaSeleccionada['estado']) || $glosaSeleccionada['estado'] === 'observado'): ?>
+                                                                    <button type="button" onclick="eliminarArchivoExistente(<?= $archivo['id_archivo'] ?>, this)" 
+                                                                            class="text-red-600 hover:text-red-700" title="Eliminar">
+                                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                                        </svg>
+                                                                    </button>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                            
                                             <div class="relative">
                                                 <input
                                                     <?= (!empty($glosaSeleccionada['estado']) && $glosaSeleccionada['estado'] !== 'observado') ? 'disabled' : '' ?>
@@ -1102,4 +1327,8 @@
 <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
 <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.datatables.net/buttons/2.3.2/js/dataTables.buttons.min.js" crossorigin="anonymous"></script>
+<script>
+    // Definir BASE_URL para uso en JavaScript
+    const BASE_URL = '<?php echo base_url(); ?>';
+</script>
 <script src="<?php echo base_url(); ?>/assets/js/glosa.js"></script>

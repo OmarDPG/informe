@@ -1,3 +1,68 @@
+// Función para eliminar archivos existentes (debe estar al inicio para onclick inline)
+function eliminarArchivoExistente(idArchivo, botonElemento) {
+    if (!confirm('¿Está seguro de que desea eliminar este archivo?')) {
+        return;
+    }
+
+    // Deshabilitar el botón mientras se procesa
+    botonElemento.disabled = true;
+    botonElemento.classList.add('opacity-50', 'cursor-not-allowed');
+
+    // Construir la URL correctamente usando BASE_URL si está disponible
+    const baseUrl = typeof BASE_URL !== 'undefined' ? BASE_URL : window.location.origin;
+    const url = `${baseUrl}/scii/eliminarArchivoInforme/${idArchivo}`;
+
+    // Hacer petición AJAX para eliminar el archivo
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        // Verificar si la respuesta es JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('La respuesta del servidor no es JSON. Verificar la ruta del endpoint.');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Eliminar visualmente el elemento del DOM
+            const archivoContainer = botonElemento.closest('.flex.items-center.justify-between');
+            if (archivoContainer) {
+                archivoContainer.style.transition = 'opacity 0.3s ease';
+                archivoContainer.style.opacity = '0';
+                setTimeout(() => {
+                    archivoContainer.remove();
+                    
+                    // Si ya no hay archivos en la categoría, ocultar el contenedor
+                    const parentContainer = botonElemento.closest('.mb-3.space-y-2');
+                    if (parentContainer && parentContainer.querySelectorAll('.flex.items-center.justify-between').length === 0) {
+                        parentContainer.remove();
+                    }
+                }, 300);
+            }
+            
+            // Mostrar mensaje de éxito
+            alert(data.message || 'Archivo eliminado exitosamente');
+        } else {
+            // Mostrar mensaje de error
+            alert(data.message || 'Error al eliminar el archivo');
+            botonElemento.disabled = false;
+            botonElemento.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al eliminar el archivo. Por favor, intente de nuevo.');
+        botonElemento.disabled = false;
+        botonElemento.classList.remove('opacity-50', 'cursor-not-allowed');
+    });
+}
+
 // Función para obtener el contenedor de lista según el input
 function getFileListForInput(input) {
     if (!input || !input.id) {
